@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sistem Informasi Kelurahan Digital</title>
+    
+    <!-- Pustaka Eksternal -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.0.0/firebase-auth-compat.js"></script>
+
+    <!-- KONFIGURASI TAILWIND MODERN -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#1e3a8a', secondary: '#3b82f6', accent: '#10b981', dark: '#111827', light: '#f3f4f6' },
+                    fontFamily: { sans: ['Nunito', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+        body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2937; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+        .fade-enter-from, .fade-leave-to { opacity: 0; }
+        .no-select { user-select: none; -webkit-user-select: none; }
+        @keyframes blinkRed {
+            0% { background-color: #fee2e2; border-color: #ef4444; }
+            50% { background-color: #fef2f2; border-color: #f87171; }
+            100% { background-color: #fee2e2; border-color: #ef4444; }
+        }
+        .blink-danger { animation: blinkRed 1s infinite; }
+        .form-section { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Animasi Crossfade untuk 2 Foto UMKM */
+        @keyframes crossfade {
+            0%, 45% { opacity: 1; z-index: 10; }
+            50%, 95% { opacity: 0; z-index: 1; }
+            100% { opacity: 1; z-index: 10; }
+        }
+        .animate-foto-1 { animation: crossfade 6s infinite; }
+        .animate-foto-2 { animation: crossfade 6s infinite; animation-delay: 3s; opacity: 0; }
+    </style>
+
+    <!-- KEAMANAN FRONTEND -->
+    <script>
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) return false;
+        };
+        let devtools = function() {}; devtools.toString = function() { return ''; }; console.log('%c', devtools);
+    </script>
+</head>
+
+<body class="antialiased overflow-x-hidden">
+    <div id="app" v-cloak>
+        <!-- TOAST NOTIFICATION -->
+        <Transition name="fade">
+            <div v-if="notification.show" :class="['fixed top-5 right-5 z-[999] px-6 py-3 rounded-lg shadow-lg text-white font-semibold flex items-center gap-3 transition-all', notification.type === 'success' ? 'bg-green-500' : 'bg-red-500']">
+                <i :class="notification.type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'"></i> {{ notification.message }}
+            </div>
+        </Transition>
+
+        <!-- LOADING -->
+        <div v-if="globalLoading" class="fixed inset-0 bg-black bg-opacity-60 z-[999] flex flex-col items-center justify-center text-white backdrop-blur-sm">
+            <i class="fas fa-spinner fa-spin text-5xl mb-4 text-blue-400"></i>
+            <h2 class="text-xl font-bold">Memproses Data...</h2>
+        </div>
+
+        <!-- ==============================================
+             LANDING PAGE (TAMPILAN AWAL SEBELUM LOGIN)
+             ============================================== -->
+        <div v-if="!isLoggedIn && currentAuthView === 'landing'" class="min-h-screen bg-gray-50 flex flex-col font-sans absolute inset-0 z-40 overflow-y-auto">
+            <nav class="backdrop-blur-md shadow-sm px-6 py-4 flex justify-between items-center fixed w-full z-50 border-b border-gray-100" :style="{ backgroundColor: landingSettings.headerBg + 'E6' }">
+                <div class="flex items-center gap-4">
+                    <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" alt="Logo Kota" class="w-12 h-12 object-contain drop-shadow-md bg-white/50 rounded-full p-1">
+                    <img v-else src="https://via.placeholder.com/150?text=[Logo]" alt="Logo Kota" class="w-12 h-12 object-contain drop-shadow-md rounded-full">
+                    <div>
+                        <h1 class="font-black text-xl leading-tight uppercase tracking-wide" :class="landingSettings.headerBg.toLowerCase() === '#ffffff' ? 'text-primary' : 'text-white'">{{ landingSettings.headerText }}</h1>
+                        <p class="text-[10px] font-bold uppercase tracking-widest" :class="landingSettings.headerBg.toLowerCase() === '#ffffff' ? 'text-gray-500' : 'text-gray-200'">{{ appSettings.portalName || 'Portal Kelurahan Digital' }}</p>
+                    </div>
+                </div>
+                <div>
+                    <button @click="currentAuthView = 'auth'" class="bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white px-6 py-2.5 rounded-full font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2 border border-white/20">
+                        <i class="fas fa-sign-in-alt"></i> Masuk / Daftar
+                    </button>
+                </div>
+            </nav>
+
+            <div class="mt-28 px-6 py-12 max-w-7xl mx-auto w-full">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black text-gray-800 mb-4 tracking-tight">{{ landingSettings.portalTitle }}</h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto font-medium">{{ landingSettings.portalDesc }}</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                    <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-blue-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
+                        <img :src="landingSettings.walikota.img" alt="Foto Walikota" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100">
+                        <div class="z-10 text-center md:text-left">
+                            <h3 class="font-black text-2xl text-gray-800">{{ landingSettings.walikota.nama }}</h3>
+                            <p class="text-xs font-black uppercase tracking-widest text-primary mb-4 bg-blue-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.walikota.jabatan }}</p>
+                            <p class="text-gray-600 text-sm italic font-medium leading-relaxed">{{ landingSettings.walikota.sambutan }}</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-emerald-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
+                        <img :src="landingSettings.wakil.img" alt="Foto Wakil Walikota" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100">
+                        <div class="z-10 text-center md:text-left">
+                            <h3 class="font-black text-2xl text-gray-800">{{ landingSettings.wakil.nama }}</h3>
+                            <p class="text-xs font-black uppercase tracking-widest text-emerald-600 mb-4 bg-emerald-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.wakil.jabatan }}</p>
+                            <p class="text-gray-600 text-sm italic font-medium leading-relaxed">{{ landingSettings.wakil.sambutan }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-br from-blue-900 via-primary to-blue-800 rounded-[2.5rem] p-10 shadow-2xl text-white flex flex-col md:flex-row items-center gap-10 mb-16 relative overflow-hidden">
+                    <div class="absolute -top-24 -right-24 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
+                    <img :src="landingSettings.lurah.img" alt="Foto Lurah" class="w-48 h-48 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100">
+                    <div class="text-center md:text-left">
+                        <h3 class="font-black text-3xl mb-1">{{ landingSettings.lurah.nama }}</h3>
+                        <p class="text-blue-200 font-bold mb-6 uppercase tracking-widest text-sm">{{ landingSettings.lurah.jabatan }}</p>
+                        <p class="text-gray-100 text-lg italic leading-relaxed font-medium">{{ landingSettings.lurah.sambutan }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="activePolling.pertanyaan" class="max-w-4xl mx-auto w-full px-6 mb-16">
+                <div class="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-200">
+                    <div class="flex items-center gap-4 mb-6 border-b pb-4">
+                        <div class="w-12 h-12 bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-2xl"><i class="fas fa-poll"></i></div>
+                        <div>
+                            <h3 class="font-black text-2xl text-gray-800">Bilik Polling Warga</h3>
+                            <p class="text-sm text-gray-500">Suara Anda menentukan arah kebijakan lingkungan.</p>
+                        </div>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-6">Pertanyaan: {{ activePolling.pertanyaan }}</h4>
+                    <div class="space-y-3">
+                        <div v-for="(pilihan, index) in activePolling.pilihan" :key="index">
+                            <button v-if="pilihan" @click="showToast('Silakan Masuk/Daftar terlebih dahulu untuk memberikan suara.', 'error')" class="w-full text-left bg-gray-50 hover:bg-blue-50 border hover:border-blue-300 transition-colors p-4 rounded-xl font-bold text-gray-700 flex justify-between items-center group">
+                                <span>{{ pilihan }}</span>
+                                <i class="fas fa-chevron-right text-gray-300 group-hover:text-primary transition-colors"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white py-16 border-t border-gray-100">
+                <div class="max-w-7xl mx-auto px-6 w-full">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                        
+                        <div>
+                            <h3 class="text-2xl font-black text-gray-800 mb-6 flex items-center gap-3"><i class="fas fa-newspaper text-primary"></i> Info Terkini</h3>
+                            <div class="space-y-6">
+                                <div v-for="berita in beritaList.slice(0,3)" :key="berita.id" class="group cursor-pointer">
+                                    <div class="rounded-xl overflow-hidden mb-3">
+                                        <img :src="berita.img" :alt="berita.title" class="w-full h-32 object-cover group-hover:scale-105 transition duration-500">
+                                    </div>
+                                    <span class="text-[10px] font-bold text-gray-400"><i class="far fa-calendar-alt"></i> {{ berita.date }}</span>
+                                    <h4 class="font-bold text-gray-800 text-sm leading-snug group-hover:text-primary transition mt-1">{{ berita.title }}</h4>
+                                    <p class="text-xs text-gray-500 line-clamp-2 mt-1">{{ berita.excerpt }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-2xl font-black text-gray-800 mb-6 flex items-center gap-3"><i class="fas fa-calendar-alt text-amber-500"></i> Agenda Kegiatan</h3>
+                            <div class="space-y-4">
+                                <div v-for="a in listAgenda.slice(0, 5)" :key="a.id" class="flex gap-4 items-start p-3 bg-gray-50 border border-gray-100 rounded-xl hover:shadow-md transition">
+                                    <div class="bg-amber-100 text-amber-600 rounded-lg p-2 text-center min-w-[55px]">
+                                        <p class="text-[9px] font-bold uppercase">{{ new Date(a.tanggal).toLocaleString('id-ID', {month:'short'}) }}</p>
+                                        <p class="text-lg font-black leading-none">{{ new Date(a.tanggal).getDate() }}</p>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-sm text-gray-800 leading-tight">{{ a.jenis }}</h4>
+                                        <p class="text-xs text-gray-500 mt-1 line-clamp-2">{{ a.detail }}</p>
+                                    </div>
+                                </div>
+                                <div v-if="listAgenda.length === 0" class="p-5 text-center border-2 border-dashed rounded-xl text-gray-400 text-sm">Belum ada agenda terbaru.</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-2xl font-black text-gray-800 mb-6 flex items-center gap-3"><i class="fas fa-bullhorn text-emerald-500"></i> Pengumuman</h3>
+                            <div class="space-y-4">
+                                <div v-for="ann in announcements.slice(0,5)" :key="ann.id" class="p-4 bg-emerald-50 border border-emerald-100 rounded-xl relative">
+                                    <p class="text-sm font-semibold text-emerald-900">{{ ann.text }}</p>
+                                    <p class="text-[10px] text-emerald-600 mt-2 font-bold"><i class="fas fa-user-edit mr-1"></i> {{ ann.author }}</p>
+                                </div>
+                                <div v-if="announcements.length === 0" class="p-5 text-center border-2 border-dashed rounded-xl text-gray-400 text-sm">Belum ada pengumuman hari ini.</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-50 py-16">
+                <div class="max-w-7xl mx-auto px-6 w-full">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-10 gap-4">
+                        <div>
+                            <h2 class="text-3xl font-black text-gray-800 flex items-center gap-3"><i class="fas fa-store text-emerald-500"></i> Lapak UMKM Warga</h2>
+                            <p class="text-gray-500 mt-2 font-medium">Mari dukung pertumbuhan ekonomi lokal dari tetangga kita sendiri yang dikelompokkan berdasarkan wilayah RT/RW.</p>
+                        </div>
+                    </div>
+
+                    <div v-if="groupedUMKMLanding.length === 0" class="text-center py-10 text-gray-500 border-2 border-dashed rounded-2xl bg-white">Belum ada Lapak UMKM Warga yang terdaftar.</div>
+
+                    <div class="space-y-10">
+                        <div v-for="group in groupedUMKMLanding" :key="group.wilayah" class="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden">
+                            <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 px-6 py-4 flex items-center justify-between text-white">
+                                <h3 class="font-black text-lg tracking-wide"><i class="fas fa-map-marked-alt mr-2 text-emerald-300"></i> Wilayah {{ group.wilayah }}</h3>
+                                <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold shadow-inner">{{ group.items.length }} Lapak Aktif</span>
+                            </div>
+                            
+                            <div class="p-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    <div v-for="umkm in group.items" :key="umkm.id" class="border border-gray-100 rounded-2xl p-4 bg-gray-50 shadow-sm hover:shadow-xl hover:-translate-y-1 transition duration-300 group">
+                                        <div class="relative w-full h-44 rounded-xl overflow-hidden mb-4 bg-white border border-gray-100">
+                                            <img v-if="umkm.foto1" :src="umkm.foto1" class="absolute inset-0 w-full h-full object-cover animate-foto-1">
+                                            <img v-if="umkm.foto2" :src="umkm.foto2" class="absolute inset-0 w-full h-full object-cover animate-foto-2">
+                                            <div v-if="!umkm.foto1 && !umkm.foto2" class="absolute inset-0 flex items-center justify-center text-gray-400"><i class="fas fa-image text-3xl"></i></div>
+                                            <span class="absolute top-2 right-2 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow z-20">{{ umkm.jenis }}</span>
+                                        </div>
+                                        <h4 class="font-black text-gray-800 text-base truncate">{{ umkm.namaUsaha }}</h4>
+                                        <p class="text-[10px] text-gray-500 mt-1 font-bold"><i class="fas fa-clock text-amber-500 mr-1"></i> Buka: {{ umkm.jamBuka }} - {{ umkm.jamTutup }}</p>
+                                        <p class="text-[10px] text-gray-500 mt-0.5 font-bold"><i class="fas fa-user-circle text-blue-400 mr-1"></i> Pemilik: {{ umkm.pemilik }}</p>
+                                        <p class="text-xs text-gray-500 mt-1.5 font-medium truncate"><i class="fas fa-map-marker-alt text-gray-400 mr-1.5"></i>{{ umkm.alamat }}</p>
+                                        <div class="mt-4 pt-3 border-t border-gray-200 flex justify-between items-center">
+                                            <p class="text-primary font-black text-sm">Rp {{ Number(umkm.harga).toLocaleString('id-ID') }}</p>
+                                            <a :href="'https://wa.me/' + umkm.wa" target="_blank" class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center hover:bg-green-500 hover:text-white transition shadow-sm" title="Hubungi via WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="py-10 text-center text-sm mt-auto border-t border-black/10" :style="{ backgroundColor: landingSettings.footerBg, color: '#9ca3af' }">
+                <div class="flex items-center justify-center gap-3 mb-4 opacity-50">
+                    <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" class="w-8 h-8 grayscale brightness-200">
+                    <i v-else class="fas fa-shield-alt text-2xl"></i>
+                    <h2 class="font-bold text-white tracking-widest uppercase">{{ landingSettings.footerText }}</h2>
+                </div>
+                <p>&copy; {{ new Date().getFullYear() }} Portal Layanan Masyarakat - Kelurahan Digital Terpadu.</p>
+                <p class="mt-1 text-xs opacity-50">Sistem ini dikembangkan secara aman dan diawasi oleh Admin Kelurahan.</p>
+            </footer>
+        </div>
+
+        <!-- ==============================================
+             LOGIN & REGISTER (TETAP SAMA - TIDAK DIUBAH)
+             ============================================== -->
+        <div v-if="!isLoggedIn && currentAuthView === 'auth'" class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 absolute inset-0 z-50 overflow-hidden">
+            <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+
+            <div :class="['bg-white/90 backdrop-blur-lg p-8 rounded-3xl shadow-2xl border border-white/40 z-10 relative overflow-y-auto scrollbar-hide', isRegistering ? 'w-full max-w-4xl h-[90vh]' : 'w-full max-w-md']">
+                
+                <button @click="currentAuthView = 'landing'" class="absolute top-6 left-6 text-gray-400 hover:text-gray-800 transition flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 shadow-sm" title="Kembali ke Beranda">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+
+                <div class="text-center mb-6 mt-4">
+                    <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" alt="Logo" class="w-20 h-20 mx-auto mb-4 rounded-full object-cover shadow-lg bg-white p-1">
+                    <div v-else class="w-20 h-20 bg-primary text-white rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg"><i class="fas fa-shield-alt"></i></div>
+                    <h2 class="text-3xl font-black text-gray-800">{{ appSettings.portalName || 'Kelurahan Digital' }}</h2>
+                    <p class="text-gray-500 text-sm mt-1">Sistem Layanan Mandiri Warga Terpadu</p>
+                </div>
+
+                <form v-if="!isRegistering" @submit.prevent="handleLogin" class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Username / NIK</label>
+                        <div class="relative">
+                            <i class="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" v-model="loginForm.email" required placeholder="Masukkan Username/NIK" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Password</label>
+                        <div class="relative">
+                            <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input :type="showLoginPassword ? 'text' : 'password'" v-model="loginForm.password" required placeholder="••••••••" class="w-full pl-11 pr-10 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary outline-none">
+                            <button type="button" @click="showLoginPassword = !showLoginPassword" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"><i :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all">Masuk Sistem <i class="fas fa-arrow-right ml-2"></i></button>
+                    <p class="text-center text-sm text-gray-600 mt-4">Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; regStep = 1" class="text-primary font-bold hover:underline">Daftar Akun Warga</a></p>
+                </form>
+
+                <form v-if="isRegistering" @submit.prevent="handleRegister" class="space-y-4">
+                    <div class="flex items-center justify-between mb-6 border-b pb-4">
+                        <div v-for="step in 5" :key="step" :class="['flex-1 text-center text-xs font-bold py-2 border-b-4 transition-colors', regStep >= step ? 'border-primary text-primary' : 'border-gray-200 text-gray-400']">
+                            Tahap {{ step }}
+                        </div>
+                    </div>
+
+                    <div v-if="regStep === 1" class="form-section space-y-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-id-card mr-2"></i>Data Pribadi & Kontak</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-bold mb-1">NIK</label><input type="number" v-model="reg.nik" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                            <div><label class="block text-xs font-bold mb-1">No KK</label><input type="number" v-model="reg.nokk" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Nama Lengkap KTP</label><input type="text" v-model="reg.nama" required class="w-full border p-2 rounded text-sm"></div>
+                            <div><label class="block text-xs font-bold mb-1">Tempat Lahir</label><input type="text" v-model="reg.tempat_lahir" required class="w-full border p-2 rounded text-sm"></div>
+                            <div><label class="block text-xs font-bold mb-1">Tanggal Lahir</label><input type="date" v-model="reg.tgl_lahir" required class="w-full border p-2 rounded text-sm"></div>
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Jenis Kelamin</label>
+                                <select v-model="reg.kelamin" required class="w-full border p-2 rounded text-sm">
+                                    <option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-xs font-bold mb-1">Asal Suku</label><input type="text" v-model="reg.suku" required class="w-full border p-2 rounded text-sm"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Alamat Lengkap</label><textarea v-model="reg.alamat" rows="2" required class="w-full border p-2 rounded text-sm"></textarea></div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="block text-xs font-bold mb-1">RT</label><input type="text" v-model="reg.rt" required class="w-full border p-2 rounded text-sm"></div>
+                                <div><label class="block text-xs font-bold mb-1">RW</label><input type="text" v-model="reg.rw" required class="w-full border p-2 rounded text-sm"></div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="block text-xs font-bold mb-1">No HP Utama</label><input type="number" v-model="reg.hp1" required class="w-full border p-2 rounded text-sm"></div>
+                                <div><label class="block text-xs font-bold mb-1">No HP Cadangan</label><input type="number" v-model="reg.hp2" class="w-full border p-2 rounded text-sm"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="regStep === 2" class="form-section space-y-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-users mr-2"></i>Status Keluarga & Pendidikan</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Status di Keluarga</label>
+                                <select v-model="reg.status_keluarga" required class="w-full border p-2 rounded text-sm">
+                                    <option value="Kepala Keluarga">Kepala Keluarga</option><option value="Suami">Suami</option><option value="Istri">Istri</option>
+                                    <option value="Anak">Anak</option><option value="Orang Tua">Orang Tua</option><option value="Mertua">Mertua</option><option value="Famili Lain">Famili Lain</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Status Pernikahan</label>
+                                <select v-model="reg.status_nikah" required class="w-full border p-2 rounded text-sm">
+                                    <option value="Belum Menikah">Belum Menikah</option><option value="Menikah">Menikah</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option>
+                                </select>
+                            </div>
+                            <div><label class="block text-xs font-bold mb-1">Jml Anggota KK</label><input type="number" v-model="reg.jml_kk" required class="w-full border p-2 rounded text-sm"></div>
+                            <div><label class="block text-xs font-bold mb-1">Jml Tinggal Serumah</label><input type="number" v-model="reg.jml_rumah" required class="w-full border p-2 rounded text-sm"></div>
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Status Kepemilikan Rumah</label>
+                                <select v-model="reg.status_rumah" required class="w-full border p-2 rounded text-sm">
+                                    <option value="Milik Sendiri">Milik Sendiri</option><option value="Kontrak">Kontrak</option><option value="Kos">Kos</option><option value="Menumpang">Menumpang</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Pendidikan Terakhir</label>
+                                <select v-model="reg.pendidikan" required class="w-full border p-2 rounded text-sm">
+                                    <option value="Tidak Sekolah">Tidak Sekolah</option><option value="SD">SD</option><option value="SMP">SMP</option><option value="SMA/SMK">SMA/SMK</option><option value="Diploma">Diploma</option><option value="Sarjana">Sarjana</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Kondisi Khusus (Opsional)</label>
+                                <select v-model="reg.kondisi_khusus" class="w-full border p-2 rounded text-sm">
+                                    <option value="Tidak Ada">Tidak Ada</option><option value="Disabilitas">Disabilitas</option><option value="Penyakit Kronis">Penyakit Kronis</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="regStep === 3" class="form-section space-y-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-heartbeat mr-2"></i>Data Kesehatan</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Status Kesehatan Dasar</label>
+                                <select v-model="reg.sehat_status" class="w-full border p-2 rounded text-sm">
+                                    <option value="Sehat">Sehat</option><option value="Sakit">Sakit</option><option value="Sakit Kronis">Sakit Kronis</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2">
+                                <div><label class="block text-xs font-bold mb-1">Gol. Darah</label><select v-model="reg.gol_darah" class="w-full border p-2 rounded text-sm"><option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div>
+                                <div><label class="block text-xs font-bold mb-1">TB (cm)</label><input type="number" v-model="reg.tb" class="w-full border p-2 rounded text-sm"></div>
+                                <div><label class="block text-xs font-bold mb-1">BB (kg)</label><input type="number" v-model="reg.bb" class="w-full border p-2 rounded text-sm"></div>
+                            </div>
+                            <div class="md:col-span-2 border-t pt-4 mt-2">
+                                <label class="block text-xs font-bold mb-2">Pilih Data Kesehatan Spesifik (Bila Ada)</label>
+                                <select v-model="reg.kesehatan_tipe" class="w-full border p-2 rounded text-sm bg-blue-50">
+                                    <option value="Umum">Hanya Umum / Tidak Ada</option>
+                                    <option value="Balita">Khusus Balita / Anak</option>
+                                    <option value="Ibu Hamil">Khusus Ibu Hamil</option>
+                                    <option value="Lansia">Khusus Lansia</option>
+                                </select>
+                            </div>
+                            
+                            <template v-if="reg.kesehatan_tipe === 'Balita'">
+                                <div><label class="block text-xs font-bold mb-1">Status Imunisasi</label><select v-model="reg.balita_imunisasi" class="w-full border p-2 rounded text-sm"><option value="Lengkap">Lengkap</option><option value="Belum Lengkap">Belum Lengkap</option></select></div>
+                                <div><label class="block text-xs font-bold mb-1">Status Gizi</label><select v-model="reg.balita_gizi" class="w-full border p-2 rounded text-sm"><option value="Baik">Baik</option><option value="Kurang">Kurang</option><option value="Buruk">Buruk</option></select></div>
+                            </template>
+                            <template v-if="reg.kesehatan_tipe === 'Ibu Hamil'">
+                                <div><label class="block text-xs font-bold mb-1">Usia Kehamilan (Bulan)</label><input type="number" v-model="reg.hamil_usia" class="w-full border p-2 rounded text-sm"></div>
+                                <div><label class="block text-xs font-bold mb-1">Risiko Tinggi?</label><select v-model="reg.hamil_risiko" class="w-full border p-2 rounded text-sm"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div>
+                            </template>
+                            <template v-if="reg.kesehatan_tipe === 'Lansia'">
+                                <div><label class="block text-xs font-bold mb-1">Penyakit Umum</label><input type="text" v-model="reg.lansia_sakit" class="w-full border p-2 rounded text-sm"></div>
+                                <div><label class="block text-xs font-bold mb-1">Kebutuhan Bantuan</label><select v-model="reg.lansia_bantuan" class="w-full border p-2 rounded text-sm"><option value="Mandiri">Mandiri</option><option value="Perlu Bantuan">Perlu Bantuan Orang Lain</option></select></div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <div v-if="regStep === 4" class="form-section space-y-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-briefcase mr-2"></i>Pekerjaan, Penghasilan & Usaha</h3>
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Rentang Penghasilan / Bulan</label>
+                                <select v-model="reg.penghasilan" class="w-full border p-2 rounded text-sm">
+                                    <option value="< 1 juta">< 1 juta</option><option value="1 - 3 juta">1 - 3 juta</option><option value="3 - 5 juta">3 - 5 juta</option><option value="> 5 juta">> 5 juta</option>
+                                </select>
+                            </div>
+                            
+                            <div class="p-4 border rounded-xl bg-gray-50">
+                                <label class="block text-sm font-bold text-primary mb-2">Pilih Pekerjaan Utama</label>
+                                <select v-model="reg.pekerjaan" class="w-full border border-gray-300 p-2.5 rounded-lg text-sm bg-white font-semibold">
+                                    <option value="">-- Pilih Pekerjaan --</option>
+                                    <optgroup v-for="(group, key) in jobCategories" :key="key" :label="key">
+                                        <option v-for="job in group" :key="job" :value="job">{{ job }}</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+
+                            <div class="p-4 border rounded-xl bg-gray-50">
+                                <label class="block text-sm font-bold text-primary mb-2">Apakah Anda Memiliki Usaha/UMKM?</label>
+                                <select v-model="reg.usaha" class="w-full border border-gray-300 p-2.5 rounded-lg text-sm bg-white font-semibold mb-3">
+                                    <option value="Tidak Ada">Tidak Memiliki Usaha</option>
+                                    <optgroup v-for="(group, key) in businessCategories" :key="key" :label="key">
+                                        <option v-for="biz in group" :key="biz" :value="biz">{{ biz }}</option>
+                                    </optgroup>
+                                </select>
+
+                                <div v-if="['Kos-kosan','Penginapan / Homestay','Asrama','Kontrakan','Sewa Ruko'].includes(reg.usaha)" class="grid grid-cols-3 gap-2 mt-2 p-3 bg-blue-100 rounded-lg">
+                                    <div class="col-span-3 text-xs font-bold text-blue-800 mb-1">Data Properti Sewa:</div>
+                                    <div><label class="block text-[10px] font-bold">Total Kamar</label><input type="number" v-model="reg.kamar_total" class="w-full border p-1.5 rounded text-sm"></div>
+                                    <div><label class="block text-[10px] font-bold">Terisi</label><input type="number" v-model="reg.kamar_terisi" @input="kalkulasiKamar" class="w-full border p-1.5 rounded text-sm"></div>
+                                    <div><label class="block text-[10px] font-bold">Kosong</label><input type="number" v-model="reg.kamar_kosong" readonly class="w-full border p-1.5 rounded text-sm bg-gray-200"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="regStep === 5" class="form-section space-y-4">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-lock mr-2"></i>Kredensial Login Aplikasi</h3>
+                        <div><label class="block text-xs font-bold mb-1">Email (Untuk Pemulihan Akun)</label><input type="email" v-model="reg.email" required class="w-full border p-3 rounded-lg text-sm bg-gray-50"></div>
+                        <div><label class="block text-xs font-bold mb-1">Username Login</label><input type="text" v-model="reg.username" required class="w-full border p-3 rounded-lg text-sm bg-gray-50"></div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Password</label>
+                                <div class="relative">
+                                    <input :type="showRegPassword ? 'text' : 'password'" v-model="reg.password" required class="w-full border p-3 pr-10 rounded-lg text-sm">
+                                    <button type="button" @click="showRegPassword = !showRegPassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"><i :class="showRegPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Ulangi Password</label>
+                                <div class="relative">
+                                    <input :type="showRegRepeatPassword ? 'text' : 'password'" v-model="reg.repeatPassword" required class="w-full border p-3 pr-10 rounded-lg text-sm">
+                                    <button type="button" @click="showRegRepeatPassword = !showRegRepeatPassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"><i :class="showRegRepeatPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 text-blue-800 p-3 rounded-lg text-xs font-bold mt-4">
+                            <i class="fas fa-info-circle mr-1"></i> Data Anda akan diamankan. Laporan statistik otomatis akan dihasilkan dari form ini.
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mt-6 pt-4 border-t">
+                        <button type="button" v-if="regStep > 1" @click="regStep--" class="px-5 py-2.5 bg-gray-200 text-gray-700 font-bold rounded-lg shadow hover:bg-gray-300">Kembali</button>
+                        <div v-else></div> <button type="button" v-if="regStep < 5" @click="regStep++" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700">Selanjutnya</button>
+                        <button type="submit" v-if="regStep === 5" class="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-lg shadow hover:bg-emerald-700">Simpan & Daftarkan</button>
+                    </div>
+
+                    <p class="text-center text-sm text-gray-500 mt-4">Sudah punya akun? <a href="#" @click.prevent="isRegistering = false" class="text-primary font-bold hover:underline">Masuk di sini</a></p>
+                </form>
+            </div>
+        </div>
+
+        <div v-if="isLoggedIn" class="flex h-screen overflow-hidden">
+            
+            <aside :class="['bg-primary text-white w-64 flex-shrink-0 transition-transform duration-300 ease-in-out fixed md:relative z-40 h-full', sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']">
+                <div class="p-5 border-b border-blue-800 flex justify-between items-center bg-blue-950">
+                    <div class="flex items-center gap-3">
+                        <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" alt="Logo" class="w-10 h-10 rounded-full object-cover bg-white p-1">
+                        <i v-else class="fas fa-shield-alt text-2xl text-blue-300"></i>
+                        <h1 class="font-bold text-base leading-tight truncate">{{ appSettings.portalName || 'Sistem Digital' }}</h1>
+                    </div>
+                    <button @click="sidebarOpen = false" class="md:hidden text-gray-300 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                </div>
+                
+                <nav class="p-4 space-y-1 overflow-y-auto h-[calc(100vh-80px)] scrollbar-hide">
+                    
+                    <div v-if="currentUser.role === 'babinsa'">
+                        <p class="text-[10px] text-green-300 uppercase tracking-wider mb-2 mt-2 font-bold px-2">Menu Keamanan & Ketertiban</p>
+                        <a href="#" @click.prevent="switchMenu('laporan')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'laporan' ? 'bg-red-600 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-shield-alt w-5 text-center"></i> Monitoring Pengaduan
+                        </a>
+                    </div>
+
+                    <div v-if="currentUser.role === 'admin_kelurahan'" class="space-y-1 mb-4">
+                        <button @click="adminDropdown = !adminDropdown" class="w-full flex items-center justify-between px-3 py-3 bg-amber-600 rounded-lg text-white font-bold text-sm shadow transition-all hover:bg-amber-700">
+                            <span><i class="fas fa-th-large w-5 text-center"></i> Menu Administrator</span>
+                            <i :class="adminDropdown ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
+                        </button>
+                        <div v-show="adminDropdown" class="pl-2 space-y-1 mt-2 border-l-2 border-amber-300 ml-3">
+                            <a href="#" @click.prevent="switchMenu('dashboard')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'dashboard' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">1. Dashboard Induk</a>
+                            <a href="#" @click.prevent="switchMenu('kependudukan')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'kependudukan' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">2. Kependudukan</a>
+                            <a href="#" @click.prevent="switchMenu('statistik-warga')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'statistik-warga' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">3. Statistik Warga</a>
+                            <a href="#" @click.prevent="switchMenu('statistik-pekerjaan')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'statistik-pekerjaan' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">4. Statistik Pekerjaan</a>
+                            <a href="#" @click.prevent="switchMenu('status-usaha')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'status-usaha' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">5. Status Usaha</a>
+                            <a href="#" @click.prevent="switchMenu('surat')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'surat' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">6. E-Surat Online</a>
+                            <a href="#" @click.prevent="switchMenu('bansos')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'bansos' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">7. Bansos</a>
+                            <a href="#" @click.prevent="switchMenu('tamu')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'tamu' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">8. Lapor Tamu</a>
+                            <a href="#" @click.prevent="switchMenu('laporan')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'laporan' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">9. Monitoring Pengaduan</a>
+                            <a href="#" @click.prevent="switchMenu('kas')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'kas' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">10. Kas Lingkungan</a>
+                            <a href="#" @click.prevent="switchMenu('agenda')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'agenda' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">11. Agenda</a>
+                            <a href="#" @click.prevent="switchMenu('polling')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'polling' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">12. Polling</a>
+                            <a href="#" @click.prevent="switchMenu('administrasi')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'administrasi' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">13. Administrasi</a>
+                            <a href="#" @click.prevent="switchMenu('umkm')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'umkm' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">14. Lapak UMKM Warga</a>
+                            <a href="#" @click.prevent="switchMenu('tampilan-depan')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'tampilan-depan' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">15. Pengaturan Tampilan Depan</a>
+                        </div>
+                    </div>
+
+                    <div v-if="!['admin_kelurahan', 'babinsa'].includes(currentUser.role)">
+                        <p class="text-[10px] text-blue-300 uppercase tracking-wider mb-2 mt-2 font-bold px-2">Menu Utama Warga</p>
+                        
+                        <a href="#" @click.prevent="switchMenu('dashboard')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'dashboard' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-home w-5 text-center"></i> Dashboard
+                        </a>
+                        
+                        <a href="#" @click.prevent="switchMenu('surat')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'surat' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-envelope-open-text w-5 text-center"></i> E-Surat Layanan
+                        </a>
+
+                        <a href="#" @click.prevent="switchMenu('laporan')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'laporan' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-exclamation-triangle w-5 text-center"></i> Keluhan & Pengaduan
+                        </a>
+
+                        <a href="#" @click.prevent="switchMenu('bansos')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'bansos' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-hand-holding-heart w-5 text-center"></i> Pengajuan Bansos
+                        </a>
+
+                        <a href="#" @click.prevent="switchMenu('tamu')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'tamu' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-door-open w-5 text-center"></i> Lapor Tamu 1x24 Jam
+                        </a>
+
+                        <a href="#" @click.prevent="switchMenu('umkm')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'umkm' ? 'bg-emerald-600 text-white shadow' : 'text-emerald-300 hover:bg-blue-800']">
+                            <i class="fas fa-store w-5 text-center"></i> Lapak UMKM Warga
+                        </a>
+
+                        <p class="text-[10px] text-amber-300 uppercase tracking-wider mb-2 mt-6 font-bold px-2">Data & Transparansi</p>
+                        
+                        <a href="#" @click.prevent="switchMenu('statistik-warga')" :class="['flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'statistik-warga' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-chart-pie w-5 text-center"></i> Statistik Warga
+                        </a>
+                        <a href="#" @click.prevent="switchMenu('statistik-pekerjaan')" :class="['flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'statistik-pekerjaan' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-briefcase w-5 text-center"></i> Statistik Pekerjaan
+                        </a>
+                        <a href="#" @click.prevent="switchMenu('status-usaha')" :class="['flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'status-usaha' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-store-alt w-5 text-center"></i> Status Usaha
+                        </a>
+                        <a href="#" @click.prevent="switchMenu('kas')" :class="['flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'kas' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-wallet w-5 text-center"></i> Info Kas Lingkungan
+                        </a>
+                        <a href="#" @click.prevent="switchMenu('administrasi')" :class="['flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'administrasi' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-file-invoice-dollar w-5 text-center"></i> Realisasi Anggaran
+                        </a>
+
+                        <p v-if="['rt', 'rw'].includes(currentUser.role)" class="text-[10px] text-emerald-300 uppercase tracking-wider mb-2 mt-6 font-bold px-2">Data Wilayah (RT/RW)</p>
+                        
+                        <a v-if="['rt', 'rw'].includes(currentUser.role)" href="#" @click.prevent="switchMenu('kependudukan')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'kependudukan' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']">
+                            <i class="fas fa-users w-5 text-center"></i> Data Kependudukan
+                        </a>
+                    </div>
+
+                    <div class="mt-8 pt-4 border-t border-blue-800">
+                        <a href="#" @click.prevent="handleLogout" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-300 hover:bg-red-900 hover:text-white transition-colors text-sm font-bold">
+                            <i class="fas fa-sign-out-alt w-5 text-center"></i> Keluar Sistem
+                        </a>
+                    </div>
+                </nav>
+            </aside>
+
+            <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50 relative">
+                
+                <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10 glass">
+                    <div class="flex items-center gap-4">
+                        <button @click="sidebarOpen = true" class="md:hidden text-gray-600 hover:text-primary"><i class="fas fa-bars text-xl"></i></button>
+                        <h2 class="text-xl font-bold text-gray-800 capitalize">{{ currentMenu.replace('-', ' ') }}</h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="hidden md:flex items-center gap-2 text-sm text-gray-600 font-bold bg-gray-100 px-3 py-1.5 rounded-full"><i class="far fa-calendar-alt"></i> {{ currentDate }}</div>
+                        <div class="flex items-center gap-3 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
+                            <div class="text-right hidden sm:block px-2">
+                                <p class="text-sm font-bold text-gray-800 capitalize leading-none">{{ currentUser.name }}</p>
+                                <p :class="['text-[10px] font-bold uppercase mt-1 tracking-wider', currentUser.role==='admin_kelurahan'?'text-amber-600':(currentUser.role==='babinsa'?'text-red-600':'text-primary')]">{{ currentUser.role.replace('_',' ') }}</p>
+                            </div>
+                            <div :class="['h-10 w-10 rounded-full text-white flex items-center justify-center font-bold shadow-md border-2 border-white', currentUser.role==='babinsa'?'bg-gradient-to-br from-red-600 to-red-800':'bg-gradient-to-br from-blue-700 to-blue-900']">
+                                {{ currentUser.name.charAt(0).toUpperCase() }}
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
+                    
+                    <div v-if="currentMenu === 'dashboard'" class="space-y-6">
+                        <div v-if="currentUser.role === 'admin_kelurahan'" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2"><i class="fas fa-cog mr-2 text-primary"></i>Pengaturan Portal Internal</h3>
+                                    <label class="block text-xs font-bold mb-1 mt-2">Nama Kelurahan / Aplikasi</label>
+                                    <input type="text" v-model="appSettings.portalName" class="w-full border rounded p-2 text-sm mb-2 focus:ring-primary outline-none">
+                                    
+                                    <label class="block text-xs font-bold mb-1">Upload Logo Utama Kelurahan</label>
+                                    <input type="file" accept="image/*" @change="handleLogoUpload" class="w-full border p-1.5 rounded text-sm outline-none bg-white text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                                    <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" class="h-12 mt-2 object-contain bg-gray-100 rounded border p-1">
+                                    
+                                    <button @click="showToast('Pengaturan Internal Berhasil Disimpan!')" class="mt-3 bg-primary text-white text-xs px-4 py-2 rounded font-bold shadow hover:bg-blue-800">Simpan Tampilan</button>
+                                </div>
+                                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                                    <h3 class="font-bold text-gray-800 mb-3 border-b pb-2"><i class="fas fa-key mr-2 text-red-500"></i>Ubah Akun Admin/Staf</h3>
+                                    <label class="block text-xs font-bold mb-1 mt-2">Username Baru</label>
+                                    <input type="text" placeholder="Masukkan Username Admin" class="w-full border rounded p-2 text-sm mb-2 focus:ring-primary outline-none">
+                                    <label class="block text-xs font-bold mb-1">Password Baru</label>
+                                    <input type="password" placeholder="••••••••" class="w-full border rounded p-2 text-sm mb-3 focus:ring-primary outline-none">
+                                    <button @click="showToast('Kredensial Admin Diperbarui!')" class="bg-red-500 text-white text-xs px-4 py-2 rounded font-bold shadow hover:bg-red-600">Ganti Kredensial</button>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-users-cog mr-2 text-emerald-600"></i>Daftar & Buat Akun Pejabat (RT / RW / Babinsa)</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-6 gap-3 mb-4 items-end bg-gray-50 p-4 rounded-xl border">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold mb-1">Nama Pejabat</label>
+                                        <input type="text" v-model="formRtRw.nama" class="w-full border rounded p-2 text-sm outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Jabatan</label>
+                                        <select v-model="formRtRw.role" class="w-full border rounded p-2 text-sm outline-none bg-white">
+                                            <option value="Ketua RT">Ketua RT</option>
+                                            <option value="Ketua RW">Ketua RW</option>
+                                            <option value="Babinsa">Babinsa</option>
+                                        </select>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-1 md:col-span-1">
+                                        <div><label class="block text-[10px] font-bold mb-1">RT</label><input type="number" v-model="formRtRw.rt" class="w-full border rounded p-2 text-sm text-center"></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">RW</label><input type="number" v-model="formRtRw.rw" class="w-full border rounded p-2 text-sm text-center"></div>
+                                    </div>
+                                    <div><label class="block text-xs font-bold mb-1">Username Login</label><input type="text" v-model="formRtRw.username" class="w-full border rounded p-2 text-sm outline-none"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Password Awal</label><input type="text" v-model="formRtRw.password" class="w-full border rounded p-2 text-sm outline-none"></div>
+                                    <div class="md:col-span-6 flex justify-end mt-1">
+                                        <button @click="saveRtRwAccount" class="bg-emerald-600 text-white text-xs px-6 py-2.5 rounded-lg font-bold shadow hover:bg-emerald-700">Tambahkan Akun Pejabat</button>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto border rounded-lg">
+                                    <table class="w-full text-left text-sm whitespace-nowrap">
+                                        <thead class="bg-gray-100 text-gray-600"><tr><th class="px-4 py-2 border-b">Nama Pejabat</th><th class="px-4 py-2 border-b">Jabatan</th><th class="px-4 py-2 border-b">Wilayah</th><th class="px-4 py-2 border-b">Username</th><th class="px-4 py-2 border-b">Pass</th><th class="px-4 py-2 border-b text-right">Aksi</th></tr></thead>
+                                        <tbody>
+                                            <tr v-for="akun in rtRwAccounts" :key="akun.id" class="border-b hover:bg-gray-50">
+                                                <td class="px-4 py-2 font-bold">{{ akun.nama }}</td>
+                                                <td class="px-4 py-2"><span class="bg-emerald-100 text-emerald-800 text-[10px] px-2 py-1 rounded font-bold uppercase">{{ akun.role }}</span></td>
+                                                <td class="px-4 py-2">RT {{ akun.rt || '-' }} / RW {{ akun.rw || '-' }}</td>
+                                                <td class="px-4 py-2 font-semibold text-primary">{{ akun.username }}</td>
+                                                <td class="px-4 py-2 font-mono text-gray-400 text-xs">{{ akun.password }}</td>
+                                                <td class="px-4 py-2 text-right">
+                                                    <button @click="deleteRtRwAccount(akun.id)" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 px-2.5 py-1.5 rounded-lg transition shadow-sm" title="Hapus Akun">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                            <tr v-if="rtRwAccounts.length === 0"><td colspan="6" class="text-center py-4 text-gray-400">Belum ada data akun pejabat.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-else class="space-y-6">
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                                <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                    <h3 class="font-bold text-lg text-gray-800"><i class="fas fa-bullhorn text-amber-500 mr-2"></i> Papan Pengumuman</h3>
+                                </div>
+                                <div v-if="announcements.length > 0" class="space-y-4">
+                                    <div v-for="ann in announcements" :key="ann.id" class="p-4 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 relative">
+                                        <p class="text-sm font-semibold">{{ ann.text }}</p>
+                                        <p class="text-[10px] text-gray-500 mt-2 font-bold">- Info resmi dari: {{ ann.author }}</p>
+                                    </div>
+                                </div>
+                                <div v-else class="text-center py-8 text-gray-400 text-sm">Belum ada pengumuman hari ini.</div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-5 text-white shadow">
+                                    <p class="text-sm font-semibold opacity-80">Laporan Anda yang Menunggu</p>
+                                    <h3 class="text-3xl font-black mt-1">{{ activeIssuesFiltered.filter(i=>i.status==='Menunggu').length }}</h3>
+                                </div>
+                                <div class="bg-gradient-to-r from-emerald-500 to-emerald-700 rounded-2xl p-5 text-white shadow">
+                                    <p class="text-sm font-semibold opacity-80">Surat Sedang Diproses</p>
+                                    <h3 class="text-3xl font-black mt-1">{{ listSurat.filter(s=>s.status==='Diproses').length }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'kependudukan'" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="p-5 border-b bg-gray-50 flex justify-between items-center"><h3 class="font-bold text-gray-800"><i class="fas fa-users mr-2 text-primary"></i>Database Kependudukan</h3><span class="text-xs font-bold bg-primary text-white px-2 py-1 rounded">{{ totalWarga }} Terdaftar</span></div>
+                        <div class="overflow-x-auto p-4 max-h-[70vh]">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-gray-100 text-gray-600"><tr><th class="px-4 py-2">NIK</th><th class="px-4 py-2">Nama Warga</th><th class="px-4 py-2">L/P</th><th class="px-4 py-2">RT/RW</th><th class="px-4 py-2">Pekerjaan</th><th class="px-4 py-2">Kontak</th></tr></thead>
+                                <tbody>
+                                    <tr v-for="w in listWargaLengkap" :key="w.nik" class="border-b hover:bg-blue-50">
+                                        <td class="px-4 py-3 font-mono text-xs">{{ w.nik }}</td><td class="px-4 py-3 font-bold">{{ w.nama }}</td><td class="px-4 py-3">{{ w.kelamin === 'Laki-laki' ? 'L' : 'P' }}</td>
+                                        <td class="px-4 py-3">RT {{ w.rt }}/RW {{ w.rw }}</td><td class="px-4 py-3 text-gray-600">{{ w.pekerjaan || '-' }}</td><td class="px-4 py-3 font-mono text-xs">{{ w.hp1 }}</td>
+                                    </tr>
+                                    <tr v-if="listWargaLengkap.length === 0"><td colspan="6" class="text-center py-6 text-gray-500">Tidak ada data kependudukan.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'statistik-warga'" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-venus-mars mr-2 text-blue-500"></i>Komposisi Gender</h3>
+                                <div class="flex justify-around items-center py-4">
+                                    <div class="text-center"><div class="w-16 h-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-2xl mx-auto mb-2 font-bold shadow-inner"><i class="fas fa-male"></i></div><p class="font-bold text-gray-700">Laki-Laki</p><p class="text-xl font-black text-primary">{{ getGenderStats['Laki-laki'] || 0 }}</p></div>
+                                    <div class="text-center"><div class="w-16 h-16 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center text-2xl mx-auto mb-2 font-bold shadow-inner"><i class="fas fa-female"></i></div><p class="font-bold text-gray-700">Perempuan</p><p class="text-xl font-black text-pink-600">{{ getGenderStats['Perempuan'] || 0 }}</p></div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-chart-bar mr-2 text-emerald-500"></i>Kategori Usia Pertumbuhan</h3>
+                                <div class="space-y-3">
+                                    <div v-for="(count, kat) in getAgeCategoryStats" :key="kat" class="flex justify-between items-center text-sm">
+                                        <span class="font-semibold text-gray-700">{{ kat }}</span>
+                                        <div class="flex items-center gap-2"><div class="w-32 bg-gray-200 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" :style="{ width: (count/totalWarga*100)+'%' }"></div></div><span class="font-bold text-emerald-700 w-6 text-right">{{ count }}</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-map-marker-alt mr-2 text-amber-500"></i>Sebaran Suku Asal</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <div v-for="(count, suku) in getSukuStats" :key="suku" class="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                                        <span class="text-sm font-semibold text-amber-900">{{ suku }}</span><span class="bg-amber-200 text-amber-800 text-xs px-2 rounded-full font-bold">{{ count }}</span>
+                                    </div>
+                                    <p v-if="Object.keys(getSukuStats).length === 0" class="text-sm text-gray-400">Belum ada data suku terekam.</p>
+                                </div>
+                            </div>
+                            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-birthday-cake mr-2 text-red-400"></i>Ulang Tahun Bulan Ini</h3>
+                                <ul class="space-y-2">
+                                    <li v-for="w in getUltahBulanIni" :key="w.nik" class="flex items-center gap-3 bg-red-50 p-2 rounded-lg border border-red-100">
+                                        <div class="w-8 h-8 rounded-full bg-white text-red-500 flex items-center justify-center font-bold shadow-sm"><i class="fas fa-gift text-xs"></i></div>
+                                        <div><p class="text-sm font-bold text-gray-800">{{ w.nama }}</p><p class="text-[10px] text-gray-500">{{ new Date(w.tgl_lahir).toLocaleDateString('id-ID',{day:'numeric', month:'long'}) }}</p></div>
+                                    </li>
+                                    <li v-if="getUltahBulanIni.length === 0" class="text-sm text-gray-400 text-center py-2">Tidak ada warga yang berulang tahun bulan ini.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'statistik-pekerjaan'" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 class="font-bold text-lg text-gray-800"><i class="fas fa-briefcase text-primary mr-2"></i>Demografi Pekerjaan (Otomatis dari Registrasi)</h3>
+                            <span class="text-xs font-bold bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ totalWarga }} Data Masuk</span>
+                        </div>
+                        <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                            <div v-for="(count, job) in getJobStats" :key="job" class="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-blue-50 border border-transparent transition">
+                                <span class="text-sm font-semibold text-gray-700">{{ job }}</span>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-32 bg-gray-200 rounded-full h-2"><div class="bg-primary h-2 rounded-full" :style="{ width: (count / totalWarga * 100) + '%' }"></div></div>
+                                    <span class="text-sm font-bold text-primary w-8 text-right">{{ count }}</span>
+                                </div>
+                            </div>
+                            <p v-if="Object.keys(getJobStats).length === 0" class="text-center text-sm text-gray-400">Belum ada data pekerjaan.</p>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'status-usaha'" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
+                        <div class="flex justify-between items-center mb-4 border-b pb-2">
+                            <h3 class="font-bold text-lg text-gray-800"><i class="fas fa-store text-emerald-600 mr-2"></i>Status Usaha & UMKM Warga</h3>
+                            <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2 py-1 rounded">{{ totalUMKM }} Usaha Tercatat</span>
+                        </div>
+                        <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
+                            <div v-for="(count, biz) in getBizStats" :key="biz" class="flex justify-between items-center p-3 bg-gray-50 rounded-xl hover:bg-emerald-50 border border-transparent transition">
+                                <span class="text-sm font-semibold text-gray-700">{{ biz }}</span>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-32 bg-gray-200 rounded-full h-2"><div class="bg-emerald-500 h-2 rounded-full" :style="{ width: (count / totalUMKM * 100) + '%' }"></div></div>
+                                    <span class="text-sm font-bold text-emerald-600 w-8 text-right">{{ count }}</span>
+                                </div>
+                            </div>
+                            <p v-if="Object.keys(getBizStats).length === 0" class="text-center text-sm text-gray-400">Belum ada data usaha/UMKM.</p>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'surat'" class="space-y-6">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-envelope-open-text text-primary mr-2"></i>Layanan E-Surat</h3>
+                                <button v-if="currentUser.role === 'warga'" @click="showFormSurat = !showFormSurat" class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-bold shadow">Ajukan Surat</button>
+                            </div>
+
+                            <div v-if="showFormSurat && currentUser.role === 'warga'" class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6 form-section">
+                                <h4 class="font-bold text-sm mb-3">Formulir Pengajuan Surat</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">Jenis Surat</label><input type="text" v-model="formSurat.jenis" placeholder="Misal: Surat Keterangan Domisili" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Keperluan</label><input type="text" v-model="formSurat.keperluan" placeholder="Misal: Persyaratan Bank" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Nomor WhatsApp Aktif</label><input type="text" v-model="formSurat.wa" placeholder="08xxxxxxxx" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1 text-primary">Foto Surat Keterangan RT/RW (Wajib)</label>
+                                        <input type="file" accept="image/*" @change="handleFotoSurat" class="w-full border p-1.5 rounded text-sm outline-none bg-white text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                                        <p class="text-[10px] text-gray-400 mt-1 italic">* Sistem akan otomatis mengecilkan ukuran foto.</p>
+                                    </div>
+                                    <div class="md:col-span-2" v-if="formSurat.fotoBase64">
+                                        <p class="text-[10px] font-bold mb-1 text-green-600"><i class="fas fa-check-circle"></i> Pratinjau Foto Lampiran:</p>
+                                        <img :src="formSurat.fotoBase64" class="h-20 rounded border shadow-sm">
+                                    </div>
+                                </div>
+                                <div class="flex justify-end gap-2 mt-3">
+                                    <button @click="showFormSurat = false" class="px-4 py-2 bg-gray-200 rounded text-xs font-bold">Batal</button>
+                                    <button @click="submitSurat" class="px-4 py-2 bg-blue-600 text-white rounded text-xs font-bold shadow hover:bg-blue-700">Ajukan Sekarang</button>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto border rounded-xl">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Jenis & Keperluan</th><th class="px-4 py-3">Identitas Pemohon</th><th class="px-4 py-3">Lampiran</th><th class="px-4 py-3">Status</th><th class="px-4 py-3 text-right">Aksi</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="surat in listSurat" :key="surat.id" class="border-b hover:bg-gray-50">
+                                            <td class="px-4 py-3">{{ surat.tanggal }}</td>
+                                            <td class="px-4 py-3"><p class="font-bold">{{ surat.jenis }}</p><p class="text-[10px] text-gray-500">{{ surat.keperluan }}</p></td>
+                                            <td class="px-4 py-3"><p class="font-bold">{{ surat.nama }}</p><p class="text-[10px] text-gray-500"><i class="fab fa-whatsapp text-green-500"></i> {{ surat.wa }}</p></td>
+                                            <td class="px-4 py-3">
+                                                <a v-if="surat.foto" :href="surat.foto" target="_blank" class="text-[10px] bg-blue-50 text-blue-600 px-2 py-1 rounded font-bold border border-blue-200 hover:bg-blue-600 hover:text-white transition"><i class="fas fa-image"></i> Lihat Foto</a>
+                                                <span v-else class="text-[10px] text-gray-400 italic">Tanpa Lampiran</span>
+                                            </td>
+                                            <td class="px-4 py-3"><span :class="['px-2 py-1 rounded text-[10px] font-bold uppercase', getSuratStatusClass(surat.status)]">{{ surat.status }}</span></td>
+                                            <td class="px-4 py-3 text-right">
+                                                <div v-if="['rt', 'rw', 'admin_kelurahan'].includes(currentUser.role)" class="flex justify-end gap-1">
+                                                    <button @click="updateSurat(surat.id, 'Diterima')" class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-[10px] font-bold hover:bg-blue-200">Terima</button>
+                                                    <button @click="updateSurat(surat.id, 'Diproses')" class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-[10px] font-bold hover:bg-amber-200">Proses</button>
+                                                    <button @click="updateSurat(surat.id, 'Selesai')" class="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-bold hover:bg-green-200">Selesai</button>
+                                                </div>
+                                                <span v-else class="text-xs text-gray-400 italic">Menunggu aparat</span>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="listSurat.length === 0"><td colspan="6" class="text-center py-6 text-gray-500">Tidak ada pengajuan surat.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'bansos'" class="space-y-6">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-hand-holding-heart mr-2 text-emerald-500"></i>Usulan Penerima Bansos</h3>
+                            
+                            <div class="bg-emerald-50 p-5 rounded-xl border border-emerald-100 mb-6">
+                                <h4 class="font-bold text-sm mb-3">Form Pengajuan Bantuan Baru</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">NIK Warga</label><input type="number" v-model="formBansos.nik" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Nama Lengkap</label><input type="text" v-model="formBansos.nama" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold mb-1">Pilih Program Bantuan</label>
+                                        <select v-model="formBansos.program" class="w-full border p-2 rounded text-sm outline-none bg-white font-semibold text-emerald-800">
+                                            <option value="">-- Pilih Jenis Bantuan --</option>
+                                            <optgroup label="Bansos Reguler Pemerintah">
+                                                <option value="PKH (Program Keluarga Harapan)">PKH (Program Keluarga Harapan)</option>
+                                                <option value="BPNT / Kartu Sembako">BPNT / Kartu Sembako</option>
+                                                <option value="BLT (Bantuan Langsung Tunai)">BLT (Bantuan Langsung Tunai)</option>
+                                                <option value="PBI BPJS Kesehatan">PBI BPJS Kesehatan</option>
+                                            </optgroup>
+                                            <optgroup label="Bansos Pendidikan">
+                                                <option value="KIP (Kartu Indonesia Pintar)">KIP (Kartu Indonesia Pintar)</option>
+                                                <option value="PIP (Program Indonesia Pintar)">PIP (Program Indonesia Pintar)</option>
+                                            </optgroup>
+                                            <optgroup label="Bansos Kesehatan">
+                                                <option value="Bantuan Stunting">Bantuan Stunting</option>
+                                                <option value="Bantuan Ibu Hamil & Balita">Bantuan Ibu Hamil & Balita</option>
+                                                <option value="Bantuan Disabilitas / Lansia">Bantuan Disabilitas / Lansia</option>
+                                            </optgroup>
+                                            <optgroup label="Bansos Perumahan & Ekonomi">
+                                                <option value="RTLH (Bedah Rumah)">RTLH (Bedah Rumah)</option>
+                                                <option value="Bantuan Modal Usaha UMKM">Bantuan Modal Usaha UMKM</option>
+                                                <option value="Bantuan Petani/Nelayan">Bantuan Petani/Nelayan</option>
+                                            </optgroup>
+                                            <optgroup label="Bansos Kebencanaan & Daerah">
+                                                <option value="Bantuan Korban Bencana">Bantuan Korban Bencana</option>
+                                                <option value="Bantuan Sembako Daerah">Bantuan Sembako Daerah</option>
+                                                <option value="Bantuan Kematian">Bantuan Kematian</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    <div class="md:col-span-2 border-t pt-3 mt-1">
+                                        <label class="block text-xs font-bold mb-2">Unggah Dokumen Wajib (Mockup)</label>
+                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                                            <label class="border p-2 rounded bg-white flex items-center justify-between cursor-pointer hover:bg-gray-50"><span class="truncate">Foto KTP</span><input type="file" class="hidden"><i class="fas fa-upload text-gray-400"></i></label>
+                                            <label class="border p-2 rounded bg-white flex items-center justify-between cursor-pointer hover:bg-gray-50"><span class="truncate">Foto KK</span><input type="file" class="hidden"><i class="fas fa-upload text-gray-400"></i></label>
+                                            <label class="border p-2 rounded bg-white flex items-center justify-between cursor-pointer hover:bg-gray-50"><span class="truncate">Foto Rumah</span><input type="file" class="hidden"><i class="fas fa-upload text-gray-400"></i></label>
+                                            <label class="border p-2 rounded bg-white flex items-center justify-between cursor-pointer hover:bg-gray-50"><span class="truncate">SKTM / Pendukung</span><input type="file" class="hidden"><i class="fas fa-upload text-gray-400"></i></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-4 flex justify-end">
+                                    <button @click="submitBansos" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg shadow-sm">Usulkan Penerima</button>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto border rounded-xl">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Nama Program</th><th class="px-4 py-3">Nama Warga</th><th class="px-4 py-3">Pengusul</th><th class="px-4 py-3">Status Verifikasi</th><th class="px-4 py-3 text-right">Aksi Aparat</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="b in listBansos" :key="b.id" class="border-b hover:bg-gray-50">
+                                            <td class="px-4 py-3 text-xs">{{ b.tanggal }}</td>
+                                            <td class="px-4 py-3 font-bold text-primary">{{ b.program }}</td>
+                                            <td class="px-4 py-3">{{ b.nama }}<p class="text-[10px] text-gray-500 font-mono">NIK: {{ b.nik }}</p></td>
+                                            <td class="px-4 py-3 text-xs">{{ b.pengusul }}</td>
+                                            <td class="px-4 py-3"><span :class="['px-2 py-1 rounded text-[10px] font-bold', getBansosStatusClass(b.status)]">{{ b.status }}</span></td>
+                                            <td class="px-4 py-3 text-right">
+                                                <select v-if="['rt', 'rw', 'admin_kelurahan'].includes(currentUser.role)" @change="updateBansosStatus(b.id, $event.target.value)" class="text-[10px] border rounded p-1 font-bold outline-none cursor-pointer">
+                                                    <option disabled selected>Ubah Status</option>
+                                                    <option value="Diverifikasi RT">Diverifikasi RT</option>
+                                                    <option value="Diverifikasi Kelurahan">Diverifikasi Kel</</option>
+                                                    <option value="Disetujui">Disetujui</option>
+                                                    <option value="Bantuan Disalurkan">Disalurkan</option>
+                                                    <option value="Ditolak">Ditolak</option>
+                                                </select>
+                                                <span v-else class="text-xs text-gray-400">-</span>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="listBansos.length === 0"><td colspan="6" class="text-center py-6 text-gray-500">Tidak ada usulan bansos.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'tamu'" class="space-y-6">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-door-open text-blue-500 mr-2"></i>Lapor Tamu 1x24 Jam</h3>
+                                <button v-if="currentUser.role === 'warga'" @click="showFormTamu = !showFormTamu" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow">+ Lapor Tamu Menginap</button>
+                            </div>
+
+                            <div v-if="showFormTamu && currentUser.role === 'warga'" class="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6 form-section">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">Nama Tamu</label><input type="text" v-model="formTamu.nama" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Lama Menginap (Hari)</label><input type="number" v-model="formTamu.lama" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Tujuan Kunjungan / Keterangan</label><input type="text" v-model="formTamu.tujuan" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                </div>
+                                <div class="flex justify-end mt-3"><button @click="submitTamu" class="bg-blue-600 text-white px-4 py-2 rounded text-xs font-bold shadow">Kirim Laporan Tamu</button></div>
+                            </div>
+
+                            <div class="overflow-x-auto border rounded-xl">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Tanggal Lapor</th><th class="px-4 py-3">Nama Tamu</th><th class="px-4 py-3">Tujuan</th><th class="px-4 py-3">Lama Menginap</th><th class="px-4 py-3">Pelapor</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="t in listTamu" :key="t.id" class="border-b hover:bg-gray-50">
+                                            <td class="px-4 py-3 text-xs">{{ t.tanggal }}</td>
+                                            <td class="px-4 py-3 font-bold">{{ t.nama }}</td>
+                                            <td class="px-4 py-3 text-gray-600">{{ t.tujuan }}</td>
+                                            <td class="px-4 py-3">{{ t.lama }} Hari</td>
+                                            <td class="px-4 py-3 font-bold text-xs text-primary">{{ t.pelapor }}</td>
+                                        </tr>
+                                        <tr v-if="listTamu.length === 0"><td colspan="5" class="text-center py-6 text-gray-500">Belum ada laporan tamu.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'kas'" class="space-y-6">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-wallet mr-2 text-primary"></i>Sistem Iuran dan Kas Lingkungan</h3>
+                            
+                            <div v-if="['rt', 'rw', 'admin_kelurahan'].includes(currentUser.role)" class="bg-gray-50 p-4 rounded-xl border border-gray-200 mb-6 flex flex-wrap gap-4 items-end">
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Jenis Arus Kas</label>
+                                    <select v-model="formKas.jenis" class="w-full border p-2 rounded text-sm bg-white font-bold outline-none">
+                                        <option value="Masuk">Arus Kas Masuk</option><option value="Keluar">Arus Kas Keluar</option>
+                                    </select>
+                                </div>
+                                <div><label class="block text-xs font-bold mb-1">Nominal (Rp)</label><input type="number" v-model="formKas.nominal" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                <div class="flex-1"><label class="block text-xs font-bold mb-1">Judul / Keterangan Transaksi</label><input type="text" v-model="formKas.judul" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                <div><button @click="submitKas" class="bg-primary text-white font-bold px-5 py-2 rounded shadow hover:bg-blue-800">Bukukan</button></div>
+                            </div>
+
+                            <div class="flex justify-between items-center mb-3">
+                                <h4 class="font-bold text-gray-700">Histori & Saldo Transaksi</h4>
+                                <div class="bg-blue-100 text-blue-800 px-4 py-2 rounded-lg font-black text-lg shadow-sm">Total Saldo: Rp {{ hitungTotalKas().toLocaleString('id-ID') }}</div>
+                            </div>
+
+                            <div class="overflow-x-auto border rounded-xl">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Jenis</th><th class="px-4 py-3">Keterangan</th><th class="px-4 py-3">Nominal</th><th class="px-4 py-3 text-right">Aksi</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="k in listKas" :key="k.id" class="border-b hover:bg-gray-50">
+                                            <td class="px-4 py-3 text-xs">{{ k.tanggal }}</td>
+                                            <td class="px-4 py-3"><span :class="['text-[10px] px-2 py-1 rounded font-bold uppercase', k.jenis==='Masuk'?'bg-green-100 text-green-700':'bg-red-100 text-red-700']">{{ k.jenis }}</span></td>
+                                            <td class="px-4 py-3">{{ k.judul }}</td>
+                                            <td class="px-4 py-3 font-bold">Rp {{ k.nominal.toLocaleString('id-ID') }}</td>
+                                            <td class="px-4 py-3 text-right">
+                                                <button v-if="['admin_kelurahan'].includes(currentUser.role)" @click="deleteKas(k.id)" class="text-red-500 hover:text-red-700 p-1"><i class="fas fa-trash text-xs"></i></button>
+                                                <span v-else class="text-gray-400 text-xs text-center block">Read-only</span>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="listKas.length === 0"><td colspan="5" class="text-center py-6 text-gray-500">Belum ada transaksi kas.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'agenda'" class="space-y-6">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-calendar-alt text-amber-500 mr-2"></i>Agenda Lingkungan</h3>
+                            </div>
+                            
+                            <div v-if="['rt', 'rw', 'admin_kelurahan'].includes(currentUser.role)" class="bg-amber-50 p-4 rounded-xl border border-amber-100 mb-6">
+                                <p class="text-xs text-amber-700 mb-4 font-bold"><i class="fas fa-info-circle"></i> Agenda yang dipublish akan otomatis tampil di Halaman Depan portal warga.</p>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Kategori Agenda</label>
+                                        <select v-model="formAgenda.jenis" class="w-full border p-2 rounded text-sm bg-white outline-none">
+                                            <option value="Kerja Bakti">Kerja Bakti</option>
+                                            <option value="Musyawarah">Musyawarah</option>
+                                            <option value="Lainnya">Lainnya</option>
+                                        </select>
+                                    </div>
+                                    <div><label class="block text-xs font-bold mb-1">Tanggal</label><input type="date" v-model="formAgenda.tanggal" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Detail Informasi</label><input type="text" v-model="formAgenda.detail" placeholder="Misal: Pembersihan gorong-gorong RT 01" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                </div>
+                                <div class="flex justify-end mt-3"><button @click="submitAgenda" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-5 py-2 rounded shadow text-xs">Publish Agenda</button></div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div v-for="a in listAgenda" :key="a.id" class="flex items-start gap-4 p-4 border rounded-xl hover:bg-gray-50 transition">
+                                    <div class="bg-amber-100 text-amber-600 rounded-lg p-3 text-center min-w-[70px]">
+                                        <p class="text-[10px] font-bold uppercase">{{ new Date(a.tanggal).toLocaleString('id-ID', {month:'short'}) }}</p>
+                                        <p class="text-xl font-black leading-none">{{ new Date(a.tanggal).getDate() }}</p>
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="font-bold text-gray-800">{{ a.jenis }}</h4>
+                                        <p class="text-sm text-gray-600 mt-1">{{ a.detail }}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[10px] text-gray-400 font-bold mb-2">Dipublish oleh: {{ a.author }}</p>
+                                        <button v-if="['admin_kelurahan'].includes(currentUser.role)" @click="deleteAgenda(a.id)" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-times"></i> Hapus</button>
+                                    </div>
+                                </div>
+                                <div v-if="listAgenda.length === 0" class="text-center py-6 text-gray-500">Belum ada agenda terencana.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'polling'" class="space-y-6">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-poll text-blue-500 mr-2"></i>Bilik Suara & Polling Warga</h3>
+                            
+                            <div v-if="['rt', 'rw', 'admin_kelurahan'].includes(currentUser.role)" class="bg-blue-50 p-5 rounded-xl border border-blue-100 mb-6">
+                                <p class="text-xs text-gray-500 mb-4 font-bold"><i class="fas fa-info-circle"></i> Polling yang dibuat akan langsung tampil di Halaman Utama (Landing Page).</p>
+                                <div><label class="block text-xs font-bold mb-1">Tulis Isu / Pertanyaan Polling</label><input type="text" v-model="formPolling.pertanyaan" class="w-full border p-2.5 rounded-lg text-sm mb-3 outline-none bg-white font-semibold"></div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+                                    <div><label class="block text-xs font-bold mb-1">Pilihan 1</label><input type="text" v-model="formPolling.p1" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Pilihan 2</label><input type="text" v-model="formPolling.p2" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Pilihan 3 (Opsional)</label><input type="text" v-model="formPolling.p3" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Pilihan 4 (Opsional)</label><input type="text" v-model="formPolling.p4" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                </div>
+                                <div class="flex justify-end gap-2">
+                                    <button @click="clearPolling" class="bg-red-500 hover:bg-red-600 text-white font-bold px-4 py-2 rounded shadow text-xs">Kosongkan Polling Aktif</button>
+                                    <button @click="submitPolling" class="bg-primary hover:bg-blue-800 text-white font-bold px-6 py-2 rounded shadow text-xs">Tayangkan Polling</button>
+                                </div>
+                            </div>
+                            
+                            <div class="border p-5 rounded-xl">
+                                <h4 class="font-bold text-gray-700 text-sm mb-3">Status Polling Saat Ini:</h4>
+                                <div v-if="activePolling.pertanyaan" class="bg-gray-50 p-4 rounded-lg border">
+                                    <p class="font-black text-gray-800 text-lg mb-2">{{ activePolling.pertanyaan }}</p>
+                                    <ul class="list-disc ml-5 text-sm font-semibold text-gray-600">
+                                        <li v-if="activePolling.pilihan[0]">{{ activePolling.pilihan[0] }}</li>
+                                        <li v-if="activePolling.pilihan[1]">{{ activePolling.pilihan[1] }}</li>
+                                        <li v-if="activePolling.pilihan[2]">{{ activePolling.pilihan[2] }}</li>
+                                        <li v-if="activePolling.pilihan[3]">{{ activePolling.pilihan[3] }}</li>
+                                    </ul>
+                                </div>
+                                <p v-else class="text-sm text-gray-400 italic">Tidak ada polling yang sedang aktif.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'administrasi'" class="space-y-6">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-file-invoice-dollar text-primary mr-2"></i>Realisasi Anggaran & Administrasi</h3>
+                            
+                            <div v-if="['admin_kelurahan'].includes(currentUser.role)" class="bg-gray-50 p-4 rounded-xl border mb-6 flex flex-wrap gap-3 items-end">
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Jenis Anggaran</label>
+                                    <select v-model="formAdminInfo.jenis" class="w-full border p-2 rounded text-sm bg-white font-bold outline-none">
+                                        <option value="Dana Masuk">Dana Masuk</option><option value="Dana Keluar">Dana Keluar</option>
+                                    </select>
+                                </div>
+                                <div><label class="block text-xs font-bold mb-1">Nominal</label><input type="number" v-model="formAdminInfo.nominal" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                <div class="flex-1"><label class="block text-xs font-bold mb-1">Detail Alokasi (Tujuan)</label><input type="text" v-model="formAdminInfo.alokasi" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                <div class="flex-1"><label class="block text-xs font-bold mb-1">Info Tambahan</label><input type="text" v-model="formAdminInfo.info" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                <div><button @click="submitAdministrasi" class="bg-blue-600 text-white font-bold px-4 py-2 rounded shadow hover:bg-blue-700">Input Realisasi</button></div>
+                            </div>
+
+                            <div class="overflow-x-auto border rounded-xl">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Dana Masuk/Keluar</th><th class="px-4 py-3">Nominal</th><th class="px-4 py-3">Detail Alokasi</th><th class="px-4 py-3">Info Tambahan</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="adm in listAdministrasi" :key="adm.id" class="border-b hover:bg-gray-50">
+                                            <td class="px-4 py-3 text-xs">{{ adm.tanggal }}</td>
+                                            <td class="px-4 py-3 font-bold">
+                                                <span v-if="adm.jenis==='Dana Masuk'" class="text-green-600"><i class="fas fa-arrow-down mr-1"></i>Masuk</span>
+                                                <span v-else class="text-red-500"><i class="fas fa-arrow-up mr-1"></i>Keluar</span>
+                                            </td>
+                                            <td class="px-4 py-3 font-bold">Rp {{ adm.nominal.toLocaleString('id-ID') }}</td>
+                                            <td class="px-4 py-3 text-gray-700">{{ adm.alokasi }}</td>
+                                            <td class="px-4 py-3 text-xs text-gray-500">{{ adm.info }}</td>
+                                        </tr>
+                                        <tr v-if="listAdministrasi.length === 0"><td colspan="5" class="text-center py-6 text-gray-500">Belum ada realisasi anggaran terinput.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'umkm'" class="space-y-6">
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-store text-emerald-500 mr-2"></i>Lapak UMKM Warga</h3>
+                                <button v-if="currentUser.role === 'warga'" @click="showFormUMKM = !showFormUMKM" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-plus"></i> Buka Lapak Anda</button>
+                            </div>
+
+                            <div v-if="showFormUMKM" class="bg-emerald-50 p-5 rounded-xl border border-emerald-100 mb-6 form-section">
+                                <h4 class="font-bold text-emerald-800 text-sm mb-3">Formulir Pendaftaran Lapak / UMKM (Akan Muncul di Halaman Depan)</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">Nama Usaha / Lapak</label><input type="text" v-model="formUMKM.namaUsaha" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">NIB (Nomor Induk Berusaha - Optional)</label><input type="text" v-model="formUMKM.nib" placeholder="Opsional" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Alamat Usaha Lengkap</label><input type="text" v-model="formUMKM.alamat" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div><label class="block text-xs font-bold mb-1">Jam Buka</label><input type="time" v-model="formUMKM.jamBuka" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                        <div><label class="block text-xs font-bold mb-1">Jam Tutup</label><input type="time" v-model="formUMKM.jamTutup" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    </div>
+                                    <div><label class="block text-xs font-bold mb-1">Nomor WhatsApp (Cth: 62812...)</label><input type="number" v-model="formUMKM.wa" placeholder="Awali dengan 62" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    
+                                    <div><label class="block text-xs font-bold mb-1">Jenis Produk / Kategori</label><input type="text" v-model="formUMKM.jenis" placeholder="Cth: Kuliner, Jasa, dll" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Harga Mulai Dari (Rp)</label><input type="number" v-model="formUMKM.harga" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+
+                                    <div class="md:col-span-2 border-t border-emerald-200 pt-3 mt-1">
+                                        <label class="block text-xs font-bold mb-2 text-emerald-700">Unggah 2 Foto Usaha/Produk (Sistem akan otomatis mengecilkan ukuran & membuat animasi)</label>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="border p-3 rounded bg-white relative">
+                                                <label class="text-xs font-bold block mb-1">Foto 1</label>
+                                                <input type="file" accept="image/*" @change="handleFotoUMKM1" class="w-full text-xs text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                                                <img v-if="formUMKM.foto1" :src="formUMKM.foto1" class="h-16 mt-2 rounded border shadow-sm">
+                                            </div>
+                                            <div class="border p-3 rounded bg-white relative">
+                                                <label class="text-xs font-bold block mb-1">Foto 2</label>
+                                                <input type="file" accept="image/*" @change="handleFotoUMKM2" class="w-full text-xs text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                                                <img v-if="formUMKM.foto2" :src="formUMKM.foto2" class="h-16 mt-2 rounded border shadow-sm">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end gap-2 mt-4">
+                                    <button @click="showFormUMKM = false" class="px-4 py-2 bg-gray-200 rounded text-xs font-bold">Batal</button>
+                                    <button @click="submitUMKM" class="px-5 py-2 bg-emerald-600 text-white rounded text-xs font-bold shadow hover:bg-emerald-700">Terbitkan Lapak</button>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+                                <div v-for="umkm in listUMKM" :key="umkm.id" class="border rounded-2xl p-4 bg-white shadow-sm hover:shadow-md transition relative group overflow-hidden">
+                                    <div class="relative w-full h-40 rounded-xl overflow-hidden mb-3 bg-gray-100">
+                                        <img v-if="umkm.foto1" :src="umkm.foto1" class="absolute inset-0 w-full h-full object-cover animate-foto-1">
+                                        <img v-if="umkm.foto2" :src="umkm.foto2" class="absolute inset-0 w-full h-full object-cover animate-foto-2">
+                                        <div v-if="!umkm.foto1 && !umkm.foto2" class="absolute inset-0 flex items-center justify-center text-gray-400"><i class="fas fa-image text-2xl"></i></div>
+                                    </div>
+                                    <span class="absolute top-6 right-6 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow z-20">{{ umkm.jenis }}</span>
+                                    
+                                    <h4 class="font-black text-gray-800 text-sm truncate">{{ umkm.namaUsaha }}</h4>
+                                    <p class="text-[10px] text-gray-500 font-bold mb-2">Oleh: {{ umkm.pemilik }}</p>
+                                    
+                                    <div class="text-[10px] text-gray-600 space-y-1 bg-gray-50 p-2 rounded-lg border">
+                                        <p><i class="fas fa-clock text-amber-500 mr-1 w-3 text-center"></i> {{ umkm.jamBuka }} - {{ umkm.jamTutup }}</p>
+                                        <p class="truncate"><i class="fas fa-map-marker-alt text-red-400 mr-1 w-3 text-center"></i> {{ umkm.alamat }}</p>
+                                        <p v-if="umkm.nib"><i class="fas fa-id-card text-blue-400 mr-1 w-3 text-center"></i> NIB: {{ umkm.nib }}</p>
+                                    </div>
+
+                                    <div class="mt-3 flex justify-between items-center border-t pt-3">
+                                        <p class="text-primary font-black text-xs">Rp {{ Number(umkm.harga).toLocaleString('id-ID') }}</p>
+                                        <div class="flex gap-2">
+                                            <a :href="'https://wa.me/' + umkm.wa" target="_blank" class="px-3 py-1.5 rounded-lg bg-green-500 text-white text-[10px] font-bold hover:bg-green-600 transition shadow-sm"><i class="fab fa-whatsapp mr-1"></i>Chat</a>
+                                            <button v-if="umkm.username === currentUser.username || currentUser.role === 'admin_kelurahan'" @click="deleteUMKM(umkm.id)" class="px-2 py-1.5 rounded-lg bg-red-100 text-red-500 text-[10px] font-bold hover:bg-red-200 transition" title="Hapus"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div v-if="listUMKM.length === 0" class="col-span-full text-center py-10 text-gray-400 border-2 border-dashed rounded-xl">Lapak belum tersedia. Silakan buka lapak Anda.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'tampilan-depan' && currentUser.role === 'admin_kelurahan'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                            <h3 class="font-bold text-gray-800 text-lg mb-6 border-b pb-3"><i class="fas fa-paint-roller text-blue-500 mr-2"></i>Pengaturan Landing Page</h3>
+                            
+                            <div class="grid grid-cols-1 gap-8">
+                                <div class="p-5 border rounded-xl bg-gray-50">
+                                    <h4 class="font-bold text-sm text-primary mb-4"><i class="fas fa-fill-drip mr-2"></i>Warna & Teks Navigasi/Footer</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label class="block text-xs font-bold mb-1">Warna Latar Header</label><input type="color" v-model="landingSettings.headerBg" class="w-full h-10 border rounded cursor-pointer"></div>
+                                        <div><label class="block text-xs font-bold mb-1">Teks di Header</label><input type="text" v-model="landingSettings.headerText" class="w-full border p-2 rounded text-sm"></div>
+                                        <div><label class="block text-xs font-bold mb-1">Warna Latar Footer</label><input type="color" v-model="landingSettings.footerBg" class="w-full h-10 border rounded cursor-pointer"></div>
+                                        <div><label class="block text-xs font-bold mb-1">Teks di Footer</label><input type="text" v-model="landingSettings.footerText" class="w-full border p-2 rounded text-sm"></div>
+                                    </div>
+                                </div>
+
+                                <div class="p-5 border rounded-xl bg-gray-50">
+                                    <h4 class="font-bold text-sm text-primary mb-4"><i class="fas fa-heading mr-2"></i>Teks Utama Landing Page</h4>
+                                    <div class="space-y-3">
+                                        <div><label class="block text-xs font-bold mb-1">Judul Portal Digital</label><input type="text" v-model="landingSettings.portalTitle" class="w-full border p-2 rounded text-sm font-bold"></div>
+                                        <div><label class="block text-xs font-bold mb-1">Deskripsi Sistem Pelayanan</label><textarea v-model="landingSettings.portalDesc" rows="2" class="w-full border p-2 rounded text-sm"></textarea></div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <div class="p-4 border rounded-xl bg-blue-50">
+                                        <h4 class="font-bold text-sm text-blue-800 mb-3 border-b border-blue-200 pb-2">Profil Walikota</h4>
+                                        <div class="space-y-2">
+                                            <div>
+                                                <label class="block text-[10px] font-bold">Upload Foto</label>
+                                                <input type="file" accept="image/*" @change="e => handleFotoPimpinan(e, 'walikota')" class="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-white file:text-blue-700 cursor-pointer">
+                                                <img v-if="landingSettings.walikota.img" :src="landingSettings.walikota.img" class="h-16 mt-1 rounded border object-cover">
+                                            </div>
+                                            <div><label class="block text-[10px] font-bold mt-2">Nama Lengkap</label><input type="text" v-model="landingSettings.walikota.nama" class="w-full border p-1.5 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold">Jabatan / Gelar</label><input type="text" v-model="landingSettings.walikota.jabatan" class="w-full border p-1.5 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold">Kata Sambutan</label><textarea v-model="landingSettings.walikota.sambutan" rows="3" class="w-full border p-1.5 rounded text-xs"></textarea></div>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 border rounded-xl bg-emerald-50">
+                                        <h4 class="font-bold text-sm text-emerald-800 mb-3 border-b border-emerald-200 pb-2">Profil Wakil Walikota</h4>
+                                        <div class="space-y-2">
+                                            <div>
+                                                <label class="block text-[10px] font-bold">Upload Foto</label>
+                                                <input type="file" accept="image/*" @change="e => handleFotoPimpinan(e, 'wakil')" class="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-white file:text-emerald-700 cursor-pointer">
+                                                <img v-if="landingSettings.wakil.img" :src="landingSettings.wakil.img" class="h-16 mt-1 rounded border object-cover">
+                                            </div>
+                                            <div><label class="block text-[10px] font-bold mt-2">Nama Lengkap</label><input type="text" v-model="landingSettings.wakil.nama" class="w-full border p-1.5 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold">Jabatan / Gelar</label><input type="text" v-model="landingSettings.wakil.jabatan" class="w-full border p-1.5 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold">Kata Sambutan</label><textarea v-model="landingSettings.wakil.sambutan" rows="3" class="w-full border p-1.5 rounded text-xs"></textarea></div>
+                                        </div>
+                                    </div>
+                                    <div class="p-4 border rounded-xl bg-amber-50">
+                                        <h4 class="font-bold text-sm text-amber-800 mb-3 border-b border-amber-200 pb-2">Profil Lurah / Kades</h4>
+                                        <div class="space-y-2">
+                                            <div>
+                                                <label class="block text-[10px] font-bold">Upload Foto</label>
+                                                <input type="file" accept="image/*" @change="e => handleFotoPimpinan(e, 'lurah')" class="w-full text-[10px] text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-[9px] file:font-bold file:bg-white file:text-amber-700 cursor-pointer">
+                                                <img v-if="landingSettings.lurah.img" :src="landingSettings.lurah.img" class="h-16 mt-1 rounded border object-cover">
+                                            </div>
+                                            <div><label class="block text-[10px] font-bold mt-2">Nama Lengkap</label><input type="text" v-model="landingSettings.lurah.nama" class="w-full border p-1.5 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold">Jabatan / Gelar</label><input type="text" v-model="landingSettings.lurah.jabatan" class="w-full border p-1.5 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold">Kata Sambutan</label><textarea v-model="landingSettings.lurah.sambutan" rows="3" class="w-full border p-1.5 rounded text-xs"></textarea></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-8 flex justify-end">
+                                <button @click="showToast('Konfigurasi Landing Page Berhasil Disimpan!')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg">Simpan & Terapkan di Halaman Depan</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="currentMenu === 'laporan'" class="space-y-6">
+                        <div class="flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-800">Daftar Pengaduan & Keluhan</h2>
+                                <p class="text-sm text-gray-500">Laporkan kendala lingkungan agar ditindaklanjuti.</p>
+                            </div>
+                            <button v-if="currentUser.role === 'warga'" @click="showFormKeluhan = !showFormKeluhan" class="bg-red-500 hover:bg-red-600 text-white px-5 py-2.5 rounded-lg font-bold shadow transition-colors">
+                                <i class="fas fa-plus mr-1"></i> Buat Laporan Baru
+                            </button>
+                        </div>
+
+                        <div v-if="showFormKeluhan && currentUser.role === 'warga'" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 form-section">
+                            <textarea v-model="formKeluhan.deskripsi" rows="3" class="w-full border border-gray-300 rounded-xl p-3 text-sm focus:ring-2 focus:ring-primary outline-none mb-3" placeholder="Tuliskan keluhan atau masalah di lingkungan Anda..."></textarea>
+                            
+                            <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                <label class="block text-xs font-bold mb-1 text-primary"><i class="fas fa-camera mr-1"></i> Lampirkan Foto Bukti (Opsional)</label>
+                                <input type="file" accept="image/*" @change="handleFotoKeluhan" class="w-full text-xs text-gray-500 file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-[10px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                                <p class="text-[9px] text-gray-400 mt-1 italic">* Sistem akan otomatis mengecilkan ukuran foto untuk mempercepat laporan.</p>
+                                <img v-if="formKeluhan.fotoBase64" :src="formKeluhan.fotoBase64" class="h-24 mt-2 rounded border shadow-sm object-cover">
+                            </div>
+
+                            <div class="flex justify-end gap-2 mt-4">
+                                <button @click="showFormKeluhan = false" class="px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-bold text-gray-600">Batal</button>
+                                <button @click="submitKeluhan" class="px-5 py-2 bg-primary hover:bg-blue-800 text-white rounded-lg text-sm font-bold shadow">Kirim Laporan</button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div v-for="issue in activeIssuesFiltered" :key="issue.id" :class="['bg-white rounded-2xl shadow-sm border p-5 transition-all', getIssueWarningClass(issue)]">
+                                <div class="flex justify-between items-start mb-3 border-b pb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 text-primary flex items-center justify-center font-bold">
+                                            {{ issue.authorName.charAt(0).toUpperCase() }}
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-gray-800">{{ issue.authorName }}</p>
+                                            <p class="text-xs text-gray-500">Warga RT {{ issue.rt }} / RW {{ issue.rw }} • {{ issue.date }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col items-end gap-2">
+                                        <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm', statusColor(issue.status)]">{{ issue.status }}</span>
+                                        <div v-if="['rt', 'rw', 'admin_kelurahan', 'babinsa'].includes(currentUser.role)" class="flex gap-1">
+                                            <button @click="updateIssueStatus(issue.id, 'Diterima')" class="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200">Terima</button>
+                                            <button @click="updateIssueStatus(issue.id, 'Diproses')" class="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-1 rounded hover:bg-amber-200">Proses</button>
+                                            <button @click="updateIssueStatus(issue.id, 'Selesai')" class="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200">Selesai</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-gray-700 text-sm mb-4 leading-relaxed font-medium">{{ issue.deskripsi }}</p>
+                                
+                                <div v-if="issue.foto" class="mb-4">
+                                    <p class="text-[10px] font-bold text-gray-400 mb-1"><i class="fas fa-image mr-1"></i> Foto Terlampir:</p>
+                                    <a :href="issue.foto" target="_blank"><img :src="issue.foto" class="h-32 rounded-lg border border-gray-200 shadow-sm object-cover hover:opacity-80 transition cursor-pointer"></a>
+                                </div>
+                                
+                                <div class="bg-gray-50 border rounded-xl p-4">
+                                    <h4 class="text-[10px] font-black text-gray-400 uppercase mb-3"><i class="fas fa-comments mr-1"></i> Respon & Diskusi</h4>
+                                    <div class="space-y-3 max-h-40 overflow-y-auto mb-3 pr-2 scrollbar-hide">
+                                        <div v-for="chat in issue.comments" :key="chat.id" :class="['flex', chat.senderId === currentUser.username ? 'justify-end' : 'justify-start']">
+                                            <div :class="['max-w-[85%] rounded-xl p-2.5 text-sm shadow-sm', chat.senderRole === 'warga' ? 'bg-white border text-gray-800' : (chat.senderRole === 'system' ? 'bg-amber-50 text-amber-800 text-center mx-auto border border-amber-200' : (chat.senderRole === 'babinsa' ? 'bg-red-100 text-red-900 border border-red-200' : 'bg-blue-100 text-blue-900'))]">
+                                                <p v-if="chat.senderRole !== 'system'" class="font-bold text-[10px] mb-0.5 opacity-60">{{ chat.senderName }} <span class="uppercase">({{ chat.senderRole.replace('_',' ') }})</span></p>
+                                                <p :class="[chat.senderRole === 'system' ? 'font-bold text-xs' : 'font-medium']">{{ chat.text }}</p>
+                                                <p class="text-[9px] text-right mt-1 opacity-40 font-bold">{{ chat.time }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-if="canComment(issue)" class="flex gap-2">
+                                        <input type="text" v-model="issue.newComment" @keyup.enter="sendComment(issue)" placeholder="Ketik respon atau update..." class="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-inner">
+                                        <button @click="sendComment(issue)" class="bg-primary text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-blue-800 transition"><i class="fas fa-paper-plane text-xs"></i></button>
+                                    </div>
+                                    <div v-else class="text-center text-[10px] font-bold text-gray-400 uppercase">
+                                        <i class="fas fa-lock mr-1"></i> Hanya Pelapor dan Pengurus Wilayah yang berhak merespon.
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="activeIssuesFiltered.length === 0" class="text-center py-10 text-gray-500 bg-white rounded-2xl border border-gray-200 font-medium">
+                                Tidak ada masalah atau keluhan yang masuk dalam radar pemantauan Anda.
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+
+        createApp({
+            setup() {
+                // ==========================================
+                // UTILITY: AUTO COMPRESS GAMBAR (CANVAS)
+                // ==========================================
+                const compressImage = (file, callback) => {
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 800;
+                            let width = img.width;
+                            let height = img.height;
+                            if (width > MAX_WIDTH) { height = Math.round((height *= MAX_WIDTH / width)); width = MAX_WIDTH; }
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            // Kompres 70% Quality
+                            callback(canvas.toDataURL('image/jpeg', 0.7));
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+                // ==========================================
+                // REFERENSI DATA MASTER
+                // ==========================================
+                const jobCategories = {
+                    "PEMERINTAH & KEAMANAN": ["PNS", "PPPK", "TNI AD", "TNI AL", "TNI AU", "POLRI", "Satpol PP", "Perangkat Kelurahan"],
+                    "KARYAWAN & PEKERJA KANTOR": ["Karyawan Swasta", "Karyawan BUMN", "Karyawan BUMD", "Staff Administrasi", "Sekretaris", "HRD", "Customer Service", "Teller Bank", "Marketing/Sales", "Supervisor", "Manajer"],
+                    "PENDIDIKAN": ["Guru PAUD", "Guru SD", "Guru SMP", "Guru SMA/SMK", "Dosen", "Tutor/Bimbel"],
+                    "KESEHATAN": ["Dokter Umum", "Dokter Spesialis", "Perawat", "Bidan", "Apoteker", "Tenaga Laboratorium", "Radiografer"],
+                    "HUKUM & PROFESIONAL": ["Pengacara", "Notaris", "Hakim", "Jaksa", "Konsultan", "Akuntan", "Auditor"],
+                    "TEKNOLOGI & DIGITAL": ["Programmer", "Web Developer", "Mobile Developer", "IT Support", "Network Engineer", "Data Analyst", "Desainer Grafis", "Video Editor", "Content Creator", "Digital Marketing"],
+                    "PERDAGANGAN": ["Pedagang Keliling", "Pedagang Kaki Lima", "Pemilik Warung", "Pemilik Toko", "Kasir", "Sales Toko"],
+                    "KULINER": ["Penjual Makanan", "Penjual Minuman", "Koki", "Chef", "Barista", "Pelayan Restoran"],
+                    "TEKNISI & KETERAMPILAN": ["Tukang Bangunan", "Tukang Kayu", "Tukang Listrik", "Tukang Las", "Tukang AC", "Teknisi HP", "Teknisi Elektronik", "Montir", "Mekanik"],
+                    "TRANSPORTASI": ["Sopir Pribadi", "Sopir Angkutan", "Sopir Truk", "Sopir Bus", "Ojek Pangkalan", "Driver Online", "Kurir"],
+                    "PERTANIAN & PERIKANAN": ["Petani", "Buruh Tani", "Pekebun", "Nelayan", "Pembudidaya Ikan", "Peternak"],
+                    "PEKERJA HARIAN / INFORMAL": ["Buruh Harian Lepas", "Kuli Bangunan", "Pemulung", "Tukang Parkir", "Pekerja Serabutan"],
+                    "JASA RUMAH TANGGA": ["Asisten Rumah Tangga", "Babysitter", "Tukang Kebun", "Satpam", "Cleaning Service"],
+                    "INDUSTRI RUMAHAN": ["Penjahit", "Pengrajin", "Pembuat Kue", "Produksi Makanan Ringan"],
+                    "PARIWISATA & HOSPITALITY": ["Resepsionis Hotel", "Housekeeping", "Tour Guide", "Travel Agent"],
+                    "SENI & KREATIF": ["Seniman", "Musisi", "Fotografer", "Videografer", "Event Organizer"],
+                    "STATUS KHUSUS": ["Pelajar", "Mahasiswa", "Ibu Rumah Tangga", "Tidak Bekerja", "Pensiunan"]
+                };
+
+                const businessCategories = {
+                    "PERDAGANGAN": ["Toko Kelontong", "Warung Sembako", "Toko Pakaian", "Toko Elektronik", "Toko Bangunan", "Jual Pulsa & Paket Data"],
+                    "KULINER": ["Warung Makan", "Rumah Makan", "Katering", "Jual Kue / Roti", "Minuman"],
+                    "JASA": ["Bengkel Motor", "Bengkel Mobil", "Salon / Barbershop", "Laundry", "Servis HP / Elektronik", "Jasa Jahit", "Fotokopi / Percetakan"],
+                    "PRODUKSI / INDUSTRI": ["Konveksi", "Kerajinan", "Mebel", "Produksi Makanan", "Anyaman / Tenun"],
+                    "PERTANIAN & TERNAK": ["Pertanian", "Peternakan", "Perikanan", "Perkebunan"],
+                    "DIGITAL / ONLINE": ["Online Shop", "Reseller / Dropshipper", "Jasa Desain", "Content Creator"],
+                    "TRANSPORTASI": ["Ojek", "Travel", "Rental Kendaraan", "Kurir"],
+                    "PROPERTI / SEWA": ["Kos-kosan", "Penginapan / Homestay", "Asrama", "Kontrakan", "Sewa Ruko"],
+                    "KREATIF": ["Fotografi", "Event Organizer", "Dekorasi"]
+                };
+
+                // STATE UI DASAR
+                const globalLoading = ref(false);
+                const sidebarOpen = ref(false);
+                const currentMenu = ref('dashboard');
+                const currentDate = ref(new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+                const appSettings = ref({ portalName: 'Sistem Digital', logoUrl: '' });
+                const notification = ref({ show: false, message: '', type: 'success' });
+                
+                const showToast = (message, type = 'success') => {
+                    notification.value = { show: true, message, type };
+                    setTimeout(() => notification.value.show = false, 3000);
+                };
+
+                // STATE PENGATURAN LANDING PAGE
+                const landingSettings = ref({
+                    headerBg: '#ffffff', footerBg: '#111827', headerText: 'Pemerintah Kota', footerText: 'Pemerintah Kota',
+                    portalTitle: 'Portal Digital Layanan Terpadu', portalDesc: 'Sistem pelayanan digital untuk mempermudah administrasi, pelaporan warga, kependudukan, hingga promosi dan pemberdayaan ekonomi UMKM tingkat kelurahan.',
+                    walikota: { img: 'https://via.placeholder.com/200?text=[Foto+Walikota]', nama: 'Bapak Walikota', jabatan: 'Walikota Kita', sambutan: '"Kami berkomitmen memberikan pelayanan terbaik yang cepat, transparan, dan akuntabel..."' },
+                    wakil: { img: 'https://via.placeholder.com/200?text=[Foto+Wakil+Walikota]', nama: 'Bapak Wakil Walikota', jabatan: 'Wakil Walikota Kita', sambutan: '"Sinergi antara pemerintah dan warga adalah kunci kemajuan..."' },
+                    lurah: { img: 'https://via.placeholder.com/250?text=[Foto+Lurah]', nama: 'Bapak Kepala Kelurahan', jabatan: 'Lurah Wilayah Kita', sambutan: '"Selamat datang di inovasi terbaru kelurahan kita..."' }
+                });
+
+                // LOGIN & REGISTER STATE
+                const isLoggedIn = ref(false);
+                const isRegistering = ref(false);
+                const regStep = ref(1);
+                const showLoginPassword = ref(false);
+                const showRegPassword = ref(false);
+                const showRegRepeatPassword = ref(false);
+                const currentAuthView = ref('landing'); 
+                const beritaList = ref([
+                    { id: 1, title: 'Kerja Bakti Massal Sambut HUT Kota', excerpt: 'Seluruh warga diimbau untuk mengikuti kerja bakti...', date: '18 Mei 2026', img: 'https://via.placeholder.com/600x400?text=[Image+Kerja+Bakti]' },
+                    { id: 2, title: 'Penyaluran Bansos Tahap II Dimulai', excerpt: 'Pemerintah kelurahan menginformasikan...', date: '15 Mei 2026', img: 'https://via.placeholder.com/600x400?text=[Image+Bansos]' },
+                    { id: 3, title: 'Lomba Inovasi UMKM', excerpt: 'Mari daftarkan usaha Anda pada ajang Lomba UMKM...', date: '10 Mei 2026', img: 'https://via.placeholder.com/600x400?text=[Image+UMKM+Lomba]' }
+                ]);
+
+                // STATE ADMIN DROPDOWN & RT/RW Accounts
+                const adminDropdown = ref(true);
+                const rtRwAccounts = ref([]);
+                const formRtRw = ref({ nama: '', role: 'Ketua RT', rt: '', rw: '', username: '', password: '' });
+
+                // STATE CURRENT USER
+                const currentUser = ref({ name: '', role: 'warga', username: '', rt: '01', rw: '05' });
+                const loginForm = ref({ email: '', password: '' });
+                
+                // DATA PENDAFTARAN WARGA LENGKAP (TIDAK ADA PERUBAHAN FORMAT)
+                const reg = ref({
+                    nik:'', nokk:'', nama:'', tempat_lahir:'', tgl_lahir:'', kelamin:'Laki-laki', suku:'', alamat:'', rt:'', rw:'', hp1:'', hp2:'',
+                    status_keluarga:'Kepala Keluarga', status_nikah:'Belum Menikah', jml_kk:1, jml_rumah:1, status_rumah:'Milik Sendiri', pendidikan:'SMA/SMK', kondisi_khusus:'Tidak Ada',
+                    sehat_status:'Sehat', gol_darah:'-', tb:'', bb:'', kesehatan_tipe:'Umum', balita_imunisasi:'Lengkap', balita_gizi:'Baik', hamil_usia:'', hamil_risiko:'Tidak', lansia_sakit:'', lansia_bantuan:'Mandiri',
+                    penghasilan:'< 1 juta', pekerjaan:'', usaha:'Tidak Ada', kamar_total:0, kamar_terisi:0, kamar_kosong:0, email:'', username:'', password:'', repeatPassword:''
+                });
+                const listWargaLengkap = ref([
+                    { nik: '123', nama: 'Budi Warga', rt:'01', rw:'05', hp1: '0812', pekerjaan: 'Pegawai Negeri Sipil (PNS)', usaha: 'Tidak Ada' },
+                    { nik: '124', nama: 'Siti Pedagang', rt:'02', rw:'05', hp1: '0813', pekerjaan: 'Pemilik Toko', usaha: 'Warung Sembako' },
+                    { nik: '125', nama: 'Ahmad IT', rt:'01', rw:'05', hp1: '0814', pekerjaan: 'Programmer', usaha: 'Jasa Desain' },
+                    { nik: '126', nama: 'Juragan Kos', rt:'03', rw:'05', hp1: '0815', pekerjaan: 'Pengusaha', usaha: 'Kos-kosan' }
+                ]);
+
+                // STATE MENU TAMBAHAN
+                const formSurat = ref({ jenis: '', keperluan: '', wa: '', fotoBase64: '' });
+                const listSurat = ref([]);
+                const showFormSurat = ref(false);
+
+                const formBansos = ref({ nik: '', nama: '', program: '' });
+                const listBansos = ref([]);
+                
+                const formTamu = ref({ nama: '', lama: 1, tujuan: '' });
+                const listTamu = ref([]);
+                const showFormTamu = ref(false);
+
+                const formKas = ref({ jenis: 'Masuk', nominal: 0, judul: '' });
+                const listKas = ref([]);
+
+                const formAgenda = ref({ jenis: 'Kerja Bakti', tanggal: '2026-05-25', detail: '' });
+                const listAgenda = ref([{ id: 1, jenis: 'Kerja Bakti Massal', tanggal: '2026-05-25', detail: 'Membersihkan selokan dan gorong gorong jalan utama.', author: 'Admin Kelurahan' }]);
+
+                const formPolling = ref({ pertanyaan: '', p1: '', p2: '', p3: '', p4: '' });
+                const activePolling = ref({ pertanyaan: '', pilihan: [] });
+
+                const formAdminInfo = ref({ jenis: 'Dana Masuk', nominal: 0, alokasi: '', info: '' });
+                const listAdministrasi = ref([]);
+
+                // STATE BARU: LAPAK UMKM
+                const showFormUMKM = ref(false);
+                const formUMKM = ref({ namaUsaha: '', nib: '', alamat: '', jamBuka: '08:00', jamTutup: '20:00', wa: '', jenis: '', harga: 0, foto1: '', foto2: '' });
+                const listUMKM = ref([
+                    { id: 1, username: 'siti123', pemilik: 'Ibu Siti', rt: '01', rw: '05', namaUsaha: 'Kripik Pisang Manis Gurih', nib: '', alamat: 'Jl. Melati RT 01', jamBuka: '08:00', jamTutup: '17:00', jenis: 'Kuliner', harga: 15000, wa: '628123456789', foto1: 'https://via.placeholder.com/300x300/ff7f7f/333333?text=[Foto1+Kripik]', foto2: 'https://via.placeholder.com/300x300/ffb6c1/333333?text=[Foto2+Kripik]' },
+                    { id: 2, username: 'budi123', pemilik: 'Pak Budi', rt: '03', rw: '05', namaUsaha: 'Kerajinan Anyaman Bambu', nib: '881234', alamat: 'Jl. Mawar RT 03', jamBuka: '09:00', jamTutup: '16:00', jenis: 'Kerajinan', harga: 50000, wa: '628198765432', foto1: 'https://via.placeholder.com/300x300/90ee90/333333?text=[Foto1+Anyaman]', foto2: 'https://via.placeholder.com/300x300/2e8b57/ffffff?text=[Foto2+Anyaman]' }
+                ]);
+
+                // LOGIC PENGELOMPOKAN LAPAK UMKM BERDASARKAN RT/RW (Khusus Halaman Depan)
+                const groupedUMKMLanding = computed(() => {
+                    const groups = {};
+                    listUMKM.value.forEach(u => {
+                        const rtStr = u.rt || '00';
+                        const rwStr = u.rw || '00';
+                        const key = `0${rwStr}`.slice(-3) + ` / RT ` + `0${rtStr}`.slice(-3);
+                        if (!groups[key]) groups[key] = [];
+                        groups[key].push(u);
+                    });
+                    const result = [];
+                    for (const key in groups) {
+                        result.push({ wilayah: key, items: groups[key] });
+                    }
+                    return result.sort((a,b) => a.wilayah.localeCompare(b.wilayah));
+                });
+
+                // LOGIC UPLOAD FOTO TAMPILAN DEPAN / DASHBOARD
+                const handleLogoUpload = (e) => {
+                    if(e.target.files[0]) compressImage(e.target.files[0], (base64) => appSettings.value.logoUrl = base64);
+                };
+                const handleFotoPimpinan = (e, tokoh) => {
+                    if(e.target.files[0]) compressImage(e.target.files[0], (base64) => landingSettings.value[tokoh].img = base64);
+                };
+
+                // LOGIC PENDAFTARAN
+                const kalkulasiKamar = () => { reg.value.kamar_kosong = reg.value.kamar_total - reg.value.kamar_terisi; };
+
+                // LOGIC AKUN PEJABAT (TERMASUK HAPUS)
+                const saveRtRwAccount = () => {
+                    if(!formRtRw.value.nama || !formRtRw.value.username || !formRtRw.value.password) return showToast("Mohon lengkapi Nama, Username, dan Password!", "error");
+                    rtRwAccounts.value.push({ ...formRtRw.value, id: Date.now() });
+                    showToast(`Akun ${formRtRw.value.role} berhasil dibuat!`);
+                    formRtRw.value = { nama: '', role: 'Ketua RT', rt: '', rw: '', username: '', password: '' };
+                };
+                const deleteRtRwAccount = (id) => {
+                    rtRwAccounts.value = rtRwAccounts.value.filter(a => a.id !== id);
+                    showToast("Akun pejabat berhasil dihapus dari sistem.", "success");
+                };
+
+                const handleRegister = async () => {
+                    if (reg.value.password !== reg.value.repeatPassword) return showToast("Password tidak sama!", "error");
+                    globalLoading.value = true;
+                    setTimeout(() => {
+                        listWargaLengkap.value.push({ ...reg.value });
+                        showToast("Pendaftaran berhasil direkam sistem!", "success");
+                        loginForm.value.email = reg.value.username;
+                        loginForm.value.password = reg.value.password;
+                        isRegistering.value = false;
+                        regStep.value = 1;
+                        globalLoading.value = false;
+                    }, 1200);
+                };
+
+                const handleLogin = async () => {
+                    globalLoading.value = true;
+                    setTimeout(() => {
+                        let role = 'warga';
+                        let username = loginForm.value.email.toLowerCase();
+                        let pass = loginForm.value.password;
+                        
+                        // 1. Cek apakah ini akun buatan admin (RT / RW / Babinsa)
+                        const pejabatAkun = rtRwAccounts.value.find(a => a.username.toLowerCase() === username && a.password === pass);
+                        
+                        if (pejabatAkun) {
+                            if(pejabatAkun.role === 'Ketua RT') role = 'rt';
+                            else if(pejabatAkun.role === 'Ketua RW') role = 'rw';
+                            else if(pejabatAkun.role === 'Babinsa') role = 'babinsa';
+                        } 
+                        // 2. Jika bukan buatan admin (Bawaan sistem lama / Warga)
+                        else {
+                            if(username.includes('admin') || username.includes('lurah') || username.includes('staf')) role = 'admin_kelurahan';
+                            else if(username.includes('babinsa')) role = 'babinsa';
+                            else if(username.includes('rw')) role = 'rw';
+                            else if(username.includes('rt')) role = 'rt';
+                        }
+                        
+                        currentUser.value = { name: username, username: username, role: role, rt: '01', rw: '05' };
+                        isLoggedIn.value = true;
+                        showToast(`Otentikasi sukses. Masuk sebagai ${role.toUpperCase()}`);
+                        globalLoading.value = false;
+                        
+                        // Auto Redirect Babinsa ke Laporan
+                        if(role === 'babinsa') {
+                            currentMenu.value = 'laporan';
+                        } else {
+                            currentMenu.value = 'dashboard';
+                        }
+                    }, 800);
+                };
+
+                const handleLogout = () => {
+                    isLoggedIn.value = false; loginForm.value = { email:'', password:'' }; currentMenu.value = 'dashboard'; showToast("Sesi diakhiri secara aman.");
+                };
+                const switchMenu = (m) => { currentMenu.value = m; sidebarOpen.value = false; };
+
+                // LOGIC SURAT DENGAN FOTO PENGANTAR RT/RW
+                const handleFotoSurat = (e) => {
+                    compressImage(e.target.files[0], (base64) => { formSurat.value.fotoBase64 = base64; });
+                };
+                const submitSurat = () => {
+                    if(!formSurat.value.jenis || !formSurat.value.fotoBase64) return showToast("Jenis Surat dan Foto Keterangan RT/RW wajib diisi!", "error");
+                    listSurat.value.unshift({ id: Date.now(), tanggal: new Date().toLocaleDateString('id-ID'), jenis: formSurat.value.jenis, keperluan: formSurat.value.keperluan, nama: currentUser.value.name, wa: formSurat.value.wa, foto: formSurat.value.fotoBase64, status: 'Menunggu' });
+                    formSurat.value = { jenis: '', keperluan: '', wa: '', fotoBase64: '' };
+                    showFormSurat.value = false; showToast("Pengajuan Surat beserta lampiran berhasil dikirim.");
+                };
+                const updateSurat = (id, st) => { const s = listSurat.value.find(x=>x.id===id); if(s) { s.status = st; showToast(`Status surat diubah: ${st}`); } };
+                const getSuratStatusClass = (st) => st === 'Selesai' ? 'bg-green-100 text-green-700' : (st === 'Diproses' ? 'bg-amber-100 text-amber-700' : 'bg-gray-100 text-gray-700');
+
+                // LOGIC KELUHAN DENGAN FOTO
+                const showFormKeluhan = ref(false);
+                const formKeluhan = ref({ deskripsi: '', fotoBase64: '' });
+                const issues = ref([
+                    { id: 1, authorName: 'Budi Warga', authorUsername: 'budi123', rt: '01', rw: '05', deskripsi: 'Jalan berlubang dan minim penerangan.', foto: '', status: 'Menunggu', created_at: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(), date: '25 Hari Lalu', comments: [], updated_at: Date.now() - 5000 },
+                    { id: 2, authorName: 'Siti Pedagang', authorUsername: 'siti123', rt: '02', rw: '05', deskripsi: 'Pipa pam pecah di ujung jalan masuk.', foto: 'https://via.placeholder.com/800x400/ffb6c1/333333?text=[Contoh+Foto+Keluhan]', status: 'Diproses', created_at: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000).toISOString(), date: '11 Hari Lalu', comments: [], updated_at: Date.now() }
+                ]);
+                const handleFotoKeluhan = (e) => {
+                    compressImage(e.target.files[0], (base64) => { formKeluhan.value.fotoBase64 = base64; });
+                };
+                const submitKeluhan = () => {
+                    if(!formKeluhan.value.deskripsi) return;
+                    issues.value.unshift({ id: Date.now(), authorName: currentUser.value.name, authorUsername: currentUser.value.username, rt: currentUser.value.rt, rw: currentUser.value.rw, deskripsi: formKeluhan.value.deskripsi, foto: formKeluhan.value.fotoBase64, status: 'Menunggu', created_at: new Date().toISOString(), date: new Date().toLocaleDateString('id-ID'), comments: [], updated_at: Date.now() });
+                    formKeluhan.value = { deskripsi: '', fotoBase64: '' };
+                    showFormKeluhan.value = false; showToast("Keluhan terkirim realtime ke RT/RW setempat!");
+                };
+                const getIssueWarningClass = (issue) => {
+                    if(issue.status === 'Selesai') return 'border-gray-200';
+                    const diffDays = Math.ceil(Math.abs(new Date() - new Date(issue.created_at)) / (1000 * 60 * 60 * 24));
+                    if(diffDays >= 20) return 'blink-danger shadow-red-200 border-red-500'; 
+                    if(diffDays >= 10) return 'bg-yellow-50 border-yellow-400'; 
+                    return 'border-gray-200';
+                };
+                const statusColor = (st) => st === 'Selesai' ? 'bg-green-100 text-green-700 border border-green-200' : (st === 'Diproses' ? 'bg-amber-100 text-amber-700 border border-amber-200' : (st === 'Diterima' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-700 border border-gray-200'));
+                const updateIssueStatus = (id, newStatus) => {
+                    const issue = issues.value.find(i => i.id === id);
+                    if(issue) {
+                        issue.status = newStatus; issue.updated_at = Date.now();
+                        issue.comments.push({ id: Date.now(), senderName: 'Sistem', senderRole: 'system', text: `Aparat merubah status: ${newStatus.toUpperCase()}`, time: new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) });
+                        showToast(`Status laporan ditandai ${newStatus}`);
+                    }
+                };
+                const sendComment = (issue) => {
+                    if(!issue.newComment) return;
+                    issue.comments.push({ id: Date.now(), senderName: currentUser.value.name, senderRole: currentUser.value.role, senderId: currentUser.value.username, text: issue.newComment, time: new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}) });
+                    issue.newComment = ''; issue.updated_at = Date.now(); 
+                };
+                const canComment = (issue) => currentUser.value.role !== 'warga' || issue.authorUsername === currentUser.value.username;
+                const activeIssuesFiltered = computed(() => {
+                    let filtered = issues.value;
+                    if (currentUser.value.role === 'rt' || currentUser.value.role === 'rw') filtered = filtered.filter(i => i.rt === currentUser.value.rt && i.rw === currentUser.value.rw);
+                    else if (currentUser.value.role === 'warga') filtered = filtered.filter(i => i.authorUsername === currentUser.value.username);
+                    const nowHour = new Date().getHours();
+                    return filtered.filter(issue => {
+                        if (issue.status === 'Selesai') {
+                           const isToday = new Date(issue.updated_at).toDateString() === new Date().toDateString();
+                           if (isToday && nowHour >= 23) return false;
+                           if (!isToday) return false; 
+                        } return true; 
+                    }).sort((a, b) => {
+                        const getCritScore = (iss) => {
+                            if(iss.status === 'Selesai') return 0;
+                            const d = Math.ceil(Math.abs(new Date() - new Date(iss.created_at)) / (1000 * 60 * 60 * 24));
+                            if(d >= 20) return 3; if(d >= 10) return 2; return 1;
+                        };
+                        const scoreDiff = getCritScore(b) - getCritScore(a);
+                        if(scoreDiff !== 0) return scoreDiff;
+                        return (b.updated_at || 0) - (a.updated_at || 0); 
+                    });
+                });
+
+                // LOGIC BANSOS, TAMU, KAS, AGENDA, ADMINISTRASI, POLLING
+                const submitBansos = () => {
+                    if(!formBansos.value.nik || !formBansos.value.program) return showToast('Lengkapi data form!', 'error');
+                    listBansos.value.unshift({ id: Date.now(), tanggal: new Date().toLocaleDateString('id-ID'), program: formBansos.value.program, nama: formBansos.value.nama, nik: formBansos.value.nik, pengusul: currentUser.value.name, status: 'Menunggu Verifikasi' });
+                    formBansos.value = { nik: '', nama: '', program: '' }; showToast("Usulan Bansos Berhasil Dikirim.");
+                };
+                const updateBansosStatus = (id, val) => { const b = listBansos.value.find(x=>x.id===id); if(b) b.status = val; showToast('Status verifikasi diperbarui.'); };
+                const getBansosStatusClass = (st) => {
+                    if(st==='Disetujui' || st==='Bantuan Disalurkan') return 'bg-green-100 text-green-700';
+                    if(st==='Ditolak') return 'bg-red-100 text-red-700'; return 'bg-amber-100 text-amber-700';
+                };
+
+                const submitTamu = () => {
+                    if(!formTamu.value.nama) return;
+                    listTamu.value.unshift({ id: Date.now(), tanggal: new Date().toLocaleDateString('id-ID'), nama: formTamu.value.nama, lama: formTamu.value.lama, tujuan: formTamu.value.tujuan, pelapor: currentUser.value.name });
+                    formTamu.value = { nama: '', lama: 1, tujuan: '' }; showFormTamu.value = false; showToast("Laporan Tamu berhasil direkam.");
+                };
+
+                const submitKas = () => {
+                    if(!formKas.value.nominal) return;
+                    listKas.value.unshift({ id: Date.now(), tanggal: new Date().toLocaleDateString('id-ID'), jenis: formKas.value.jenis, nominal: formKas.value.nominal, judul: formKas.value.judul });
+                    formKas.value = { jenis: 'Masuk', nominal: 0, judul: '' }; showToast("Transaksi berhasil dibukukan.");
+                };
+                const hitungTotalKas = () => listKas.value.reduce((acc, curr) => curr.jenis === 'Masuk' ? acc + curr.nominal : acc - curr.nominal, 0);
+                const deleteKas = (id) => listKas.value = listKas.value.filter(k => k.id !== id);
+
+                const submitAgenda = () => {
+                    if(!formAgenda.value.tanggal || !formAgenda.value.detail) return showToast("Lengkapi form agenda!", "error");
+                    listAgenda.value.unshift({ id: Date.now(), jenis: formAgenda.value.jenis, tanggal: formAgenda.value.tanggal, detail: formAgenda.value.detail, author: currentUser.value.name });
+                    formAgenda.value = { jenis: 'Kerja Bakti', tanggal: '', detail: '' }; showToast("Agenda diterbitkan & tampil di Halaman Depan.");
+                };
+                const deleteAgenda = (id) => listAgenda.value = listAgenda.value.filter(a => a.id !== id);
+
+                const submitAdministrasi = () => {
+                    if(!formAdminInfo.value.nominal) return;
+                    listAdministrasi.value.unshift({ id: Date.now(), tanggal: new Date().toLocaleDateString('id-ID'), jenis: formAdminInfo.value.jenis, nominal: formAdminInfo.value.nominal, alokasi: formAdminInfo.value.alokasi, info: formAdminInfo.value.info });
+                    formAdminInfo.value = { jenis: 'Dana Masuk', nominal: 0, alokasi: '', info: '' }; showToast("Realisasi Anggaran Diinput.");
+                };
+
+                const submitPolling = () => {
+                    if(!formPolling.value.pertanyaan) return showToast("Pertanyaan kosong!", "error");
+                    activePolling.value = { pertanyaan: formPolling.value.pertanyaan, pilihan: [formPolling.value.p1, formPolling.value.p2, formPolling.value.p3, formPolling.value.p4] };
+                    showToast("Polling berhasil ditayangkan di Halaman Depan.");
+                };
+                const clearPolling = () => { activePolling.value = { pertanyaan: '', pilihan: [] }; showToast("Polling telah dikosongkan."); };
+
+                // LOGIC LAPAK UMKM BARU
+                const handleFotoUMKM1 = (e) => compressImage(e.target.files[0], (base64) => { formUMKM.value.foto1 = base64; });
+                const handleFotoUMKM2 = (e) => compressImage(e.target.files[0], (base64) => { formUMKM.value.foto2 = base64; });
+                const submitUMKM = () => {
+                    if(!formUMKM.value.namaUsaha || !formUMKM.value.wa) return showToast("Nama Usaha dan WhatsApp wajib diisi!", "error");
+                    listUMKM.value.unshift({
+                        id: Date.now(), username: currentUser.value.username, pemilik: currentUser.value.name,
+                        rt: currentUser.value.rt, rw: currentUser.value.rw, // Disimpan otomatis berdasarkan sesi warga yang login
+                        namaUsaha: formUMKM.value.namaUsaha, nib: formUMKM.value.nib, alamat: formUMKM.value.alamat, 
+                        jamBuka: formUMKM.value.jamBuka, jamTutup: formUMKM.value.jamTutup,
+                        wa: formUMKM.value.wa, jenis: formUMKM.value.jenis, harga: formUMKM.value.harga,
+                        foto1: formUMKM.value.foto1, foto2: formUMKM.value.foto2
+                    });
+                    formUMKM.value = { namaUsaha: '', nib: '', alamat: '', jamBuka: '08:00', jamTutup: '20:00', wa: '', jenis: '', harga: 0, foto1: '', foto2: '' };
+                    showFormUMKM.value = false; showToast("Lapak UMKM berhasil dibuat dan tampil di Halaman Depan!");
+                };
+                const deleteUMKM = (id) => {
+                    listUMKM.value = listUMKM.value.filter(u => u.id !== id); showToast("Lapak dihapus.");
+                };
+
+                // LOGIC STATISTIK
+                const totalWarga = computed(() => listWargaLengkap.value.length);
+                const totalUMKM = computed(() => listWargaLengkap.value.filter(w => w.usaha !== 'Tidak Ada' && w.usaha !== '').length);
+                const getJobStats = computed(() => {
+                    const stats = {};
+                    listWargaLengkap.value.forEach(w => { if(w.pekerjaan) stats[w.pekerjaan] = (stats[w.pekerjaan] || 0) + 1; });
+                    return Object.fromEntries(Object.entries(stats).sort(([,a], [,b]) => b - a));
+                });
+                const getBizStats = computed(() => {
+                    const stats = {};
+                    listWargaLengkap.value.forEach(w => { if(w.usaha && w.usaha !== 'Tidak Ada') stats[w.usaha] = (stats[w.usaha] || 0) + 1; });
+                    return Object.fromEntries(Object.entries(stats).sort(([,a], [,b]) => b - a));
+                });
+                const getGenderStats = computed(() => {
+                    const stats = { 'Laki-laki': 0, 'Perempuan': 0 };
+                    listWargaLengkap.value.forEach(w => { if(w.kelamin) stats[w.kelamin] = (stats[w.kelamin] || 0) + 1; });
+                    return stats;
+                });
+                const getSukuStats = computed(() => {
+                    const stats = {}; listWargaLengkap.value.forEach(w => { if(w.suku) stats[w.suku] = (stats[w.suku] || 0) + 1; }); return stats;
+                });
+                const getUltahBulanIni = computed(() => {
+                    const bulanIni = new Date().getMonth();
+                    return listWargaLengkap.value.filter(w => { if(!w.tgl_lahir) return false; return new Date(w.tgl_lahir).getMonth() === bulanIni; });
+                });
+                const getAgeCategoryStats = computed(() => {
+                    const stats = { 'Balita (0-5)': 0, 'Anak (6-12)': 0, 'Remaja (13-17)': 0, 'Dewasa (18-59)': 0, 'Lansia (60+)': 0 };
+                    const currentYear = new Date().getFullYear();
+                    listWargaLengkap.value.forEach(w => {
+                        if(w.tgl_lahir) {
+                            const age = currentYear - new Date(w.tgl_lahir).getFullYear();
+                            if(age <= 5) stats['Balita (0-5)']++; else if(age <= 12) stats['Anak (6-12)']++; else if(age <= 17) stats['Remaja (13-17)']++; else if(age <= 59) stats['Dewasa (18-59)']++; else stats['Lansia (60+)']++;
+                        }
+                    }); return stats;
+                });
+
+                // PENGUMUMAN
+                const announcements = ref([{ id:1, text:'Posyandu Balita rutin diadakan besok pagi jam 08.00 WIB.', author:'Kader RT 01', authorUsername:'admin' }]);
+                
+                return {
+                    jobCategories, businessCategories, globalLoading, sidebarOpen, currentMenu, currentDate, appSettings, notification, showToast, switchMenu,
+                    isLoggedIn, currentAuthView, beritaList, isRegistering, regStep, showLoginPassword, showRegPassword, showRegRepeatPassword, currentUser, loginForm, reg, handleRegister, handleLogin, handleLogout, kalkulasiKamar,
+                    adminDropdown, rtRwAccounts, formRtRw, saveRtRwAccount, deleteRtRwAccount, landingSettings,
+                    totalWarga, totalUMKM, getJobStats, getBizStats, getGenderStats, getSukuStats, getUltahBulanIni, getAgeCategoryStats, listWargaLengkap,
+                    issues, showFormKeluhan, formKeluhan, submitKeluhan, handleFotoKeluhan, getIssueWarningClass, statusColor, updateIssueStatus, sendComment, canComment, activeIssuesFiltered,
+                    formSurat, listSurat, showFormSurat, submitSurat, handleFotoSurat, updateSurat, getSuratStatusClass,
+                    formBansos, listBansos, submitBansos, updateBansosStatus, getBansosStatusClass,
+                    formTamu, listTamu, showFormTamu, submitTamu,
+                    formKas, listKas, submitKas, hitungTotalKas, deleteKas,
+                    formAgenda, listAgenda, submitAgenda, deleteAgenda,
+                    formPolling, activePolling, submitPolling, clearPolling,
+                    formAdminInfo, listAdministrasi, submitAdministrasi,
+                    showFormUMKM, formUMKM, listUMKM, groupedUMKMLanding, handleFotoUMKM1, handleFotoUMKM2, submitUMKM, deleteUMKM, handleLogoUpload, handleFotoPimpinan,
+                    announcements
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
