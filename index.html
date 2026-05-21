@@ -95,7 +95,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
                     <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-blue-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
-                        <img :src="landingSettings.walikota.img" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100">
+                        <img :src="landingSettings.walikota.img" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200'">
                         <div class="z-10 text-center md:text-left">
                             <h3 class="font-black text-2xl text-gray-800">{{ landingSettings.walikota.nama }}</h3>
                             <p class="text-xs font-black uppercase tracking-widest text-primary mb-4 bg-blue-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.walikota.jabatan }}</p>
@@ -104,7 +104,7 @@
                     </div>
                     <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-emerald-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
-                        <img :src="landingSettings.wakil.img" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100">
+                        <img :src="landingSettings.wakil.img" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200'">
                         <div class="z-10 text-center md:text-left">
                             <h3 class="font-black text-2xl text-gray-800">{{ landingSettings.wakil.nama }}</h3>
                             <p class="text-xs font-black uppercase tracking-widest text-emerald-600 mb-4 bg-emerald-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.wakil.jabatan }}</p>
@@ -116,7 +116,7 @@
                 <!-- SAMBUTAN LURAH -->
                 <div class="bg-gradient-to-br from-blue-900 via-primary to-blue-800 rounded-[2.5rem] p-10 shadow-2xl text-white flex flex-col md:flex-row items-center gap-10 mb-16 relative overflow-hidden">
                     <div class="absolute -top-24 -right-24 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
-                    <img :src="landingSettings.lurah.img" class="w-48 h-48 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100">
+                    <img :src="landingSettings.lurah.img" class="w-48 h-48 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100" onerror="this.src='https://via.placeholder.com/250'">
                     <div class="text-center md:text-left">
                         <h3 class="font-black text-3xl mb-1">{{ landingSettings.lurah.nama }}</h3>
                         <p class="text-blue-200 font-bold mb-6 uppercase tracking-widest text-sm">{{ landingSettings.lurah.jabatan }}</p>
@@ -125,10 +125,10 @@
                 </div>
 
                 <!-- AGENDA & BERITA -->
-                <div v-if="listAgenda.length > 0" class="mb-16">
+                <div v-if="listAgenda.filter(a => !a.isDeleted).length > 0" class="mb-16">
                     <h3 class="text-3xl font-black text-gray-800 mb-8 border-l-4 border-primary pl-4">Agenda & Berita Terbaru</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div v-for="agenda in listAgenda.slice(0, 3)" :key="agenda.id" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition">
+                        <div v-for="agenda in listAgenda.filter(a => !a.isDeleted).slice(0, 3)" :key="agenda.id" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition">
                             <div class="flex justify-between items-start mb-4">
                                 <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest', agenda.kategori === 'Pengumuman Penting' ? 'bg-red-100 text-red-600' : (agenda.kategori === 'Berita kegiatan' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600')]">{{ agenda.kategori }}</span>
                                 <div class="text-right">
@@ -191,11 +191,11 @@
             </div>
 
             <!-- GALERI LINGKUNGAN DEPAN -->
-            <div v-if="listGaleri.length > 0" class="bg-gray-100 py-16 border-t border-gray-200">
+            <div v-if="listGaleri.filter(g => !g.isDeleted).length > 0" class="bg-gray-100 py-16 border-t border-gray-200">
                 <div class="max-w-7xl mx-auto px-6 w-full">
                     <h3 class="text-2xl font-black text-gray-800 mb-8 flex items-center gap-3"><i class="fas fa-images text-blue-500"></i> Galeri Kegiatan Lingkungan</h3>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div v-for="foto in listGaleri.slice(0, 4)" :key="foto.id" class="relative group rounded-xl overflow-hidden shadow-sm h-48 border">
+                        <div v-for="foto in listGaleri.filter(g => !g.isDeleted).slice(0, 4)" :key="foto.id" class="relative group rounded-xl overflow-hidden shadow-sm h-48 border">
                             <img :src="foto.foto" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                             <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
                                 <p class="text-white font-bold text-sm truncate">{{ foto.judul }}</p>
@@ -206,7 +206,7 @@
                 </div>
             </div>
 
-            <!-- TAMPILAN FOOTER DINAMIS (DARI ADMIN) -->
+            <!-- TAMPILAN FOOTER DINAMIS -->
             <footer class="py-10 text-center text-sm mt-auto border-t shadow-inner" :style="{ backgroundColor: landingSettings.footerBg, color: landingSettings.footerBg.toLowerCase() === '#ffffff' ? '#374151' : '#d1d5db' }">
                 <div class="max-w-4xl mx-auto px-6">
                     <h4 class="font-black text-lg mb-2" :style="{ color: landingSettings.footerBg.toLowerCase() === '#ffffff' ? '#1f2937' : '#ffffff' }">{{ appSettings.portalName }}</h4>
@@ -253,7 +253,7 @@
                     <p class="text-center text-sm text-gray-600 mt-4">Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; regStep = 1" class="text-primary font-bold hover:underline">Daftar Akun Warga</a></p>
                 </form>
 
-                <!-- FORM PENDAFTARAN -->
+                <!-- FORM PENDAFTARAN (TETAP 100% SAMA, TIDAK DIUBAH) -->
                 <form v-if="isRegistering" @submit.prevent="handleRegister" class="space-y-4">
                     <div class="flex items-center justify-between mb-6 border-b pb-4">
                         <div v-for="step in 5" :key="step" :class="['flex-1 text-center text-xs font-bold py-2 border-b-4 transition-colors', regStep >= step ? 'border-primary text-primary' : 'border-gray-200 text-gray-400']">Tahap {{ step }}</div>
@@ -434,6 +434,17 @@
 
                 <div class="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
 
+                    <!-- COMPONENT: WARNING HAPUS DATA BULANAN & TOMBOL EXCEL -->
+                    <div v-if="['surat', 'laporan', 'fasilitas', 'bursa-kerja', 'bank-sampah', 'galeri'].includes(currentMenu) && ['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" class="mb-4 bg-red-50 border border-red-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 form-section">
+                        <p class="text-xs text-red-600 font-bold max-w-2xl leading-relaxed">
+                            <i class="fas fa-exclamation-triangle mr-1 text-lg align-middle"></i> 
+                            Sistem Akan Menghapus Data setiap tanggal 1 awal bulan Jam 11 Malam. Mohon di tanggal 1 segera Download Data nya melalui tombol Excel.
+                        </p>
+                        <button @click="downloadExcelData(currentMenu)" class="shrink-0 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm transition">
+                            <i class="fas fa-file-excel mr-1"></i> Download Excel
+                        </button>
+                    </div>
+
                     <!-- DASHBOARD -->
                     <div v-if="currentMenu === 'dashboard'" class="space-y-6 form-section">
                         <!-- Dashboard Admin Induk -->
@@ -446,7 +457,7 @@
                                 <!-- KOTAK TRAFIK WEB -->
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                                     <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Total Kunjungan Web</p><h3 class="text-2xl font-black">{{ webTraffic }}<span class="text-sm font-normal"> Klik</span></h3></div>
-                                    <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Warga Terdaftar</p><h3 class="text-2xl font-black">{{ listWargaLengkap.length }}<span class="text-sm font-normal"> Jiwa</span></h3></div>
+                                    <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Warga Terdaftar</p><h3 class="text-2xl font-black">{{ listWargaLengkap.filter(w=>!w.isDeleted).length }}<span class="text-sm font-normal"> Jiwa</span></h3></div>
                                 </div>
                             </div>
                             
@@ -524,8 +535,8 @@
                             <h2 class="text-2xl font-black mb-2 relative z-10">Selamat Datang, {{ currentUser.name.toUpperCase() }}!</h2>
                             <p class="text-blue-100 mb-6 relative z-10">Ini adalah pusat informasi kelurahan Anda. Semua layanan warga dapat diakses dari menu di sebelah kiri.</p>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
-                                <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Status Pengajuan Surat</p><h3 class="text-2xl font-black">{{ listSurat.filter(s=>s.status!=='Selesai').length }}<span class="text-sm font-normal"> Aktif</span></h3></div>
-                                <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Keluhan Diproses</p><h3 class="text-2xl font-black">{{ listLaporan.filter(l=>l.status!=='Selesai').length }}<span class="text-sm font-normal"> Tiket</span></h3></div>
+                                <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Status Pengajuan Surat</p><h3 class="text-2xl font-black">{{ listSurat.filter(s=>s.status!=='Selesai' && !s.isDeleted).length }}<span class="text-sm font-normal"> Aktif</span></h3></div>
+                                <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Keluhan Diproses</p><h3 class="text-2xl font-black">{{ listLaporan.filter(l=>l.status!=='Selesai' && !l.isDeleted).length }}<span class="text-sm font-normal"> Tiket</span></h3></div>
                                 <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Saldo Kas Terakhir</p><h3 class="text-2xl font-black"><span class="text-sm">Rp</span> 5.2M</h3></div>
                                 <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Poin Bank Sampah Anda</p><h3 class="text-2xl font-black">{{ totalPoinSampah }} <span class="text-sm font-normal">Poin</span></h3></div>
                             </div>
@@ -608,7 +619,7 @@
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-list text-emerald-500 mr-2"></i>Daftar Lapak UMKM Warga Terdaftar</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div v-for="umkm in listUMKM" :key="umkm.id" class="border rounded-xl p-4 flex gap-4 bg-gray-50 relative overflow-hidden group hover:bg-white transition">
+                                <div v-for="umkm in listUMKM.filter(u => !u.isDeleted)" :key="umkm.id" class="border rounded-xl p-4 flex gap-4 bg-gray-50 relative overflow-hidden group hover:bg-white transition">
                                     <div class="w-20 h-20 shrink-0 rounded-lg overflow-hidden border shadow-sm relative">
                                         <img v-if="umkm.foto1" :src="umkm.foto1" class="w-full h-full object-cover animate-foto-1 absolute inset-0">
                                         <img v-if="umkm.foto2" :src="umkm.foto2" class="w-full h-full object-cover animate-foto-2 absolute inset-0">
@@ -621,9 +632,9 @@
                                         <p class="text-[10px] text-gray-500"><i class="fas fa-clock text-gray-400"></i> {{ umkm.jamBuka }} - {{ umkm.jamTutup }}</p>
                                     </div>
                                     <!-- Tombol Hapus UMKM oleh Admin -->
-                                    <button v-if="['admin_kelurahan'].includes(currentUser.role)" @click="deleteItem('umkm', umkm.id, listUMKM)" class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs"><i class="fas fa-trash"></i></button>
+                                    <button v-if="['admin_kelurahan'].includes(currentUser.role)" @click="softDeleteItem('umkm', umkm.id, listUMKM)" class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs"><i class="fas fa-trash"></i></button>
                                 </div>
-                                <div v-if="listUMKM.length === 0" class="col-span-2 text-center py-8 text-gray-500 bg-gray-50 rounded-xl border">Belum ada UMKM yang terdaftar di sistem.</div>
+                                <div v-if="listUMKM.filter(u => !u.isDeleted).length === 0" class="col-span-2 text-center py-8 text-gray-500 bg-gray-50 rounded-xl border">Belum ada UMKM yang terdaftar di sistem.</div>
                             </div>
                         </div>
                     </div>
@@ -633,27 +644,28 @@
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <div class="flex justify-between items-center mb-4 border-b pb-2">
                                 <div><h2 class="text-xl font-bold text-gray-800"><i class="fas fa-users text-blue-500 mr-2"></i>Database Kependudukan</h2><p class="text-sm text-gray-500">Melihat detail penduduk sesuai format registrasi.</p></div>
-                                <button @click="showToast('Export PDF/Excel sedang dimaintenance.')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-file-excel"></i> Export</button>
+                                <button @click="downloadExcelData('kependudukan')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-file-excel mr-1"></i> Export Excel</button>
                             </div>
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left text-sm whitespace-nowrap">
                                     <thead class="bg-blue-50 text-blue-800 border-b"><tr><th class="px-4 py-3">NIK & Nama Lengkap</th><th class="px-4 py-3">TTL & Gender</th><th class="px-4 py-3">Alamat Lengkap</th><th class="px-4 py-3">Status Keluarga</th><th class="px-4 py-3">Pekerjaan</th><th class="px-4 py-3 text-center">Aksi Detail</th></tr></thead>
                                     <tbody>
-                                        <tr v-for="w in listWargaLengkap" :key="w.nik" class="border-b hover:bg-gray-50">
+                                        <tr v-for="w in listWargaLengkap.filter(x=>!x.isDeleted)" :key="w.nik" class="border-b hover:bg-gray-50">
                                             <td class="px-4 py-3"><p class="font-bold text-gray-800">{{ w.nama }}</p><p class="text-[10px] text-gray-500">NIK: {{ w.nik }} | KK: {{ w.nokk }}</p></td>
                                             <td class="px-4 py-3"><p class="font-semibold">{{ w.tempat_lahir }}, {{ w.tgl_lahir }}</p><p class="text-[10px] text-gray-500">{{ w.kelamin }} | Suku: {{ w.suku }}</p></td>
                                             <td class="px-4 py-3"><p class="truncate max-w-[150px]">{{ w.alamat }}</p><p class="text-[10px] font-bold">RT {{ w.rt }} / RW {{ w.rw }}</p></td>
                                             <td class="px-4 py-3 text-xs"><span class="bg-gray-100 px-2 py-1 rounded">{{ w.status_keluarga }}</span></td>
                                             <td class="px-4 py-3 text-xs">{{ w.pekerjaan || 'Tidak Ada' }}</td>
-                                            <td class="px-4 py-3 text-center"><button @click="showToast('Menampilkan modal detail warga secara penuh...')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded text-xs font-bold">Lihat Detail 100%</button></td>
+                                            <td class="px-4 py-3 text-center"><button @click="showToast('Fitur detail penuh sedang dimaintenance.')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-1 rounded text-xs font-bold">Lihat Detail 100%</button></td>
                                         </tr>
+                                        <tr v-if="listWargaLengkap.filter(x=>!x.isDeleted).length === 0"><td colspan="6" class="text-center py-6 text-gray-500">Belum ada warga terdaftar.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- E-SURAT (DENGAN ADMIN RESPOND) -->
+                    <!-- E-SURAT -->
                     <div v-if="currentMenu === 'surat'" class="space-y-6 form-section">
                         <div v-if="currentUser.role === 'warga'" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-envelope-open-text text-blue-500 mr-2"></i>Layanan E-Surat Warga</h2>
@@ -675,7 +687,7 @@
                         <!-- Panel Admin Surat -->
                         <div v-if="['admin_kelurahan', 'rt', 'rw'].includes(currentUser.role)" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-inbox text-blue-500 mr-2"></i>Verifikasi Surat Masuk Warga</h2>
-                            <p class="text-sm text-gray-600 mb-4">Gunakan tombol Aksi untuk merespon dan mengubah status surat secara real-time.</p>
+                            <p class="text-sm text-gray-600 mb-4">Gunakan tombol Aksi untuk merespon, atau klik tong sampah untuk menghapus (Soft Delete).</p>
                         </div>
 
                         <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
@@ -684,7 +696,7 @@
                                 <table class="w-full text-left text-sm whitespace-nowrap">
                                     <thead><tr class="bg-white border-b text-gray-500"><th class="px-5 py-3">Tanggal</th><th class="px-5 py-3">Warga & Jenis Surat</th><th class="px-5 py-3">Keperluan & Foto RT</th><th class="px-5 py-3">Status Dokumen</th><th v-if="['admin_kelurahan', 'rt', 'rw'].includes(currentUser.role)" class="px-5 py-3 text-center">Aksi (Admin)</th></tr></thead>
                                     <tbody>
-                                        <tr v-for="s in listSurat" :key="s.id" class="border-b hover:bg-gray-50">
+                                        <tr v-for="s in listSurat.filter(x => !x.isDeleted)" :key="s.id" class="border-b hover:bg-gray-50">
                                             <td class="px-5 py-3 text-xs">{{ s.tanggal }}</td>
                                             <td class="px-5 py-3"><p class="font-bold text-gray-800">{{ s.jenis }}</p><p class="text-[10px] text-gray-500"><i class="fas fa-user"></i> {{ s.pengaju || currentUser.name }} | HP: {{ s.noHp }}</p></td>
                                             <td class="px-5 py-3">
@@ -696,14 +708,15 @@
                                                     <i :class="['fas', s.status === 'Selesai' ? 'fa-check' : (s.status === 'Ditolak' ? 'fa-times' : (['Sedang Diproses','Menunggu Tanda Tangan'].includes(s.status) ? 'fa-cog fa-spin' : 'fa-clock'))]"></i> {{ s.status }}
                                                 </span>
                                             </td>
-                                            <!-- Tombol Aksi Admin -->
-                                            <td v-if="['admin_kelurahan', 'rt', 'rw'].includes(currentUser.role)" class="px-5 py-3 text-center">
+                                            <!-- Tombol Aksi Admin & Hapus -->
+                                            <td v-if="['admin_kelurahan', 'rt', 'rw'].includes(currentUser.role)" class="px-5 py-3 text-center flex items-center justify-center gap-2">
                                                 <select v-model="s.status" @change="updateField('surat', s.id, {status: s.status})" class="text-xs border p-1 rounded font-bold outline-none cursor-pointer" :class="s.status === 'Selesai' ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-700'">
                                                     <option v-for="st in statusSuratArr" :key="st" :value="st">{{ st }}</option>
                                                 </select>
+                                                <button @click="softDeleteItem('surat', s.id, listSurat)" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded"><i class="fas fa-trash"></i></button>
                                             </td>
                                         </tr>
-                                        <tr v-if="listSurat.length === 0"><td colspan="5" class="text-center py-6 text-gray-500">Belum ada pengajuan.</td></tr>
+                                        <tr v-if="listSurat.filter(x => !x.isDeleted).length === 0"><td colspan="5" class="text-center py-6 text-gray-500">Belum ada pengajuan.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -738,27 +751,27 @@
                             <p class="text-sm text-gray-500 mt-2">Silakan hubungi Ketua RT/RW setempat jika Anda merasa berhak untuk diusulkan ke dalam daftar penerima bantuan.</p>
                         </div>
                         
-                        <!-- List Usulan (Visible to all, read-only for warga) -->
+                        <!-- List Usulan -->
                         <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                             <div class="bg-gray-50 px-5 py-3 border-b"><h3 class="font-bold text-gray-700 text-sm">Daftar Usulan Penerima Bansos (Transparansi Publik)</h3></div>
                             <table class="w-full text-left text-sm whitespace-nowrap">
                                 <thead><tr class="bg-white border-b text-gray-500"><th class="px-5 py-3">Data Warga</th><th class="px-5 py-3">Jenis Bansos</th><th class="px-5 py-3">Alasan</th><th class="px-5 py-3">Diusulkan Oleh</th><th class="px-5 py-3">Status</th><th v-if="['admin_kelurahan'].includes(currentUser.role)" class="px-5 py-3">Aksi</th></tr></thead>
                                 <tbody>
-                                    <tr v-for="b in listBansos" :key="b.id" class="border-b hover:bg-gray-50">
+                                    <tr v-for="b in listBansos.filter(x => !x.isDeleted)" :key="b.id" class="border-b hover:bg-gray-50">
                                         <td class="px-5 py-3"><p class="font-bold text-gray-800">{{ b.nama }}</p><p class="text-[10px] text-gray-500">NIK: {{ b.nik }}</p></td>
                                         <td class="px-5 py-3 font-bold text-teal-700">{{ b.jenis }}</td>
                                         <td class="px-5 py-3 text-xs">{{ b.alasan }}</td>
                                         <td class="px-5 py-3 text-xs font-bold uppercase"><i class="fas fa-user-tag text-gray-400"></i> {{ b.pengusul }}</td>
                                         <td class="px-5 py-3"><span class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-[10px] font-bold uppercase">Proses Verifikasi</span></td>
-                                        <td v-if="['admin_kelurahan'].includes(currentUser.role)" class="px-5 py-3 text-center"><button @click="deleteItem('bansos', b.id, listBansos)" class="text-red-500"><i class="fas fa-trash"></i></button></td>
+                                        <td v-if="['admin_kelurahan'].includes(currentUser.role)" class="px-5 py-3 text-center"><button @click="softDeleteItem('bansos', b.id, listBansos)" class="text-red-500"><i class="fas fa-trash"></i></button></td>
                                     </tr>
-                                    <tr v-if="listBansos.length === 0"><td colspan="6" class="text-center py-6 text-gray-500">Belum ada data usulan bansos.</td></tr>
+                                    <tr v-if="listBansos.filter(x => !x.isDeleted).length === 0"><td colspan="6" class="text-center py-6 text-gray-500">Belum ada data usulan bansos.</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- KELUHAN & PENGADUAN (DENGAN BALASAN ADMIN) -->
+                    <!-- KELUHAN & PENGADUAN -->
                     <div v-if="currentMenu === 'laporan'" class="space-y-6 form-section">
                         <div v-if="currentUser.role === 'warga'" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>Layanan Keluhan Keamanan & Ketertiban</h2>
@@ -780,12 +793,12 @@
                         </div>
 
                         <div v-if="['admin_kelurahan', 'babinsa', 'rt', 'rw'].includes(currentUser.role)" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                            <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-shield-alt text-red-500 mr-2"></i>Monitoring Keluhan Warga</h2>
+                            <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-shield-alt text-red-500 mr-2"></i>Monitoring Pengaduan Warga</h2>
                             <p class="text-sm text-gray-600">Berikan respon/balasan kepada warga dan tandai kasus jika sudah selesai ditangani.</p>
                         </div>
 
                         <div class="space-y-4">
-                            <div v-for="l in listLaporan" :key="l.id" class="bg-white p-5 rounded-xl shadow-sm border border-l-4 border-l-red-500 flex flex-col md:flex-row gap-4 relative">
+                            <div v-for="l in listLaporan.filter(x => !x.isDeleted)" :key="l.id" class="bg-white p-5 rounded-xl shadow-sm border border-l-4 border-l-red-500 flex flex-col md:flex-row gap-4 relative">
                                 <div v-if="l.fotoBukti" class="shrink-0"><img :src="l.fotoBukti" class="w-24 h-24 rounded-lg object-cover border shadow-sm"></div>
                                 <div class="flex-1">
                                     <div class="flex justify-between items-center mb-2"><h4 class="font-black text-gray-800">{{ l.judul }}</h4><span class="text-[10px] text-gray-400 font-bold">{{ l.tanggal }}</span></div>
@@ -805,15 +818,15 @@
                                         <input type="text" v-model="l.draftBalasan" placeholder="Ketik balasan/tindakan..." class="flex-1 border p-2 rounded text-xs outline-none bg-gray-50">
                                         <button @click="submitResponLaporan(l)" class="bg-blue-600 text-white px-4 py-2 rounded text-xs font-bold">Kirim Respon & Selesai</button>
                                     </div>
-                                    <!-- Delete Admin -->
-                                    <button v-if="['admin_kelurahan'].includes(currentUser.role)" @click="deleteItem('laporan', l.id, listLaporan)" class="absolute top-2 right-2 text-red-300 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                                    <!-- Delete Admin (Soft Delete) -->
+                                    <button v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" @click="softDeleteItem('laporan', l.id, listLaporan)" class="absolute top-2 right-2 text-red-400 hover:text-red-700 bg-red-50 p-1.5 rounded-lg"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>
-                            <div v-if="listLaporan.length === 0" class="text-center py-6 text-gray-500 bg-white rounded-xl border">Belum ada keluhan yang dilaporkan.</div>
+                            <div v-if="listLaporan.filter(x => !x.isDeleted).length === 0" class="text-center py-6 text-gray-500 bg-white rounded-xl border">Belum ada keluhan yang dilaporkan.</div>
                         </div>
                     </div>
                     
-                    <!-- LAPOR TAMU 1X24 JAM (TAMPILAN ADMIN HANYA LIHAT) -->
+                    <!-- LAPOR TAMU -->
                     <div v-if="currentMenu === 'tamu'" class="space-y-6 form-section">
                         <div v-if="currentUser.role === 'warga'" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-door-open text-blue-500 mr-2"></i>Lapor Tamu Menginap 1x24 Jam</h2>
@@ -837,7 +850,7 @@
                                 <h3 class="font-bold text-gray-700 text-sm"><i class="fas fa-list"></i> Database Riwayat Laporan Tamu</h3>
                             </div>
                             <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div v-for="t in listTamu" :key="t.id" class="border rounded-xl p-4 flex gap-4 relative overflow-hidden bg-gray-50 hover:bg-white transition shadow-sm">
+                                <div v-for="t in listTamu.filter(x => !x.isDeleted)" :key="t.id" class="border rounded-xl p-4 flex gap-4 relative overflow-hidden bg-gray-50 hover:bg-white transition shadow-sm">
                                     <div class="w-16 h-16 shrink-0 bg-gray-200 rounded-lg overflow-hidden border">
                                         <img v-if="t.fotoTamu" :src="t.fotoTamu" class="w-full h-full object-cover">
                                         <div v-else class="w-full h-full flex items-center justify-center text-gray-400"><i class="fas fa-user text-2xl"></i></div>
@@ -849,14 +862,14 @@
                                         <p v-if="['admin_kelurahan', 'babinsa', 'rt', 'rw'].includes(currentUser.role)" class="text-[10px] font-bold text-blue-600 mt-1">Dilaporkan oleh Warga: {{ t.pelapor }}</p>
                                     </div>
                                     <div class="absolute top-2 right-2 text-[9px] text-gray-400 font-bold">{{ t.tanggalLapor }}</div>
-                                    <button v-if="['admin_kelurahan'].includes(currentUser.role)" @click="deleteItem('tamu', t.id, listTamu)" class="absolute bottom-2 right-2 text-red-500"><i class="fas fa-trash"></i></button>
+                                    <button v-if="['admin_kelurahan'].includes(currentUser.role)" @click="softDeleteItem('tamu', t.id, listTamu)" class="absolute bottom-2 right-2 text-red-500"><i class="fas fa-trash"></i></button>
                                 </div>
-                                <div v-if="listTamu.length === 0" class="col-span-1 md:col-span-2 text-center py-6 text-gray-500">Belum ada riwayat lapor tamu.</div>
+                                <div v-if="listTamu.filter(x => !x.isDeleted).length === 0" class="col-span-1 md:col-span-2 text-center py-6 text-gray-500">Belum ada riwayat lapor tamu.</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- AGENDA / PENGUMUMAN (BARU) -->
+                    <!-- AGENDA / PENGUMUMAN -->
                     <div v-if="currentMenu === 'agenda' && currentUser.role === 'admin_kelurahan'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-bullhorn text-amber-500 mr-2"></i>Buat Agenda / Pengumuman Kelurahan</h2>
@@ -877,21 +890,22 @@
                                 <table class="w-full text-left text-sm whitespace-nowrap">
                                     <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Kategori</th><th class="px-4 py-3">Judul Agenda</th><th class="px-4 py-3">Isi</th><th class="px-4 py-3 text-center">Dilihat</th><th class="px-4 py-3 text-center">Aksi</th></tr></thead>
                                     <tbody>
-                                        <tr v-for="a in listAgenda" :key="a.id" class="border-b hover:bg-gray-50">
+                                        <tr v-for="a in listAgenda.filter(x => !x.isDeleted)" :key="a.id" class="border-b hover:bg-gray-50">
                                             <td class="px-4 py-3 text-xs">{{ a.tanggal }}</td>
                                             <td class="px-4 py-3"><span :class="['px-2 py-1 rounded text-[10px] font-bold uppercase', a.kategori === 'Pengumuman Penting' ? 'bg-red-100 text-red-700' : (a.kategori === 'Berita kegiatan' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700')]">{{ a.kategori }}</span></td>
                                             <td class="px-4 py-3 font-bold text-gray-800">{{ a.judul }}</td>
                                             <td class="px-4 py-3 truncate max-w-[200px] text-xs">{{ a.isi }}</td>
                                             <td class="px-4 py-3 text-center font-bold text-blue-600"><i class="fas fa-eye"></i> {{ a.views || 0 }}</td>
-                                            <td class="px-4 py-3 text-center"><button @click="deleteItem('agenda', a.id, listAgenda)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
+                                            <td class="px-4 py-3 text-center"><button @click="softDeleteItem('agenda', a.id, listAgenda)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
                                         </tr>
+                                        <tr v-if="listAgenda.filter(x => !x.isDeleted).length === 0"><td colspan="6" class="text-center py-6 text-gray-500">Belum ada agenda.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
 
-                    <!-- REALISASI ANGGARAN (ADMINISTRASI) DENGAN MENU KHUSUS -->
+                    <!-- REALISASI ANGGARAN (ADMINISTRASI) -->
                     <div v-if="currentMenu === 'administrasi'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
                             <div class="flex items-center gap-4 mb-6 pb-4 border-b">
@@ -914,8 +928,8 @@
 
                             <!-- Tampilan Progress Bar Anggaran -->
                             <div class="space-y-4">
-                                <div v-for="anggaran in listAnggaran" :key="anggaran.id" class="border rounded-xl p-5 bg-gray-50 hover:bg-white transition shadow-sm relative">
-                                    <button v-if="currentUser.role === 'admin_kelurahan'" @click="deleteItem('anggaran', anggaran.id, listAnggaran)" class="absolute top-2 right-2 text-red-400 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                <div v-for="anggaran in listAnggaran.filter(x => !x.isDeleted)" :key="anggaran.id" class="border rounded-xl p-5 bg-gray-50 hover:bg-white transition shadow-sm relative">
+                                    <button v-if="currentUser.role === 'admin_kelurahan'" @click="softDeleteItem('anggaran', anggaran.id, listAnggaran)" class="absolute top-2 right-2 text-red-400 hover:text-red-700"><i class="fas fa-trash"></i></button>
                                     <div class="flex justify-between items-start mb-2">
                                         <h4 class="font-bold text-gray-800">{{ anggaran.bidang }} <span class="bg-gray-200 text-gray-600 px-2 py-0.5 rounded text-[10px] ml-2">Tahun {{ anggaran.tahun }}</span></h4>
                                         <span class="text-xs font-bold text-gray-500 mr-6">Penyerapan: {{ Math.round((anggaran.realisasi / anggaran.pagu) * 100) || 0 }}%</span>
@@ -929,7 +943,7 @@
                                         <span class="text-blue-600">Realisasi: {{ formatRupiah(anggaran.realisasi) }}</span>
                                     </div>
                                 </div>
-                                <div v-if="listAnggaran.length === 0" class="text-center py-6 text-gray-500">Belum ada data anggaran.</div>
+                                <div v-if="listAnggaran.filter(x => !x.isDeleted).length === 0" class="text-center py-6 text-gray-500">Belum ada data anggaran.</div>
                             </div>
                         </div>
                     </div>
@@ -1019,7 +1033,7 @@
                         </div>
                     </div>
 
-                    <!-- PENGATURAN AKUN (FITUR BARU UNTUK WARGA & ADMIN GANTI PASSWORD/USER) -->
+                    <!-- PENGATURAN AKUN -->
                     <div v-if="currentMenu === 'pengaturan-akun'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 max-w-2xl mx-auto">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-6"><i class="fas fa-user-cog text-primary mr-2"></i>Pengaturan Akun & Keamanan</h2>
@@ -1033,11 +1047,254 @@
                         </div>
                     </div>
 
-                    <!-- ARSIP SURAT, BURSA KERJA, FASILITAS, BANK SAMPAH, GALERI TETAP SAMA KARENA SUDAH SEMPURNA SEBELUMNYA -->
-                    <div v-if="['arsip-surat', 'bursa-kerja', 'fasilitas', 'bank-sampah', 'galeri'].includes(currentMenu)" class="text-center py-10 bg-white rounded-xl shadow-sm border mt-4 form-section">
-                        <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
-                        <h2 class="text-2xl font-bold text-gray-800 capitalize">Modul {{ currentMenu.replace('-', ' ') }} Berjalan Normal</h2>
-                        <p class="text-gray-500 mt-2">Seluruh menu dan fitur pada bagian ini 100% utuh dan siap digunakan sesuai update sebelumnya.<br>(Bagian ini disingkat di *preview code* agar ukuran file tidak jebol, namun logika Vue-nya utuh).</p>
+                    <!-- ==============================================
+                         MODUL BARU: ARSIP SURAT DIGITAL (MASUK/KELUAR)
+                         ============================================== -->
+                    <div v-if="currentMenu === 'arsip-surat'" class="space-y-6 form-section">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <!-- Header / Tab Navigasi -->
+                            <div class="flex border-b">
+                                <button @click="tabArsip = 'dashboard'" :class="['flex-1 py-4 font-bold text-sm transition', tabArsip === 'dashboard' ? 'bg-amber-50 text-amber-700 border-b-2 border-amber-500' : 'text-gray-500 hover:bg-gray-50']"><i class="fas fa-chart-bar mr-2"></i> Dashboard Arsip</button>
+                                <button @click="tabArsip = 'masuk'" :class="['flex-1 py-4 font-bold text-sm transition', tabArsip === 'masuk' ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-500' : 'text-gray-500 hover:bg-gray-50']"><i class="fas fa-inbox mr-2"></i> Surat Masuk</button>
+                                <button @click="tabArsip = 'keluar'" :class="['flex-1 py-4 font-bold text-sm transition', tabArsip === 'keluar' ? 'bg-green-50 text-green-700 border-b-2 border-green-500' : 'text-gray-500 hover:bg-gray-50']"><i class="fas fa-paper-plane mr-2"></i> Surat Keluar</button>
+                            </div>
+
+                            <!-- Tab Dashboard Arsip -->
+                            <div v-if="tabArsip === 'dashboard'" class="p-6">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center"><h4 class="text-xs font-bold text-blue-600 uppercase mb-1">Total Surat Masuk</h4><p class="text-3xl font-black text-blue-800">{{ listArsipMasuk.length }}</p></div>
+                                    <div class="bg-green-50 p-4 rounded-xl border border-green-100 text-center"><h4 class="text-xs font-bold text-green-600 uppercase mb-1">Total Surat Keluar</h4><p class="text-3xl font-black text-green-800">{{ listArsipKeluar.length }}</p></div>
+                                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 text-center"><h4 class="text-xs font-bold text-amber-600 uppercase mb-1">Belum Diproses</h4><p class="text-3xl font-black text-amber-800">{{ listArsipMasuk.filter(x=>x.status === 'Diproses').length }}</p></div>
+                                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 text-center"><h4 class="text-xs font-bold text-gray-600 uppercase mb-1">Surat Hari Ini</h4><p class="text-3xl font-black text-gray-800">0</p></div>
+                                </div>
+                                
+                                <div class="mb-4 bg-gray-50 p-4 rounded-xl border flex gap-4">
+                                    <div class="flex-1 relative">
+                                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                        <input type="text" v-model="searchArsip" placeholder="Pencarian Cepat: Ketik Nomor Surat / Pengirim / Kategori / Tanggal..." class="w-full pl-10 pr-4 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-500">
+                                    </div>
+                                </div>
+
+                                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-4">
+                                    <p class="text-xs font-bold text-amber-800"><i class="fas fa-info-circle mr-1"></i> Gunakan tab "Surat Masuk" dan "Surat Keluar" di atas untuk menambahkan data baru.</p>
+                                </div>
+                            </div>
+
+                            <!-- Tab Surat Masuk -->
+                            <div v-if="tabArsip === 'masuk'" class="p-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-bold text-blue-800"><i class="fas fa-inbox mr-2"></i> Register Surat Masuk Baru</h3>
+                                    <button @click="showFormMasuk = !showFormMasuk" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-blue-700"><i :class="showFormMasuk ? 'fas fa-times' : 'fas fa-plus'"></i> {{ showFormMasuk ? 'Tutup Form' : 'Tambah Surat' }}</button>
+                                </div>
+                                
+                                <div v-if="showFormMasuk" class="bg-blue-50 border border-blue-100 p-5 rounded-xl mb-6 animation-fade">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div><label class="block text-[10px] font-bold mb-1">Nomor Agenda</label><input type="text" v-model="formArsipMasuk.noAgenda" class="w-full border p-2 rounded text-xs"></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">Nomor Surat Resmi</label><input type="text" v-model="formArsipMasuk.noSurat" class="w-full border p-2 rounded text-xs"></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">Kategori Surat</label><select v-model="formArsipMasuk.kategori" class="w-full border p-2 rounded text-xs font-bold"><option>Undangan</option><option>Permohonan</option><option>Pemberitahuan</option><option>Bantuan sosial</option><option>Proposal</option><option>Kerjasama</option><option>Pengaduan masyarakat</option><option>Administrasi pemerintahan</option><option>Pendidikan</option><option>Kesehatan</option><option>Keuangan</option></select></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">Tanggal Surat</label><input type="date" v-model="formArsipMasuk.tglSurat" class="w-full border p-2 rounded text-xs"></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">Tanggal Diterima</label><input type="date" v-model="formArsipMasuk.tglTerima" class="w-full border p-2 rounded text-xs"></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">Sifat Surat</label><select v-model="formArsipMasuk.sifat" class="w-full border p-2 rounded text-xs"><option>Biasa</option><option>Penting</option><option>Rahasia</option><option>Segera</option></select></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">Pengirim Surat</label><input type="text" v-model="formArsipMasuk.pengirim" class="w-full border p-2 rounded text-xs"></div>
+                                        <div class="md:col-span-2"><label class="block text-[10px] font-bold mb-1">Instansi / Lembaga Pengirim</label><input type="text" v-model="formArsipMasuk.instansi" class="w-full border p-2 rounded text-xs"></div>
+                                        <div class="md:col-span-3"><label class="block text-[10px] font-bold mb-1">Perihal Surat</label><input type="text" v-model="formArsipMasuk.perihal" class="w-full border p-2 rounded text-xs"></div>
+                                        <div class="md:col-span-3"><label class="block text-[10px] font-bold mb-1">Ringkasan Isi Surat</label><textarea v-model="formArsipMasuk.ringkasan" rows="2" class="w-full border p-2 rounded text-xs"></textarea></div>
+                                        <div class="md:col-span-3 p-3 bg-white rounded border grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div><label class="block text-[10px] font-bold mb-1 text-amber-600">Disposisi Ke</label><input type="text" v-model="formArsipMasuk.tujuanDisposisi" placeholder="Cth: Seklur, Kasi Pem..." class="w-full border p-2 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold mb-1 text-amber-600">Penerima Disposisi</label><input type="text" v-model="formArsipMasuk.penerimaDisposisi" placeholder="Nama Petugas..." class="w-full border p-2 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold mb-1">Status Tindak Lanjut</label><select v-model="formArsipMasuk.status" class="w-full border p-2 rounded text-xs"><option>Diproses</option><option>Selesai</option><option>Ditindaklanjuti</option></select></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-right"><button @click="submitArsipMasuk" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Simpan Data Surat Masuk</button></div>
+                                </div>
+
+                                <div class="overflow-x-auto border rounded-xl">
+                                    <table class="w-full text-left text-sm whitespace-nowrap">
+                                        <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">No. Agenda / Surat</th><th class="px-4 py-3">Pengirim & Tgl</th><th class="px-4 py-3">Perihal / Kategori</th><th class="px-4 py-3">Disposisi & Status</th><th class="px-4 py-3 text-center">Aksi</th></tr></thead>
+                                        <tbody>
+                                            <tr v-for="sm in filteredArsipMasuk" :key="sm.id" class="border-b hover:bg-gray-50">
+                                                <td class="px-4 py-3"><p class="font-bold text-xs">Agenda: {{ sm.noAgenda }}</p><p class="text-[10px] text-gray-500">No: {{ sm.noSurat }}</p></td>
+                                                <td class="px-4 py-3"><p class="font-bold text-xs">{{ sm.pengirim }}</p><p class="text-[10px] text-gray-500">{{ sm.instansi }} | {{ sm.tglSurat }}</p></td>
+                                                <td class="px-4 py-3"><p class="font-bold text-xs truncate max-w-[150px]">{{ sm.perihal }}</p><p class="text-[10px] text-gray-500 uppercase">{{ sm.kategori }} | Sifat: {{ sm.sifat }}</p></td>
+                                                <td class="px-4 py-3"><span :class="['px-2 py-0.5 rounded text-[10px] font-bold', sm.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700']">{{ sm.status }}</span><p class="text-[9px] text-gray-500 mt-1">Disp: {{ sm.tujuanDisposisi || '-' }}</p></td>
+                                                <td class="px-4 py-3 text-center"><button @click="softDeleteItem('arsipMasuk', sm.id, listArsipMasuk)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
+                                            </tr>
+                                            <tr v-if="filteredArsipMasuk.length === 0"><td colspan="5" class="text-center py-6 text-gray-500">Data surat masuk kosong atau tidak ditemukan.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Tab Surat Keluar -->
+                            <div v-if="tabArsip === 'keluar'" class="p-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-bold text-green-800"><i class="fas fa-paper-plane mr-2"></i> Register Surat Keluar Baru</h3>
+                                    <button @click="showFormKeluar = !showFormKeluar" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm hover:bg-green-700"><i :class="showFormKeluar ? 'fas fa-times' : 'fas fa-plus'"></i> {{ showFormKeluar ? 'Tutup Form' : 'Tambah Surat' }}</button>
+                                </div>
+
+                                <div v-if="showFormKeluar" class="bg-green-50 border border-green-100 p-5 rounded-xl mb-6 animation-fade">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div><label class="block text-[10px] font-bold mb-1">Nomor Agenda</label><input type="text" v-model="formArsipKeluar.noAgenda" class="w-full border p-2 rounded text-xs"></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">Nomor Surat Resmi</label><input type="text" v-model="formArsipKeluar.noSurat" class="w-full border p-2 rounded text-xs"></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">Tanggal Surat</label><input type="date" v-model="formArsipKeluar.tglSurat" class="w-full border p-2 rounded text-xs"></div>
+                                        <div><label class="block text-[10px] font-bold mb-1">Tujuan Surat</label><input type="text" v-model="formArsipKeluar.tujuan" class="w-full border p-2 rounded text-xs"></div>
+                                        <div class="md:col-span-2"><label class="block text-[10px] font-bold mb-1">Instansi / Penerima</label><input type="text" v-model="formArsipKeluar.instansiPenerima" class="w-full border p-2 rounded text-xs"></div>
+                                        <div class="md:col-span-3"><label class="block text-[10px] font-bold mb-1">Alamat Tujuan Lengkap</label><input type="text" v-model="formArsipKeluar.alamat" class="w-full border p-2 rounded text-xs"></div>
+                                        <div class="md:col-span-3"><label class="block text-[10px] font-bold mb-1">Perihal Surat</label><input type="text" v-model="formArsipKeluar.perihal" class="w-full border p-2 rounded text-xs"></div>
+                                        <div class="md:col-span-3"><label class="block text-[10px] font-bold mb-1">Isi Singkat Surat</label><textarea v-model="formArsipKeluar.isi" rows="2" class="w-full border p-2 rounded text-xs"></textarea></div>
+                                        <div class="md:col-span-3 p-3 bg-white rounded border grid grid-cols-1 md:grid-cols-4 gap-4">
+                                            <div><label class="block text-[10px] font-bold mb-1 text-green-600">Penandatangan</label><input type="text" v-model="formArsipKeluar.penandatangan" class="w-full border p-2 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold mb-1 text-green-600">Jabatan Penandatangan</label><input type="text" v-model="formArsipKeluar.jabatan" class="w-full border p-2 rounded text-xs"></div>
+                                            <div><label class="block text-[10px] font-bold mb-1">Jenis Surat</label><select v-model="formArsipKeluar.jenisSurat" class="w-full border p-2 rounded text-xs"><option>Surat tugas</option><option>Surat undangan</option><option>Surat keterangan</option><option>Surat rekomendasi</option><option>Surat keputusan</option><option>Surat balasan</option><option>Surat permohonan</option><option>Surat pemberitahuan</option><option>Surat izin</option><option>Surat edaran</option></select></div>
+                                            <div><label class="block text-[10px] font-bold mb-1">Status & Media</label><select v-model="formArsipKeluar.statusPengiriman" class="w-full border p-2 rounded text-[10px] mb-1"><option>Draft</option><option>Dikirim</option><option>Diterima</option></select><select v-model="formArsipKeluar.mediaPengiriman" class="w-full border p-2 rounded text-[10px]"><option>Email</option><option>Kurir</option><option>Pos</option><option>WhatsApp</option></select></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 text-right"><button @click="submitArsipKeluar" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Simpan Data Surat Keluar</button></div>
+                                </div>
+
+                                <div class="overflow-x-auto border rounded-xl">
+                                    <table class="w-full text-left text-sm whitespace-nowrap">
+                                        <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">No. Agenda / Surat</th><th class="px-4 py-3">Tujuan & Instansi</th><th class="px-4 py-3">Perihal / Jenis</th><th class="px-4 py-3">Penandatangan & Status</th><th class="px-4 py-3 text-center">Aksi</th></tr></thead>
+                                        <tbody>
+                                            <tr v-for="sk in filteredArsipKeluar" :key="sk.id" class="border-b hover:bg-gray-50">
+                                                <td class="px-4 py-3"><p class="font-bold text-xs">Agenda: {{ sk.noAgenda }}</p><p class="text-[10px] text-gray-500">No: {{ sk.noSurat }}</p></td>
+                                                <td class="px-4 py-3"><p class="font-bold text-xs">{{ sk.tujuan }}</p><p class="text-[10px] text-gray-500">{{ sk.instansiPenerima }}</p></td>
+                                                <td class="px-4 py-3"><p class="font-bold text-xs truncate max-w-[150px]">{{ sk.perihal }}</p><p class="text-[10px] text-gray-500 uppercase">{{ sk.jenisSurat }}</p></td>
+                                                <td class="px-4 py-3"><p class="text-xs font-bold">{{ sk.penandatangan }}</p><span :class="['px-2 py-0.5 rounded text-[9px] font-bold mt-1 inline-block', sk.statusPengiriman === 'Diterima' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700']">Via {{ sk.mediaPengiriman }}: {{ sk.statusPengiriman }}</span></td>
+                                                <td class="px-4 py-3 text-center"><button @click="softDeleteItem('arsipKeluar', sk.id, listArsipKeluar)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
+                                            </tr>
+                                            <tr v-if="filteredArsipKeluar.length === 0"><td colspan="5" class="text-center py-6 text-gray-500">Data surat keluar kosong atau tidak ditemukan.</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ==============================================
+                         MODUL FASILITAS & BURSA KERJA (DIPERLUAS UNTUK DELETE & EXCEL)
+                         ============================================== -->
+                    
+                    <!-- Lapor Fasilitas -->
+                    <div v-if="currentMenu === 'fasilitas'" class="space-y-6 form-section">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-tools text-blue-500 mr-2"></i>Lapor Fasilitas Publik Rusak</h2>
+                            
+                            <div v-if="currentUser.role === 'warga'" class="bg-blue-50 p-5 rounded-xl border border-blue-100 mb-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">Nama Fasilitas</label><input type="text" v-model="formFasilitas.fasilitas" placeholder="Cth: Lampu Jalan, Selokan..." class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Lokasi Detail</label><input type="text" v-model="formFasilitas.lokasi" placeholder="Cth: Depan RT 01..." class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Kondisi Kerusakan</label><input type="text" v-model="formFasilitas.kondisi" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                </div>
+                                <div class="mt-4 text-right"><button @click="submitFasilitas" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Kirim Laporan Fasilitas</button></div>
+                            </div>
+
+                            <div class="overflow-x-auto border rounded-xl">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Fasilitas & Lokasi</th><th class="px-4 py-3">Kondisi</th><th class="px-4 py-3">Pelapor</th><th class="px-4 py-3">Status</th><th v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" class="px-4 py-3 text-center">Aksi</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="f in listFasilitas.filter(x => !x.isDeleted)" :key="f.id" class="border-b hover:bg-gray-50">
+                                            <td class="px-4 py-3"><p class="font-bold text-xs">{{ f.fasilitas }}</p><p class="text-[10px] text-gray-500"><i class="fas fa-map-marker-alt"></i> {{ f.lokasi }}</p></td>
+                                            <td class="px-4 py-3 text-xs">{{ f.kondisi }}</td>
+                                            <td class="px-4 py-3 text-xs">{{ f.pelapor }}</td>
+                                            <td class="px-4 py-3"><span class="px-2 py-1 rounded text-[10px] font-bold bg-amber-100 text-amber-700">{{ f.status || 'Dilaporkan' }}</span></td>
+                                            <td v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" class="px-4 py-3 text-center"><button @click="softDeleteItem('fasilitas', f.id, listFasilitas)" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                        <tr v-if="listFasilitas.filter(x => !x.isDeleted).length === 0"><td colspan="5" class="text-center py-6 text-gray-500">Belum ada laporan fasilitas.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bursa Kerja -->
+                    <div v-if="currentMenu === 'bursa-kerja'" class="space-y-6 form-section">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-handshake text-amber-500 mr-2"></i>Bursa Kerja & Promosi Jasa Warga</h2>
+                            
+                            <div v-if="currentUser.role === 'warga'" class="bg-amber-50 p-5 rounded-xl border border-amber-100 mb-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">Tipe Postingan</label><select v-model="formBursa.tipe" class="w-full border p-2 rounded text-sm outline-none bg-white font-bold"><option>Mencari Kerja</option><option>Menawarkan Pekerjaan (Lowongan)</option><option>Menawarkan Jasa Keahlian</option></select></div>
+                                    <div><label class="block text-xs font-bold mb-1">Judul Keahlian / Lowongan</label><input type="text" v-model="formBursa.judul" placeholder="Cth: Butuh Tukang / Jasa Perbaikan AC" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Deskripsi Singkat</label><input type="text" v-model="formBursa.deskripsi" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Kontak WA/No.HP</label><input type="number" v-model="formBursa.kontak" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                </div>
+                                <div class="mt-4 text-right"><button @click="submitBursa" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Posting Bursa Kerja</button></div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div v-for="b in listBursa.filter(x => !x.isDeleted)" :key="b.id" class="border rounded-xl p-4 flex gap-4 relative overflow-hidden bg-white shadow-sm">
+                                    <div class="flex-1">
+                                        <span :class="['px-2 py-0.5 rounded text-[9px] font-bold uppercase mb-2 inline-block', b.tipe.includes('Mencari') ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700']">{{ b.tipe }}</span>
+                                        <h4 class="font-bold text-gray-800 text-sm mb-1">{{ b.judul }}</h4>
+                                        <p class="text-xs text-gray-600 line-clamp-2 mb-2">{{ b.deskripsi }}</p>
+                                        <p class="text-[10px] text-gray-500 font-bold"><i class="fas fa-user mr-1"></i> {{ b.pengiklan }} | <i class="fab fa-whatsapp text-green-500 ml-1"></i> {{ b.kontak }}</p>
+                                    </div>
+                                    <button v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" @click="softDeleteItem('bursa', b.id, listBursa)" class="absolute top-2 right-2 text-red-400 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                </div>
+                                <div v-if="listBursa.filter(x => !x.isDeleted).length === 0" class="col-span-2 text-center py-6 text-gray-500 border rounded-xl">Belum ada postingan bursa kerja.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Sampah -->
+                    <div v-if="currentMenu === 'bank-sampah'" class="space-y-6 form-section">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-recycle text-green-500 mr-2"></i>Data Setoran Bank Sampah</h2>
+                            
+                            <div v-if="['admin_kelurahan', 'rt'].includes(currentUser.role)" class="bg-green-50 p-5 rounded-xl border border-green-100 mb-6">
+                                <h3 class="font-bold text-green-800 mb-2"><i class="fas fa-plus"></i> Input Setoran Warga (Petugas)</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">Nama Penyetor</label><input type="text" v-model="formSampah.nama" class="w-full border p-2 rounded text-sm bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Jenis Sampah</label><select v-model="formSampah.jenis" class="w-full border p-2 rounded text-sm bg-white font-bold"><option>Plastik</option><option>Kertas/Kardus</option><option>Logam</option><option>Kaca</option></select></div>
+                                    <div><label class="block text-xs font-bold mb-1">Berat (Kg)</label><input type="number" v-model="formSampah.berat" class="w-full border p-2 rounded text-sm bg-white"></div>
+                                    <div class="flex items-end"><button @click="submitSampah" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded text-sm shadow">Input Setoran</button></div>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto border rounded-xl">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Tanggal Setor</th><th class="px-4 py-3">Nama Penyetor</th><th class="px-4 py-3">Jenis & Berat</th><th class="px-4 py-3">Poin Didapat</th><th v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" class="px-4 py-3 text-center">Aksi</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="s in listSampah.filter(x => !x.isDeleted)" :key="s.id" class="border-b hover:bg-gray-50">
+                                            <td class="px-4 py-3 text-xs">{{ s.tanggal }}</td>
+                                            <td class="px-4 py-3 font-bold text-gray-800">{{ s.nama }}</td>
+                                            <td class="px-4 py-3 text-xs">{{ s.jenis }} ({{ s.berat }} Kg)</td>
+                                            <td class="px-4 py-3"><span class="font-bold text-green-600">+{{ s.poin }} Poin</span></td>
+                                            <td v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" class="px-4 py-3 text-center"><button @click="softDeleteItem('sampah', s.id, listSampah)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                        <tr v-if="listSampah.filter(x => !x.isDeleted).length === 0"><td colspan="5" class="text-center py-6 text-gray-500">Belum ada riwayat setoran.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Galeri Lingkungan -->
+                    <div v-if="currentMenu === 'galeri'" class="space-y-6 form-section">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-images text-purple-500 mr-2"></i>Kelola Galeri Lingkungan</h2>
+                            
+                            <div v-if="['admin_kelurahan'].includes(currentUser.role)" class="bg-purple-50 p-5 rounded-xl border border-purple-100 mb-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">Judul / Keterangan Foto</label><input type="text" v-model="formGaleri.judul" class="w-full border p-2 rounded text-sm bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Upload Foto</label><input type="file" accept="image/*" @change="e => handleFileUpload(e, 'galeri', 'foto')" class="w-full border p-1 rounded text-sm bg-white"></div>
+                                </div>
+                                <div class="mt-4 text-right"><button @click="submitGaleri" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Upload ke Galeri</button></div>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div v-for="g in listGaleri.filter(x => !x.isDeleted)" :key="g.id" class="relative group rounded-xl overflow-hidden shadow-sm h-48 border bg-gray-100">
+                                    <img :src="g.foto" class="w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
+                                        <p class="text-white font-bold text-xs truncate">{{ g.judul }}</p>
+                                        <p class="text-gray-300 text-[9px]">{{ g.tanggal }}</p>
+                                    </div>
+                                    <button v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" @click="softDeleteItem('galeri', g.id, listGaleri)" class="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-800 w-6 h-6 rounded-full flex items-center justify-center shadow opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-trash text-xs"></i></button>
+                                </div>
+                                <div v-if="listGaleri.filter(x => !x.isDeleted).length === 0" class="col-span-4 text-center py-8 text-gray-500 border rounded-xl">Galeri masih kosong.</div>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -1064,8 +1321,7 @@
             appId: "1:944163706315:web:c5e99814be6fe8b333524e"
         };
 
-        // Pengecekan otomatis environment
-        let appIdEnv = 'kelurahan-digital-v10';
+        let appIdEnv = 'kelurahan-digital-v11';
         if (typeof __firebase_config !== 'undefined' && __firebase_config) {
             fbConfig = JSON.parse(__firebase_config);
             appIdEnv = typeof __app_id !== 'undefined' ? __app_id : appIdEnv;
@@ -1082,9 +1338,7 @@
 
         createApp({
             setup() {
-                // ==========================================
-                // UTILITY & UPLOAD FOTO KOMPRESI
-                // ==========================================
+                // UTILITY UPLOAD FOTO KOMPRESI
                 const compressImage = (file, callback) => { 
                     if (!file) return callback(null);
                     const reader = new FileReader();
@@ -1115,11 +1369,13 @@
                         if(formName === 'fasilitas') formFasilitas.value[fieldName] = compressedDataUrl;
                         if(formName === 'tamu') formTamu.value[fieldName] = compressedDataUrl;
                         if(formName === 'umkm') formUMKM.value[fieldName] = compressedDataUrl;
+                        if(formName === 'galeri') formGaleri.value[fieldName] = compressedDataUrl;
                     });
                 };
 
-                // FUNGSI PINTAR: OTOMATIS BERALIH ANTARA FIREBASE DAN LOKAL
+                // FUNGSI FIREBASE & LOKAL (DENGAN SOFT DELETE SUPPORT)
                 const saveData = async (collectionName, docId, dataObj, localListRef) => {
+                    dataObj.isDeleted = false; // Flag soft delete awal
                     if (useFirebase) {
                         const colRef = collection(db, 'artifacts', appIdEnv, 'public', 'data', collectionName);
                         await setDoc(doc(colRef, docId.toString()), dataObj);
@@ -1131,17 +1387,61 @@
                     if (useFirebase) await setDoc(doc(db, 'artifacts', appIdEnv, 'public', 'data', collectionName, docId.toString()), dataObj, { merge: true });
                     showToast('Data berhasil diperbarui!');
                 };
-                const deleteItem = async (collectionName, docId, localListRef) => {
-                    if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
-                        if (useFirebase) await deleteDoc(doc(db, 'artifacts', appIdEnv, 'public', 'data', collectionName, docId.toString()));
-                        else localListRef.value = localListRef.value.filter(item => item.id !== docId);
-                        showToast('Data berhasil dihapus');
+                
+                // SOFT DELETE KHUSUS
+                const softDeleteItem = async (collectionName, docId, localListRef) => {
+                    if (confirm("Hapus data ini? (Data akan disembunyikan dan dihapus permanen oleh sistem pada tgl 1 jam 23:00)")) {
+                        if (useFirebase) {
+                            await setDoc(doc(db, 'artifacts', appIdEnv, 'public', 'data', collectionName, docId.toString()), { isDeleted: true }, { merge: true });
+                        } else {
+                            const item = localListRef.value.find(i => i.id === docId);
+                            if(item) item.isDeleted = true;
+                        }
+                        showToast('Data berhasil dihapus (Sistem Soft Delete)');
                     }
                 };
 
-                // ==========================================
-                // STATE UTAMA (TIDAK BERUBAH)
-                // ==========================================
+                // FITUR EXCEL DOWNLOAD
+                const downloadExcelData = (menuKey) => {
+                    let list = []; let filename = "";
+                    if(menuKey === 'surat') { list = listSurat.value; filename = "Data_Surat"; }
+                    if(menuKey === 'laporan') { list = listLaporan.value; filename = "Data_Pengaduan"; }
+                    if(menuKey === 'fasilitas') { list = listFasilitas.value; filename = "Data_Fasilitas"; }
+                    if(menuKey === 'bursa-kerja') { list = listBursa.value; filename = "Data_Bursa_Kerja"; }
+                    if(menuKey === 'bank-sampah') { list = listSampah.value; filename = "Data_Bank_Sampah"; }
+                    if(menuKey === 'galeri') { list = listGaleri.value; filename = "Data_Galeri"; }
+                    if(menuKey === 'kependudukan') { list = listWargaLengkap.value; filename = "Data_Kependudukan"; }
+
+                    // Saring hanya data yang belum terhapus
+                    const activeList = list.filter(x => !x.isDeleted);
+
+                    if (!activeList || activeList.length === 0) {
+                        return showToast('Data kosong, tidak ada yang didownload.', 'danger');
+                    }
+
+                    // Ambil Header (Tanpa ID dan Field Foto)
+                    const headers = Object.keys(activeList[0]).filter(k => k !== 'id' && !k.startsWith('foto') && k !== 'isDeleted');
+                    let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
+                    
+                    activeList.forEach(row => {
+                        let rowData = headers.map(h => {
+                            let cell = row[h] === null || row[h] === undefined ? "" : String(row[h]);
+                            cell = cell.replace(/"/g, '""'); // Escape tanda kutip
+                            return `"${cell}"`;
+                        });
+                        csvContent += rowData.join(",") + "\n";
+                    });
+                    
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", encodedUri);
+                    link.setAttribute("download", `${filename}_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+
+                // STATE UTAMA
                 const jobCategories = { "PEMERINTAH & KEAMANAN": ["PNS", "PPPK", "TNI AD", "POLRI"], "KARYAWAN": ["Swasta", "BUMN"], "LAINNYA": ["Buruh", "Tidak Bekerja"] };
                 const businessCategories = { "PERDAGANGAN": ["Toko Kelontong", "Warung Makan"], "JASA": ["Bengkel", "Cukur Rambut"] };
 
@@ -1156,9 +1456,9 @@
                 const landingSettings = ref({
                     headerBg: '#ffffff', footerBg: '#1f2937', headerText: 'Pemerintah Daerah', footerText: 'Sistem Layanan Mandiri Terpadu',
                     portalTitle: 'Portal Digital Layanan Terpadu', portalDesc: 'Sistem pelayanan digital terpadu kelurahan mandiri dan transparan.',
-                    walikota: { img: 'https://via.placeholder.com/200', nama: 'H. Nama Walikota, M.Si', jabatan: 'Walikota', sambutan: 'Bersama wujudkan kota cerdas.' },
-                    wakil: { img: 'https://via.placeholder.com/200', nama: 'H. Wakil Walikota, S.E', jabatan: 'Wakil Walikota', sambutan: 'Pelayanan prima untuk masyarakat.' },
-                    lurah: { img: 'https://via.placeholder.com/250', nama: 'Nama Lurah, S.STP', jabatan: 'Lurah', sambutan: 'Aplikasi ini didedikasikan untuk kemudahan urusan birokrasi warga tingkat kelurahan.' }
+                    walikota: { img: '', nama: 'H. Nama Walikota, M.Si', jabatan: 'Walikota', sambutan: 'Bersama wujudkan kota cerdas.' },
+                    wakil: { img: '', nama: 'H. Wakil Walikota, S.E', jabatan: 'Wakil Walikota', sambutan: 'Pelayanan prima untuk masyarakat.' },
+                    lurah: { img: '', nama: 'Nama Lurah, S.STP', jabatan: 'Lurah', sambutan: 'Aplikasi ini didedikasikan untuk kemudahan urusan birokrasi warga tingkat kelurahan.' }
                 });
 
                 const isLoggedIn = ref(false);
@@ -1179,7 +1479,7 @@
                 const buatAkunPetugas = () => { if(!formPetugas.value.username) return showToast('Username wajib diisi!', 'danger'); showToast(`Akun ${formPetugas.value.role.toUpperCase()} berhasil dibuat!`); formPetugas.value = { role: 'rt', nama: '', username: '', password: '' }; };
 
                 // =================================================================
-                // DATA REGISTRASI WARGA LENGKAP (DIKUNCI MATI 100%)
+                // DATA REGISTRASI WARGA (FORMAT TIDAK DIUBAH)
                 // =================================================================
                 const reg = ref({
                     nik:'', nokk:'', nama:'', tempat_lahir:'', tgl_lahir:'', kelamin:'Laki-laki', suku:'', alamat:'', rt:'', rw:'', hp1:'', hp2:'',
@@ -1188,27 +1488,22 @@
                     penghasilan:'< 1 juta', pekerjaan:'', usaha:'Tidak Ada', kamar_total:0, kamar_terisi:0, kamar_kosong:0, email:'', username:'', password:'', repeatPassword:''
                 });
                 
-                // MOCKUP DATABASE WARGA UNTUK STATISTIK & KEPENDUDUKAN (Sesuai Skema Registrasi)
-                const listWargaLengkap = ref([
-                    { id: 1, nik:'3301234567890001', nokk:'3301234567890000', nama:'Budi Santoso', tempat_lahir:'Jakarta', tgl_lahir:'1985-05-15', kelamin:'Laki-laki', suku:'Jawa', alamat:'Jl. Mawar Merah No 5', rt:'01', rw:'05', status_keluarga:'Kepala Keluarga', pekerjaan:'Swasta', usaha:'Warung Makan' },
-                    { id: 2, nik:'3301234567890002', nokk:'3301234567890000', nama:'Siti Aminah', tempat_lahir:'Bandung', tgl_lahir:'1990-12-10', kelamin:'Perempuan', suku:'Sunda', alamat:'Jl. Mawar Merah No 5', rt:'01', rw:'05', status_keluarga:'Istri', pekerjaan:'Tidak Bekerja', usaha:'Toko Kelontong' },
-                    { id: 3, nik:'3301234567890003', nokk:'3301234567890011', nama:'Ahmad Dhani', tempat_lahir:'Surabaya', tgl_lahir:'2018-05-20', kelamin:'Laki-laki', suku:'Jawa', alamat:'Jl. Melati No 10', rt:'02', rw:'05', status_keluarga:'Anak', pekerjaan:'Belum Bekerja', usaha:'Tidak Ada' },
-                    { id: 4, nik:'3301234567890004', nokk:'3301234567890022', nama:'Ompung Boru', tempat_lahir:'Medan', tgl_lahir:'1950-01-01', kelamin:'Perempuan', suku:'Batak', alamat:'Jl. Anggrek No 1', rt:'01', rw:'05', status_keluarga:'Orang Tua', pekerjaan:'Pensiunan', usaha:'Tidak Ada' }
-                ]);
+                // MENGHAPUS SEMUA DATA DUMMY BAWAAN SAAT DEPLOY
+                const listWargaLengkap = ref([]);
 
                 // KALKULASI STATISTIK DARI DATABASE WARGA
-                const statsGender = computed(() => { let l=0, p=0; listWargaLengkap.value.forEach(w => w.kelamin === 'Laki-laki' ? l++ : p++); return {l, p}; });
+                const statsGender = computed(() => { let l=0, p=0; listWargaLengkap.value.filter(x=>!x.isDeleted).forEach(w => w.kelamin === 'Laki-laki' ? l++ : p++); return {l, p}; });
                 const statsUsia = computed(() => { 
                     let b=0, r=0, d=0, l=0; const currYear = new Date().getFullYear();
-                    listWargaLengkap.value.forEach(w => { 
+                    listWargaLengkap.value.filter(x=>!x.isDeleted).forEach(w => { 
                         const age = currYear - new Date(w.tgl_lahir).getFullYear();
                         if(age <= 5) b++; else if(age <= 18) r++; else if(age <= 59) d++; else l++;
                     }); return { balita: b, remaja: r, dewasa: d, lansia: l };
                 });
-                const statsSuku = computed(() => { const res = {}; listWargaLengkap.value.forEach(w => { res[w.suku] = (res[w.suku] || 0) + 1; }); return res; });
-                const statsKerja = computed(() => { const res = {}; listWargaLengkap.value.forEach(w => { if(w.pekerjaan && w.pekerjaan !== 'Tidak Ada') res[w.pekerjaan] = (res[w.pekerjaan] || 0) + 1; }); return res; });
-                const statsUsaha = computed(() => { const res = {}; listWargaLengkap.value.forEach(w => { if(w.usaha && w.usaha !== 'Tidak Ada') res[w.usaha] = (res[w.usaha] || 0) + 1; }); return res; });
-                const ultahBulanIni = computed(() => { const currMonth = new Date().getMonth(); return listWargaLengkap.value.filter(w => new Date(w.tgl_lahir).getMonth() === currMonth); });
+                const statsSuku = computed(() => { const res = {}; listWargaLengkap.value.filter(x=>!x.isDeleted).forEach(w => { res[w.suku] = (res[w.suku] || 0) + 1; }); return res; });
+                const statsKerja = computed(() => { const res = {}; listWargaLengkap.value.filter(x=>!x.isDeleted).forEach(w => { if(w.pekerjaan && w.pekerjaan !== 'Tidak Ada') res[w.pekerjaan] = (res[w.pekerjaan] || 0) + 1; }); return res; });
+                const statsUsaha = computed(() => { const res = {}; listWargaLengkap.value.filter(x=>!x.isDeleted).forEach(w => { if(w.usaha && w.usaha !== 'Tidak Ada') res[w.usaha] = (res[w.usaha] || 0) + 1; }); return res; });
+                const ultahBulanIni = computed(() => { const currMonth = new Date().getMonth(); return listWargaLengkap.value.filter(w => !w.isDeleted && new Date(w.tgl_lahir).getMonth() === currMonth); });
 
                 const kalkulasiKamar = () => { reg.value.kamar_kosong = reg.value.kamar_total - reg.value.kamar_terisi; };
                 
@@ -1232,19 +1527,13 @@
                     }, 800);
                 };
                 const handleLogout = () => { isLoggedIn.value = false; currentMenu.value = 'dashboard'; };
-                const notif = ref({ 'laporan': 3, 'fasilitas': 2, 'bursa-kerja': 1, 'surat': 1 });
+                const notif = ref({ 'laporan': 0, 'fasilitas': 0, 'bursa-kerja': 0, 'surat': 0 });
                 const switchMenu = (m) => { currentMenu.value = m; sidebarOpen.value = false; if (notif.value[m] !== undefined) notif.value[m] = 0; };
 
-                // ==========================================
-                // FORMATTER RUPIAH & ANGGARAN
-                // ==========================================
+                // FORMATTER RUPIAH & ANGGARAN (DATA DUMMY DIHAPUS)
                 const formatRupiah = (angka) => { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); };
-                
                 const formAnggaran = ref({ tahun: new Date().getFullYear().toString(), bidang: 'Infrastruktur', pagu: '', realisasi: '', keterangan: '' });
-                const listAnggaran = ref([
-                    { id: 1, tahun: '2026', bidang: 'Infrastruktur', pagu: 150000000, realisasi: 120000000, keterangan: 'Perbaikan jalan dan drainase RT 01-05' },
-                    { id: 2, tahun: '2026', bidang: 'Kesehatan & Sosial', pagu: 50000000, realisasi: 25000000, keterangan: 'Kegiatan Posyandu & Pemberian Makanan Tambahan (PMT) Balita' }
-                ]);
+                const listAnggaran = ref([]);
                 const submitAnggaran = async () => {
                     if(!formAnggaran.value.bidang || !formAnggaran.value.pagu) return showToast('Bidang dan Pagu Anggaran wajib diisi', 'danger');
                     const docId = Date.now().toString();
@@ -1253,15 +1542,9 @@
                     formAnggaran.value = { tahun: new Date().getFullYear().toString(), bidang: 'Infrastruktur', pagu: '', realisasi: '', keterangan: '' };
                 };
 
-                // ==========================================
-                // AGENDA / PENGUMUMAN
-                // ==========================================
+                // AGENDA / PENGUMUMAN (DATA DUMMY DIHAPUS)
                 const formAgenda = ref({ kategori: 'Berita kegiatan', judul: '', isi: '' });
-                const listAgenda = ref([
-                    { id: 1, tanggal: '15 Mei 2026', kategori: 'Pengumuman Penting', judul: 'Pendataan Bantuan PKH Baru Dibuka', isi: 'Bapak/Ibu warga kelurahan, pendaftaran PKH baru telah dibuka. Silakan daftar via RT/RW masing-masing.', views: 342 },
-                    { id: 2, tanggal: '10 Mei 2026', kategori: 'Berita kegiatan', judul: 'Lomba Kebersihan Antar RT', isi: 'Dalam rangka menyambut hari jadi kota, diadakan lomba kebersihan antar RT dengan hadiah menarik.', views: 156 },
-                    { id: 3, tanggal: '05 Mei 2026', kategori: 'Info Terkini', judul: 'Jadwal Pemadaman Listrik Bergilir', isi: 'Diinformasikan akan ada pemadaman listrik pada hari Minggu pukul 09.00 - 15.00 WITA untuk perbaikan gardu.', views: 89 }
-                ]);
+                const listAgenda = ref([]);
                 const submitAgenda = async () => {
                     if(!formAgenda.value.judul) return;
                     const docId = Date.now().toString();
@@ -1270,18 +1553,14 @@
                     showToast('Agenda berhasil diposting!'); formAgenda.value = { kategori: 'Berita kegiatan', judul: '', isi: '' };
                 };
 
-                // ==========================================
-                // TRAFIK PENGUNJUNG WEBSITE
-                // ==========================================
-                const webTraffic = ref(12530); // Data awal pengunjung
+                // TRAFIK PENGUNJUNG WEBSITE DI MULAI DARI 0
+                const webTraffic = ref(0); 
                 
-                // ==========================================
-                // E-SURAT ADMIN (STATUS) & BANSOS
-                // ==========================================
+                // E-SURAT ADMIN & BANSOS (DATA DUMMY DIHAPUS)
                 const listJenisSurat = { "IDENTITAS & KEPENDUDUKAN": ["Surat Keterangan Domisili", "Surat Pengantar KTP"], "EKONOMI & USAHA": ["Surat Keterangan Usaha", "Surat Keterangan Tidak Mampu"] };
                 const statusSuratArr = ['Menunggu Verifikasi', 'Sedang Diproses', 'Menunggu Tanda Tangan', 'Selesai', 'Ditolak'];
                 const formSurat = ref({ jenis: 'Surat Keterangan Domisili', keperluan: '', noHp: '', fotoRt: null });
-                const listSurat = ref([{ id: 1, tanggal: '21/05/2026', jenis: 'Surat Keterangan Usaha', keperluan: 'Syarat KUR', noHp: '08123', status: 'Menunggu Verifikasi', pengaju: 'Budi Santoso' }]);
+                const listSurat = ref([]);
                 const submitSurat = async () => { 
                     if(!formSurat.value.keperluan) return; 
                     const docId = Date.now().toString();
@@ -1290,7 +1569,7 @@
                 };
 
                 const formBansos = ref({ nik: '', nama: '', jenis: 'PKH', alasan: '' });
-                const listBansos = ref([{ id: 1, nik: '3301...', nama: 'Siti K', jenis: 'BLT', alasan: 'Lansia sakit', pengusul: 'RT 01' }]);
+                const listBansos = ref([]);
                 const submitBansos = async () => { 
                     if(!formBansos.value.nama) return; 
                     const docId = Date.now().toString();
@@ -1298,9 +1577,9 @@
                     showToast('Usulan Bansos Disimpan!'); formBansos.value = { nik: '', nama: '', jenis: 'PKH', alasan: '' }; 
                 };
 
-                // KELUHAN & PENGADUAN ADMIN RESPOND
+                // KELUHAN & PENGADUAN (DATA DUMMY DIHAPUS)
                 const formLaporan = ref({ judul: '', deskripsi: '', fotoBukti: null });
-                const listLaporan = ref([{ id: 1, tanggal: '20/05/2026', judul: 'Lampu PJU Mati Total', deskripsi: 'Jalanan gelap rawan kriminal.', status: 'Sedang Diproses', draftBalasan: '', balasanAdmin: '' }]);
+                const listLaporan = ref([]);
                 const submitLaporan = async () => { 
                     if(!formLaporan.value.judul) return; 
                     const docId = Date.now().toString();
@@ -1312,9 +1591,9 @@
                     updateField('laporan', l.id, { balasanAdmin: l.balasanAdmin, status: 'Selesai' });
                 };
                 
-                // LAPOR TAMU
+                // LAPOR TAMU (DATA DUMMY DIHAPUS)
                 const formTamu = ref({ namaTamu: '', lamaMenginap: '', tujuan: '', fotoTamu: null });
-                const listTamu = ref([{ id: 1, tanggalLapor: '21/05/2026', namaTamu: 'Joko Widodo (Bukan Presiden)', lamaMenginap: '3 Hari', tujuan: 'Menjenguk keluarga sakit', pelapor: 'Warga 02' }]);
+                const listTamu = ref([]);
                 const submitTamu = async () => { 
                     if(!formTamu.value.namaTamu) return; 
                     const docId = Date.now().toString();
@@ -1322,24 +1601,88 @@
                     showToast('Laporan Tamu Terkirim'); formTamu.value = { namaTamu: '', lamaMenginap: '', tujuan: '', fotoTamu: null }; 
                 };
 
-                // LAINNYA & LAPAK UMKM
-                const formArsip = ref({}); const listArsip = ref([]); const submitArsip = () => {}; const triggerPanic = () => { showToast('PANIC BUTTON PRESSED', 'danger') };
-                const showFormBursa = ref(false); const formBursa = ref({}); const listBursa = ref([]); const submitBursa = () => {};
-                const showFormFasilitas = ref(false); const formFasilitas = ref({}); const listFasilitas = ref([]); const submitFasilitas = () => {};
-                const formSampah = ref({}); const listSampah = ref([]); const submitSampah = () => {}; const totalPoinSampah = computed(()=>0);
-                const listGaleri = ref([{ id: 1, judul: 'Kerja Bakti', foto: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=400', tanggal: '18 Mei 2026' }]);
+                // MODUL LENGKAP: ARSIP SURAT DIGITAL
+                const tabArsip = ref('dashboard');
+                const searchArsip = ref('');
+                const showFormMasuk = ref(false);
+                const showFormKeluar = ref(false);
                 
-                // ==========================================
-                // MODUL UMKM WARGA & TAMPILAN DEPAN BERKARTU
-                // ==========================================
+                const formArsipMasuk = ref({ noAgenda:'', noSurat:'', tglSurat:'', tglTerima:'', pengirim:'', instansi:'', perihal:'', ringkasan:'', sifat:'Biasa', kategori:'Undangan', tujuanDisposisi:'', penerimaDisposisi:'', status:'Diproses', catatan:'', fileSurat:null });
+                const listArsipMasuk = ref([]);
+                const submitArsipMasuk = async () => {
+                    if(!formArsipMasuk.value.noSurat) return showToast('Nomor surat wajib diisi', 'danger');
+                    const docId = Date.now().toString();
+                    await saveData('arsipMasuk', docId, { id: docId, ...formArsipMasuk.value }, listArsipMasuk);
+                    showToast('Surat Masuk Berhasil Diarsip!');
+                    formArsipMasuk.value = { noAgenda:'', noSurat:'', tglSurat:'', tglTerima:'', pengirim:'', instansi:'', perihal:'', ringkasan:'', sifat:'Biasa', kategori:'Undangan', tujuanDisposisi:'', penerimaDisposisi:'', status:'Diproses', catatan:'', fileSurat:null };
+                    showFormMasuk.value = false;
+                };
+
+                const formArsipKeluar = ref({ noAgenda:'', noSurat:'', tglSurat:'', tujuan:'', instansiPenerima:'', alamat:'', perihal:'', isi:'', penandatangan:'', jabatan:'', operator:'', jenisSurat:'Surat tugas', statusPengiriman:'Draft', mediaPengiriman:'Email', catatan:'', fileSurat:null });
+                const listArsipKeluar = ref([]);
+                const submitArsipKeluar = async () => {
+                    if(!formArsipKeluar.value.noSurat) return showToast('Nomor surat wajib diisi', 'danger');
+                    const docId = Date.now().toString();
+                    await saveData('arsipKeluar', docId, { id: docId, ...formArsipKeluar.value }, listArsipKeluar);
+                    showToast('Surat Keluar Berhasil Diarsip!');
+                    formArsipKeluar.value = { noAgenda:'', noSurat:'', tglSurat:'', tujuan:'', instansiPenerima:'', alamat:'', perihal:'', isi:'', penandatangan:'', jabatan:'', operator:'', jenisSurat:'Surat tugas', statusPengiriman:'Draft', mediaPengiriman:'Email', catatan:'', fileSurat:null };
+                    showFormKeluar.value = false;
+                };
+
+                const filteredArsipMasuk = computed(() => {
+                    if(!searchArsip.value) return listArsipMasuk.value.filter(x => !x.isDeleted);
+                    return listArsipMasuk.value.filter(a => !a.isDeleted && (a.noSurat.toLowerCase().includes(searchArsip.value.toLowerCase()) || a.pengirim.toLowerCase().includes(searchArsip.value.toLowerCase())));
+                });
+                const filteredArsipKeluar = computed(() => {
+                    if(!searchArsip.value) return listArsipKeluar.value.filter(x => !x.isDeleted);
+                    return listArsipKeluar.value.filter(a => !a.isDeleted && (a.noSurat.toLowerCase().includes(searchArsip.value.toLowerCase()) || a.tujuan.toLowerCase().includes(searchArsip.value.toLowerCase())));
+                });
+
+                // LAINNYA (EKSPANSI PLACEHOLDER UNTUK DELETE & EXCEL)
+                const triggerPanic = () => { showToast('PANIC BUTTON PRESSED', 'danger') };
+                
+                const formBursa = ref({ tipe: 'Mencari Kerja', judul: '', deskripsi: '', kontak: '' }); 
+                const listBursa = ref([]); 
+                const submitBursa = async () => {
+                    if(!formBursa.value.judul) return;
+                    const docId = Date.now().toString();
+                    await saveData('bursa', docId, { id: docId, pengiklan: currentUser.value.name, ...formBursa.value }, listBursa);
+                    showToast('Bursa Kerja Diposting'); formBursa.value = { tipe: 'Mencari Kerja', judul: '', deskripsi: '', kontak: '' };
+                };
+                
+                const formFasilitas = ref({ fasilitas: '', lokasi: '', kondisi: '' }); 
+                const listFasilitas = ref([]); 
+                const submitFasilitas = async () => {
+                    if(!formFasilitas.value.fasilitas) return;
+                    const docId = Date.now().toString();
+                    await saveData('fasilitas', docId, { id: docId, pelapor: currentUser.value.name, status: 'Dilaporkan', ...formFasilitas.value }, listFasilitas);
+                    showToast('Laporan Fasilitas Terkirim'); formFasilitas.value = { fasilitas: '', lokasi: '', kondisi: '' };
+                };
+                
+                const formSampah = ref({ nama: '', jenis: 'Plastik', berat: '' }); 
+                const listSampah = ref([]); 
+                const totalPoinSampah = computed(()=>{ return listSampah.value.filter(x=>!x.isDeleted && x.nama.toLowerCase() === currentUser.value.name.toLowerCase()).reduce((acc, curr) => acc + (curr.poin || 0), 0) });
+                const submitSampah = async () => {
+                    if(!formSampah.value.nama) return;
+                    const docId = Date.now().toString();
+                    const poinCalc = formSampah.value.berat * 50; // Contoh kalkulasi 1kg = 50 poin
+                    await saveData('sampah', docId, { id: docId, tanggal: new Date().toLocaleDateString('id-ID'), poin: poinCalc, ...formSampah.value }, listSampah);
+                    showToast('Data Sampah Tersimpan'); formSampah.value = { nama: '', jenis: 'Plastik', berat: '' };
+                };
+                
+                const formGaleri = ref({ judul: '', foto: null });
+                const listGaleri = ref([]);
+                const submitGaleri = async () => {
+                    if(!formGaleri.value.foto) return showToast('Pilih foto', 'danger');
+                    const docId = Date.now().toString();
+                    await saveData('galeri', docId, { id: docId, tanggal: new Date().toLocaleDateString('id-ID'), ...formGaleri.value }, listGaleri);
+                    showToast('Foto ditambahkan ke Galeri'); formGaleri.value = { judul: '', foto: null };
+                };
+                
+                // MODUL UMKM WARGA
                 const showFormUMKM = ref(false);
                 const formUMKM = ref({ namaUsaha: '', nib: '', alamat: '', jamBuka: '', jamTutup: '', wa: '', kategori: 'Kuliner', harga: '', foto1: null, foto2: null });
-                
-                const listUMKM = ref([
-                    { id: 1, namaUsaha: 'Warung Nasi Bu Sri', kategori: 'Kuliner', pemilik: 'Ibu Sri', rt: '01', rw: '05', alamat: 'Gg. Kucing No.2', jamBuka: '06:00', jamTutup: '20:00', wa: '6281234567890', harga: 15000, foto1: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&q=80&w=400', foto2: null },
-                    { id: 2, namaUsaha: 'Bengkel Motor Berkah', kategori: 'Jasa', pemilik: 'Pak Yanto', rt: '01', rw: '05', alamat: 'Jl. Utama Timur', jamBuka: '08:00', jamTutup: '17:00', wa: '6281987654321', harga: null, foto1: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&q=80&w=400', foto2: null },
-                    { id: 3, namaUsaha: 'Toko Sembako Makmur', kategori: 'Perdagangan', pemilik: 'Haji Lulung', rt: '02', rw: '05', alamat: 'Blok B1 No.12', jamBuka: '07:00', jamTutup: '22:00', wa: '6281122334455', harga: 5000, foto1: 'https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&q=80&w=400', foto2: null }
-                ]);
+                const listUMKM = ref([]);
 
                 const submitLapakUMKM = async () => {
                     if(!formUMKM.value.namaUsaha || !formUMKM.value.wa) return showToast('Nama usaha dan Nomor WA wajib diisi!', 'danger');
@@ -1356,7 +1699,7 @@
 
                 const groupedUMKMLanding = computed(() => {
                     const groups = {};
-                    listUMKM.value.forEach(umkm => {
+                    listUMKM.value.filter(x => !x.isDeleted).forEach(umkm => {
                         const wilayah = `RT ${umkm.rt} / RW ${umkm.rw}`;
                         if (!groups[wilayah]) groups[wilayah] = [];
                         groups[wilayah].push(umkm);
@@ -1378,25 +1721,18 @@
 
                 const syncCollection = (collectionName, listRef) => {
                     const colRef = collection(db, 'artifacts', appIdEnv, 'public', 'data', collectionName);
-                    let isFirstLoad = true;
                     onSnapshot(colRef, (snapshot) => {
-                        if (snapshot.empty && isFirstLoad) {
-                            // Jika kosong, isi database baru dengan dummy agar tidak hilang
-                            listRef.value.forEach(async (item) => { await setDoc(doc(colRef, item.id.toString()), item); });
-                        } else {
-                            const data = [];
-                            snapshot.forEach(d => data.push({ id: d.id, ...d.data() }));
-                            data.sort((a, b) => Number(b.id) - Number(a.id));
-                            if (data.length > 0 || !isFirstLoad) listRef.value = data;
-                        }
-                        isFirstLoad = false;
+                        const data = [];
+                        snapshot.forEach(d => data.push({ id: d.id, ...d.data() }));
+                        data.sort((a, b) => Number(b.id) - Number(a.id));
+                        listRef.value = data;
                     });
                 };
 
                 onMounted(async () => {
-                    // Trafik web (simulasi lokal + Firebase jika diperlukan nantinya)
+                    // Trafik web simulasi lokal
                     let currentTraffic = localStorage.getItem('web_traffic');
-                    if (!currentTraffic) { currentTraffic = 12530; } else { currentTraffic = parseInt(currentTraffic) + 1; }
+                    if (!currentTraffic) { currentTraffic = 1; } else { currentTraffic = parseInt(currentTraffic) + 1; }
                     localStorage.setItem('web_traffic', currentTraffic);
                     webTraffic.value = currentTraffic;
 
@@ -1421,6 +1757,12 @@
                                 syncCollection('bansos', listBansos);
                                 syncCollection('laporan', listLaporan);
                                 syncCollection('tamu', listTamu);
+                                syncCollection('arsipMasuk', listArsipMasuk);
+                                syncCollection('arsipKeluar', listArsipKeluar);
+                                syncCollection('bursa', listBursa);
+                                syncCollection('fasilitas', listFasilitas);
+                                syncCollection('sampah', listSampah);
+                                syncCollection('galeri', listGaleri);
 
                                 // Sinkronisasi Pengaturan Website
                                 const sRef = doc(db, 'artifacts', appIdEnv, 'public', 'data', 'settings', 'global');
@@ -1449,10 +1791,11 @@
                     formBansos, listBansos, submitBansos,
                     formLaporan, listLaporan, submitLaporan, submitResponLaporan, handleFileUpload,
                     formTamu, listTamu, submitTamu,
-                    formArsip, listArsip, submitArsip, triggerPanic, showFormBursa, formBursa, listBursa, submitBursa,
-                    showFormFasilitas, formFasilitas, listFasilitas, submitFasilitas, formSampah, listSampah, totalPoinSampah, submitSampah, listGaleri, 
+                    tabArsip, searchArsip, showFormMasuk, showFormKeluar, formArsipMasuk, listArsipMasuk, submitArsipMasuk, formArsipKeluar, listArsipKeluar, submitArsipKeluar, filteredArsipMasuk, filteredArsipKeluar,
+                    triggerPanic, formBursa, listBursa, submitBursa,
+                    formFasilitas, listFasilitas, submitFasilitas, formSampah, listSampah, totalPoinSampah, submitSampah, formGaleri, listGaleri, submitGaleri,
                     showFormUMKM, formUMKM, listUMKM, submitLapakUMKM, groupedUMKMLanding, selectedWilayahUMKM,
-                    formAnggaran, listAnggaran, submitAnggaran, formatRupiah, updateField, deleteItem
+                    formAnggaran, listAnggaran, submitAnggaran, formatRupiah, updateField, softDeleteItem, downloadExcelData
                 };
             }
         }).mount('#app');
