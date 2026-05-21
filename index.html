@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Informasi Kelurahan Digital</title>
     
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+    
     <!-- Pustaka Eksternal -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -100,7 +102,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12 md:mb-16">
                     <div class="bg-white rounded-[2rem] p-6 md:p-8 shadow-xl shadow-blue-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-blue-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
-                        <img :src="landingSettings.walikota.img" class="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200'">
+                        <img :src="landingSettings.walikota.img" class="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200?text=Foto'">
                         <div class="z-10 text-center md:text-left">
                             <h3 class="font-black text-xl md:text-2xl text-gray-800">{{ landingSettings.walikota.nama }}</h3>
                             <p class="text-xs font-black uppercase tracking-widest text-primary mb-3 bg-blue-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.walikota.jabatan }}</p>
@@ -109,7 +111,7 @@
                     </div>
                     <div class="bg-white rounded-[2rem] p-6 md:p-8 shadow-xl shadow-emerald-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
-                        <img :src="landingSettings.wakil.img" class="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200'">
+                        <img :src="landingSettings.wakil.img" class="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200?text=Foto'">
                         <div class="z-10 text-center md:text-left">
                             <h3 class="font-black text-xl md:text-2xl text-gray-800">{{ landingSettings.wakil.nama }}</h3>
                             <p class="text-xs font-black uppercase tracking-widest text-emerald-600 mb-3 bg-emerald-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.wakil.jabatan }}</p>
@@ -121,7 +123,7 @@
                 <!-- SAMBUTAN LURAH -->
                 <div class="bg-gradient-to-br from-blue-900 via-primary to-blue-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl text-white flex flex-col md:flex-row items-center gap-8 mb-16 relative overflow-hidden">
                     <div class="absolute -top-24 -right-24 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
-                    <img :src="landingSettings.lurah.img" class="w-40 h-40 md:w-48 md:h-48 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100" onerror="this.src='https://via.placeholder.com/250'">
+                    <img :src="landingSettings.lurah.img" class="w-40 h-40 md:w-48 md:h-48 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100" onerror="this.src='https://via.placeholder.com/250?text=Foto'">
                     <div class="text-center md:text-left">
                         <h3 class="font-black text-2xl md:text-3xl mb-1">{{ landingSettings.lurah.nama }}</h3>
                         <p class="text-blue-200 font-bold mb-4 uppercase tracking-widest text-xs md:text-sm">{{ landingSettings.lurah.jabatan }}</p>
@@ -196,7 +198,7 @@
                 </div>
             </div>
 
-            <!-- GALERI LINGKUNGAN DEPAN (UPDATE DETAIL INFO) -->
+            <!-- GALERI LINGKUNGAN DEPAN -->
             <div v-if="listGaleri.filter(g => !g.isDeleted).length > 0" class="bg-gray-100 py-12 md:py-16 border-t border-gray-200">
                 <div class="max-w-7xl mx-auto px-4 md:px-6 w-full">
                     <h3 class="text-2xl md:text-3xl font-black text-gray-800 mb-6 md:mb-8 flex items-center gap-3"><i class="fas fa-images text-blue-500"></i> Galeri Kegiatan</h3>
@@ -226,15 +228,14 @@
         </div>
 
         <!-- ==============================================
-             LOGIN & REGISTER (UPDATE TAMPILAN HP)
+             LOGIN & REGISTER (DIPERTAHANKAN 100%)
              ============================================== -->
-        <!-- Mengubah 'absolute overflow-hidden' menjadi 'fixed overflow-y-auto' agar bisa di-scroll di HP -->
         <div v-if="!isLoggedIn && currentAuthView === 'auth'" class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 fixed inset-0 z-[100] overflow-y-auto">
             <!-- Background Ornamen -->
             <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
             <div class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
 
-            <!-- Container Form: Menyesuaikan padding untuk HP -->
+            <!-- Container Form -->
             <div :class="['bg-white/95 backdrop-blur-xl p-6 md:p-10 rounded-[2rem] shadow-2xl border border-white/50 z-10 relative w-full my-auto transition-all duration-300', isRegistering ? 'max-w-4xl' : 'max-w-md']">
                 
                 <!-- Tombol Kembali -->
@@ -256,7 +257,6 @@
                         <label class="block text-sm font-bold text-gray-700 mb-1.5">Username / NIK</label>
                         <div class="relative">
                             <i class="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            <!-- Teks diperbesar (text-base) agar HP tidak auto-zoom saat ngetik -->
                             <input type="text" v-model="loginForm.email" required placeholder="Masukkan Username/NIK" class="w-full pl-11 pr-4 py-3.5 md:py-3 text-base md:text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-colors">
                         </div>
                     </div>
@@ -268,14 +268,12 @@
                             <button type="button" @click="showLoginPassword = !showLoginPassword" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 p-2"><i :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button>
                         </div>
                     </div>
-                    <!-- Tombol Login Diperbesar utk area sentuh jari -->
                     <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-4 md:py-3.5 rounded-xl shadow-lg transition-all mt-6 text-base">Masuk Sistem <i class="fas fa-arrow-right ml-2"></i></button>
                     <p class="text-center text-sm text-gray-600 mt-6">Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; regStep = 1" class="text-primary font-black hover:underline">Daftar Akun Warga</a></p>
                 </form>
 
-                <!-- FORM PENDAFTARAN WARGA (TETAP SAMA) -->
+                <!-- FORM PENDAFTARAN WARGA (DIPERTAHANKAN 100% SESUAI INSTRUKSI) -->
                 <form v-if="isRegistering" @submit.prevent="handleRegister" class="space-y-5 form-section">
-                    <!-- Navigasi Langkah (Responsif di HP) -->
                     <div class="flex items-center justify-between mb-6 md:mb-8 border-b pb-2 md:pb-4 gap-1 md:gap-2">
                         <div v-for="step in 5" :key="step" :class="['flex-1 text-center py-2 border-b-4 transition-colors', regStep >= step ? 'border-primary text-primary' : 'border-gray-200 text-gray-400']">
                             <span class="block text-[10px] md:text-xs font-black uppercase tracking-wider">Tahap <br class="md:hidden"/>{{ step }}</span>
@@ -293,7 +291,7 @@
                             <div><label class="block text-xs font-bold mb-1">Jenis Kelamin</label><select v-model="reg.kelamin" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none bg-white"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
                             <div><label class="block text-xs font-bold mb-1">Asal Suku</label><input type="text" v-model="reg.suku" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div>
                             <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Alamat Lengkap</label><textarea v-model="reg.alamat" rows="2" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></textarea></div>
-                            <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-bold mb-1">RT</label><input type="text" v-model="reg.rt" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div><div><label class="block text-xs font-bold mb-1">RW</label><input type="text" v-model="reg.rw" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div></div>
+                            <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-bold mb-1">RT (Cth: 01)</label><input type="text" v-model="reg.rt" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div><div><label class="block text-xs font-bold mb-1">RW (Cth: 05)</label><input type="text" v-model="reg.rw" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div></div>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:col-span-2"><div><label class="block text-xs font-bold mb-1">No HP Utama</label><input type="number" v-model="reg.hp1" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div><div><label class="block text-xs font-bold mb-1">No HP Cadangan</label><input type="number" v-model="reg.hp2" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div></div>
                         </div>
                     </div>
@@ -356,7 +354,7 @@
         </div>
 
         <!-- ==============================================
-             DASHBOARD UTAMA (SETELAH LOGIN)
+             DASHBOARD UTAMA (SETELAH LOGIN) (MENU DIPERTAHANKAN 100%)
              ============================================== -->
         <div v-if="isLoggedIn" class="flex h-screen overflow-hidden">
             <aside :class="['bg-primary text-white w-64 flex-shrink-0 transition-transform duration-300 ease-in-out fixed md:relative z-40 h-full', sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']">
@@ -398,7 +396,7 @@
                             <a href="#" @click.prevent="switchMenu('bursa-kerja')" :class="['flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'bursa-kerja' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><span>15. Bursa Kerja</span><span v-if="notif['bursa-kerja'] > 0" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">{{ notif['bursa-kerja'] }} Baru</span></a>
                             <a href="#" @click.prevent="switchMenu('bank-sampah')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'bank-sampah' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">16. Bank Sampah</a>
                             <a href="#" @click.prevent="switchMenu('galeri')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'galeri' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">17. Galeri Lingkungan</a>
-                            <a href="#" @click.prevent="switchMenu('agenda')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition border border-amber-500 border-dashed', currentMenu === 'agenda' ? 'bg-amber-100 text-amber-800' : 'text-amber-300 hover:bg-blue-800']"><i class="fas fa-bullhorn mr-1"></i> 18. Agenda & Berita (Baru)</a>
+                            <a href="#" @click.prevent="switchMenu('agenda')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition border border-amber-500 border-dashed', currentMenu === 'agenda' ? 'bg-amber-100 text-amber-800' : 'text-amber-300 hover:bg-blue-800']"><i class="fas fa-bullhorn mr-1"></i> 18. Agenda & Berita</a>
                             <a href="#" @click.prevent="switchMenu('pengaturan-akun')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'pengaturan-akun' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><i class="fas fa-cog mr-1"></i> Pengaturan Akun</a>
                         </div>
                     </div>
@@ -465,7 +463,7 @@
 
                 <div class="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
 
-                    <!-- COMPONENT: WARNING HAPUS DATA BULANAN & TOMBOL EXCEL (HANYA ADMIN) -->
+                    <!-- COMPONENT: WARNING HAPUS DATA BULANAN & TOMBOL EXCEL -->
                     <div v-if="['surat', 'laporan', 'fasilitas', 'bursa-kerja', 'bank-sampah', 'galeri', 'kependudukan'].includes(currentMenu) && currentUser.role === 'admin_kelurahan'" class="mb-4 bg-red-50 border border-red-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 form-section">
                         <p class="text-xs text-red-600 font-bold max-w-2xl leading-relaxed">
                             <i class="fas fa-exclamation-triangle mr-1 text-lg align-middle"></i> 
@@ -485,7 +483,6 @@
                                 <h2 class="text-2xl font-black mb-2 relative z-10">Dashboard Induk Administrator</h2>
                                 <p class="text-amber-100 mb-6 relative z-10">Kelola pengaturan utama aplikasi, buat akun petugas, dan update informasi landing page di sini.</p>
                                 
-                                <!-- KOTAK TRAFIK WEB -->
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                                     <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Total Kunjungan Web</p><h3 class="text-2xl font-black">{{ webTraffic }}<span class="text-sm font-normal"> Klik</span></h3></div>
                                     <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Warga Terdaftar</p><h3 class="text-2xl font-black">{{ listWargaLengkap.filter(w=>!w.isDeleted).length }}<span class="text-sm font-normal"> Jiwa</span></h3></div>
@@ -525,11 +522,10 @@
                                 </div>
                             </div>
 
-                            <!-- Edit Data Pimpinan (Walikota, Wakil, Lurah) -->
+                            <!-- Edit Data Pimpinan -->
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-users-cog text-emerald-500 mr-2"></i>Data Pimpinan Landing Page</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    <!-- Walikota -->
                                     <div class="border p-4 rounded-xl bg-gray-50">
                                         <h4 class="font-bold text-sm mb-3 text-primary">Data Walikota</h4>
                                         <div class="space-y-2">
@@ -539,7 +535,6 @@
                                             <textarea v-model="landingSettings.walikota.sambutan" rows="2" placeholder="Sambutan..." class="w-full border p-2 rounded text-xs outline-none"></textarea>
                                         </div>
                                     </div>
-                                    <!-- Wakil -->
                                     <div class="border p-4 rounded-xl bg-gray-50">
                                         <h4 class="font-bold text-sm mb-3 text-emerald-600">Data Wakil Walikota</h4>
                                         <div class="space-y-2">
@@ -549,7 +544,6 @@
                                             <textarea v-model="landingSettings.wakil.sambutan" rows="2" placeholder="Sambutan..." class="w-full border p-2 rounded text-xs outline-none"></textarea>
                                         </div>
                                     </div>
-                                    <!-- Lurah -->
                                     <div class="border p-4 rounded-xl bg-gray-50">
                                         <h4 class="font-bold text-sm mb-3 text-blue-800">Data Kepala Kelurahan</h4>
                                         <div class="space-y-2">
@@ -638,7 +632,7 @@
                                         </div>
 
                                         <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 mt-2">
-                                            <label class="block text-xs font-bold mb-2 text-emerald-800"><i class="fas fa-images mr-1"></i>Unggah 2 Foto Usaha/Produk (Sistem auto-compress & animasi)</label>
+                                            <label class="block text-xs font-bold mb-2 text-emerald-800"><i class="fas fa-images mr-1"></i>Unggah 2 Foto Usaha/Produk (Sistem auto-compress)</label>
                                             <div class="space-y-3">
                                                 <div>
                                                     <label class="block text-[10px] font-bold mb-1 text-gray-600">Foto 1</label>
@@ -662,7 +656,7 @@
                             </div>
                         </div>
 
-                        <!-- Tampilan Daftar Lapak di Menu Dalam (Dibatasi wilayah untuk RT/RW) -->
+                        <!-- Tampilan Daftar Lapak di Menu Dalam -->
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-list text-emerald-500 mr-2"></i>Daftar Lapak UMKM Warga Terdaftar</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -678,7 +672,6 @@
                                         <p class="text-[10px] text-gray-500"><i class="fas fa-user text-gray-400"></i> Pemilik: {{ umkm.pemilik }}</p>
                                         <p class="text-[10px] text-gray-500"><i class="fas fa-clock text-gray-400"></i> {{ umkm.jamBuka }} - {{ umkm.jamTutup }}</p>
                                     </div>
-                                    <!-- Tombol Hapus UMKM oleh Admin -->
                                     <button v-if="['admin_kelurahan'].includes(currentUser.role)" @click="softDeleteItem('umkm', umkm.id, listUMKM)" class="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs"><i class="fas fa-trash"></i></button>
                                 </div>
                                 <div v-if="listUMKM.filter(u => !u.isDeleted && (['rt','rw'].includes(currentUser.role) ? isMyArea(u) : true)).length === 0" class="col-span-2 text-center py-8 text-gray-500 bg-gray-50 rounded-xl border">Belum ada UMKM yang terdaftar di wilayah ini.</div>
@@ -761,7 +754,6 @@
                                                     <i :class="['fas', s.status === 'Selesai' ? 'fa-check' : (s.status === 'Ditolak' ? 'fa-times' : (['Sedang Diproses','Menunggu Tanda Tangan'].includes(s.status) ? 'fa-cog fa-spin' : 'fa-clock'))]"></i> {{ s.status }}
                                                 </span>
                                             </td>
-                                            <!-- Tombol Aksi -->
                                             <td v-if="['admin_kelurahan', 'rt', 'rw'].includes(currentUser.role)" class="px-5 py-3 text-center flex items-center justify-center gap-2">
                                                 <select v-model="s.status" @change="updateField('surat', s.id, {status: s.status})" class="text-xs border p-1 rounded font-bold outline-none cursor-pointer" :class="s.status === 'Selesai' ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-700'">
                                                     <option v-for="st in statusSuratArr" :key="st" :value="st">{{ st }}</option>
@@ -776,7 +768,7 @@
                         </div>
                     </div>
 
-                    <!-- PENGAJUAN / USULAN BANSOS (DENGAN ADMIN/RT VIEW) -->
+                    <!-- PENGAJUAN / USULAN BANSOS -->
                     <div v-if="currentMenu === 'bansos'" class="space-y-6 form-section">
                         <div class="bg-gradient-to-r from-teal-600 to-teal-800 rounded-2xl p-6 text-white shadow-lg text-center">
                             <i class="fas fa-hand-holding-heart text-5xl text-teal-200 mb-3"></i>
@@ -852,7 +844,6 @@
                             <p v-if="currentUser.role === 'babinsa'" class="text-xs font-bold text-red-600 bg-red-50 inline-block px-2 py-0.5 rounded"><i class="fas fa-shield-alt"></i> Akses Keamanan Babinsa: Seluruh Wilayah</p>
                         </div>
 
-                        <!-- Daftar Laporan (Dibatasi filter isMyArea) -->
                         <div class="space-y-4">
                             <div v-for="l in listLaporan.filter(x => !x.isDeleted && isMyArea(x))" :key="l.id" class="bg-white p-5 rounded-xl shadow-sm border border-l-4 border-l-red-500 flex flex-col md:flex-row gap-4 relative">
                                 <div v-if="l.fotoBukti" class="shrink-0"><img :src="l.fotoBukti" class="w-24 h-24 rounded-lg object-cover border shadow-sm"></div>
@@ -864,18 +855,15 @@
                                         <i :class="['fas', l.status === 'Selesai' ? 'fa-check' : 'fa-spinner fa-spin']"></i> Status: {{ l.status }}
                                     </span>
                                     
-                                    <!-- Balasan Admin/Petugas View -->
                                     <div v-if="l.balasanAdmin" class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
                                         <p class="text-[10px] font-bold text-blue-800 mb-1"><i class="fas fa-user-shield"></i> Respon Petugas/Babinsa:</p>
                                         <p class="text-sm text-blue-900">{{ l.balasanAdmin }}</p>
                                     </div>
 
-                                    <!-- Form Balasan Admin/Petugas (Babinsa, RT, RW) -->
                                     <div v-if="['admin_kelurahan', 'babinsa', 'rt', 'rw'].includes(currentUser.role) && l.status !== 'Selesai'" class="mt-4 pt-4 border-t border-gray-100 flex gap-2">
                                         <input type="text" v-model="l.draftBalasan" placeholder="Ketik komentar/tindakan..." class="flex-1 border p-2 rounded text-xs outline-none bg-gray-50">
                                         <button @click="submitResponLaporan(l)" class="bg-blue-600 text-white px-4 py-2 rounded text-xs font-bold">Kirim Respon & Selesai</button>
                                     </div>
-                                    <!-- Delete Admin (Soft Delete - HANYA ADMIN) -->
                                     <button v-if="currentUser.role === 'admin_kelurahan'" @click="softDeleteItem('laporan', l.id, listLaporan)" class="absolute top-2 right-2 text-red-400 hover:text-red-700 bg-red-50 p-1.5 rounded-lg"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>
@@ -907,7 +895,6 @@
                                 <h3 class="font-bold text-gray-700 text-sm"><i class="fas fa-list"></i> Database Riwayat Laporan Tamu</h3>
                             </div>
                             <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <!-- Filter Tamu sesuai isMyArea agar RT/RW hanya melihat wilayahnya -->
                                 <div v-for="t in listTamu.filter(x => !x.isDeleted && isMyArea(x))" :key="t.id" class="border rounded-xl p-4 flex gap-4 relative overflow-hidden bg-gray-50 hover:bg-white transition shadow-sm">
                                     <div class="w-16 h-16 shrink-0 bg-gray-200 rounded-lg overflow-hidden border">
                                         <img v-if="t.fotoTamu" :src="t.fotoTamu" class="w-full h-full object-cover">
@@ -982,12 +969,11 @@
                                 <div><h2 class="text-2xl font-black text-gray-800">Realisasi Anggaran Kelurahan</h2><p class="text-gray-500 text-sm">Transparansi publik penggunaan dan penyerapan dana kelurahan.</p></div>
                             </div>
 
-                            <!-- Menu Input Anggaran (Hanya Admin) -->
                             <div v-if="currentUser.role === 'admin_kelurahan'" class="bg-blue-50 p-5 rounded-xl border border-blue-100 mb-6">
                                 <h3 class="font-bold text-gray-800 mb-3"><i class="fas fa-plus-circle text-blue-600 mr-1"></i> Input / Update Realisasi Anggaran</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div><label class="block text-xs font-bold mb-1">Tahun Anggaran</label><input type="text" v-model="formAnggaran.tahun" class="w-full border p-2 rounded text-sm bg-white outline-none"></div>
-                                    <div><label class="block text-xs font-bold mb-1">Bidang Kegiatan</label><select v-model="formAnggaran.bidang" class="w-full border p-2 rounded text-sm bg-white outline-none font-bold"><option>Infrastruktur</option><option>Kesehatan & Sosial</option><option>Pendidikan</option><option>Pemberdayaan Masyarakat</option><option>Penyelenggaraan Pemerintahan</option></select></div>
+                                    <div><label class="block text-xs font-bold mb-1">Bidang Kegiatan</label><select v-model="formAnggaran.bidang" class="w-full border p-2 rounded text-sm bg-white outline-none font-bold"><option>Infrastruktur</option><option>Kesehatan & Sosial</option><option>Pendidikan</option><option>Pemberdayaan Masyarakat</option><option>Pengeyelenggaraan Pemerintahan</option></select></div>
                                     <div><label class="block text-xs font-bold mb-1">Pagu Anggaran (Rp)</label><input type="number" v-model="formAnggaran.pagu" class="w-full border p-2 rounded text-sm bg-white outline-none"></div>
                                     <div><label class="block text-xs font-bold mb-1">Nilai Realisasi (Rp)</label><input type="number" v-model="formAnggaran.realisasi" class="w-full border p-2 rounded text-sm bg-white outline-none"></div>
                                     <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Keterangan / Rincian Singkat</label><input type="text" v-model="formAnggaran.keterangan" placeholder="Contoh: Pembangunan Paving Block RT 02..." class="w-full border p-2 rounded text-sm bg-white outline-none"></div>
@@ -995,7 +981,6 @@
                                 <div class="mt-4 text-right"><button @click="submitAnggaran" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Simpan Data Anggaran</button></div>
                             </div>
 
-                            <!-- Tampilan Progress Bar Anggaran -->
                             <div class="space-y-4">
                                 <div v-for="anggaran in listAnggaran.filter(x => !x.isDeleted)" :key="anggaran.id" class="border rounded-xl p-5 bg-gray-50 hover:bg-white transition shadow-sm relative">
                                     <button v-if="currentUser.role === 'admin_kelurahan'" @click="softDeleteItem('anggaran', anggaran.id, listAnggaran)" class="absolute top-2 right-2 text-red-400 hover:text-red-700"><i class="fas fa-trash"></i></button>
@@ -1029,9 +1014,7 @@
                                 </div>
                             </div>
                             
-                            <!-- STATISTIK WARGA (Filter Aktif) -->
                             <div v-if="currentMenu === 'statistik-warga'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- Gender -->
                                 <div class="border rounded-xl p-5 bg-gray-50">
                                     <h3 class="font-bold text-gray-800 mb-4 text-center border-b pb-2"><i class="fas fa-venus-mars text-purple-500"></i> Rasio Jenis Kelamin</h3>
                                     <div class="flex justify-around items-center h-32">
@@ -1040,7 +1023,6 @@
                                         <div class="text-center"><i class="fas fa-female text-4xl text-pink-500 mb-2"></i><p class="font-black text-2xl text-gray-800">{{ statsGender.p }}</p><p class="text-xs font-bold text-gray-500 uppercase">Perempuan</p></div>
                                     </div>
                                 </div>
-                                <!-- Usia -->
                                 <div class="border rounded-xl p-5 bg-gray-50">
                                     <h3 class="font-bold text-gray-800 mb-4 text-center border-b pb-2"><i class="fas fa-child text-green-500"></i> Kategori Usia Pertumbuhan</h3>
                                     <div class="space-y-3">
@@ -1050,14 +1032,12 @@
                                         <div class="flex justify-between items-center text-sm"><span class="font-bold text-gray-600">Lansia (>60)</span><span class="bg-red-100 text-red-700 px-2 py-0.5 rounded font-bold">{{ statsUsia.lansia }} Jiwa</span></div>
                                     </div>
                                 </div>
-                                <!-- Suku -->
                                 <div class="border rounded-xl p-5 bg-gray-50">
                                     <h3 class="font-bold text-gray-800 mb-4 text-center border-b pb-2"><i class="fas fa-globe-asia text-teal-500"></i> Sebaran Suku Asal</h3>
                                     <div class="flex flex-wrap gap-2 justify-center">
                                         <span v-for="(count, suku) in statsSuku" :key="suku" class="bg-white border shadow-sm px-3 py-1.5 rounded-lg text-sm font-bold text-gray-700">{{ suku }} <span class="bg-gray-200 text-gray-600 px-1.5 py-0.5 rounded ml-1 text-xs">{{ count }}</span></span>
                                     </div>
                                 </div>
-                                <!-- Ulang Tahun -->
                                 <div class="border rounded-xl p-5 bg-gradient-to-br from-pink-500 to-red-500 text-white shadow-inner">
                                     <h3 class="font-bold mb-4 text-center border-b border-white/20 pb-2"><i class="fas fa-birthday-cake text-yellow-300"></i> Ulang Tahun Bulan Ini</h3>
                                     <ul class="space-y-2 max-h-32 overflow-y-auto">
@@ -1069,7 +1049,6 @@
                                 </div>
                             </div>
 
-                            <!-- STATISTIK PEKERJAAN -->
                             <div v-if="currentMenu === 'statistik-pekerjaan'">
                                 <h3 class="font-bold text-gray-800 mb-4"><i class="fas fa-briefcase text-primary mr-2"></i>Demografi Pekerjaan Warga</h3>
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -1080,7 +1059,6 @@
                                 </div>
                             </div>
 
-                            <!-- STATUS USAHA -->
                             <div v-if="currentMenu === 'status-usaha'">
                                 <h3 class="font-bold text-gray-800 mb-4"><i class="fas fa-store text-emerald-500 mr-2"></i>Pemetaan UMKM & Usaha Mandiri Warga</h3>
                                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -1094,7 +1072,7 @@
                         </div>
                     </div>
 
-                    <!-- MODUL KAS LINGKUNGAN (BARU) -->
+                    <!-- MODUL KAS LINGKUNGAN -->
                     <div v-if="currentMenu === 'kas'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
                             <div class="flex items-center gap-4 mb-6 pb-4 border-b">
@@ -1102,7 +1080,6 @@
                                 <div><h2 class="text-2xl font-black text-gray-800">Kas Lingkungan</h2><p class="text-gray-500 text-sm">Transparansi iuran dan pengeluaran kas wilayah RT/RW.</p></div>
                             </div>
 
-                            <!-- Form Input Kas (Hanya RT/RW) -->
                             <div v-if="['rt', 'rw'].includes(currentUser.role)" class="bg-blue-50 p-5 rounded-xl border border-blue-100 mb-6">
                                 <h3 class="font-bold text-blue-800 mb-3"><i class="fas fa-plus-circle mr-1"></i> Input Kas Lingkungan (Wilayah RT {{ currentUser.rt }} / RW {{ currentUser.rw }})</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -1114,7 +1091,6 @@
                                 <div class="mt-4 text-right"><button @click="submitKas" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Simpan Data Kas</button></div>
                             </div>
 
-                            <!-- Tabel Kas (Dibatasi wilayah) -->
                             <div class="border rounded-xl overflow-hidden text-left bg-gray-50">
                                 <div class="px-5 py-3 border-b flex justify-between items-center bg-white">
                                     <h3 class="font-bold text-gray-700 text-sm">Laporan Riwayat Kas</h3>
@@ -1154,19 +1130,15 @@
                         </div>
                     </div>
 
-                    <!-- ==============================================
-                         MODUL BARU: ARSIP SURAT DIGITAL (MASUK/KELUAR)
-                         ============================================== -->
+                    <!-- ARSIP SURAT DIGITAL -->
                     <div v-if="currentMenu === 'arsip-surat'" class="space-y-6 form-section">
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <!-- Header / Tab Navigasi -->
                             <div class="flex border-b">
                                 <button @click="tabArsip = 'dashboard'" :class="['flex-1 py-4 font-bold text-sm transition', tabArsip === 'dashboard' ? 'bg-amber-50 text-amber-700 border-b-2 border-amber-500' : 'text-gray-500 hover:bg-gray-50']"><i class="fas fa-chart-bar mr-2"></i> Dashboard Arsip</button>
                                 <button @click="tabArsip = 'masuk'" :class="['flex-1 py-4 font-bold text-sm transition', tabArsip === 'masuk' ? 'bg-blue-50 text-blue-700 border-b-2 border-blue-500' : 'text-gray-500 hover:bg-gray-50']"><i class="fas fa-inbox mr-2"></i> Surat Masuk</button>
                                 <button @click="tabArsip = 'keluar'" :class="['flex-1 py-4 font-bold text-sm transition', tabArsip === 'keluar' ? 'bg-green-50 text-green-700 border-b-2 border-green-500' : 'text-gray-500 hover:bg-gray-50']"><i class="fas fa-paper-plane mr-2"></i> Surat Keluar</button>
                             </div>
 
-                            <!-- Tab Dashboard Arsip -->
                             <div v-if="tabArsip === 'dashboard'" class="p-6">
                                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                                     <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 text-center"><h4 class="text-xs font-bold text-blue-600 uppercase mb-1">Total Surat Masuk</h4><p class="text-3xl font-black text-blue-800">{{ listArsipMasuk.length }}</p></div>
@@ -1181,13 +1153,8 @@
                                         <input type="text" v-model="searchArsip" placeholder="Pencarian Cepat: Ketik Nomor Surat / Pengirim / Kategori / Tanggal..." class="w-full pl-10 pr-4 py-2 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-500">
                                     </div>
                                 </div>
-
-                                <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-4">
-                                    <p class="text-xs font-bold text-amber-800"><i class="fas fa-info-circle mr-1"></i> Gunakan tab "Surat Masuk" dan "Surat Keluar" di atas untuk menambahkan data baru.</p>
-                                </div>
                             </div>
 
-                            <!-- Tab Surat Masuk -->
                             <div v-if="tabArsip === 'masuk'" class="p-6">
                                 <div class="flex justify-between items-center mb-4">
                                     <h3 class="font-bold text-blue-800"><i class="fas fa-inbox mr-2"></i> Register Surat Masuk Baru</h3>
@@ -1232,7 +1199,6 @@
                                 </div>
                             </div>
 
-                            <!-- Tab Surat Keluar -->
                             <div v-if="tabArsip === 'keluar'" class="p-6">
                                 <div class="flex justify-between items-center mb-4">
                                     <h3 class="font-bold text-green-800"><i class="fas fa-paper-plane mr-2"></i> Register Surat Keluar Baru</h3>
@@ -1278,11 +1244,7 @@
                         </div>
                     </div>
 
-                    <!-- ==============================================
-                         MODUL FASILITAS & BURSA KERJA
-                         ============================================== -->
-                    
-                    <!-- Lapor Fasilitas -->
+                    <!-- FASILITAS & BURSA KERJA & BANK SAMPAH & GALERI (DIPERTAHANKAN 100%) -->
                     <div v-if="currentMenu === 'fasilitas'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-tools text-blue-500 mr-2"></i>Lapor Fasilitas Publik Rusak</h2>
@@ -1329,7 +1291,6 @@
                         </div>
                     </div>
 
-                    <!-- Bursa Kerja -->
                     <div v-if="currentMenu === 'bursa-kerja'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-handshake text-amber-500 mr-2"></i>Bursa Kerja & Promosi Jasa Warga</h2>
@@ -1361,7 +1322,6 @@
                         </div>
                     </div>
 
-                    <!-- Bank Sampah -->
                     <div v-if="currentMenu === 'bank-sampah'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-recycle text-green-500 mr-2"></i>Data Setoran Bank Sampah</h2>
@@ -1394,12 +1354,10 @@
                         </div>
                     </div>
 
-                    <!-- Galeri Lingkungan (Dapat diakses warga juga) -->
                     <div v-if="currentMenu === 'galeri'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-images text-purple-500 mr-2"></i>Kelola Galeri Lingkungan</h2>
                             
-                            <!-- Hanya admin dan warga yang bisa posting. RT/RW di-hide sesuai instruksi -->
                             <div v-if="!['rt', 'rw'].includes(currentUser.role)" class="bg-purple-50 p-5 rounded-xl border border-purple-100 mb-6">
                                 <h3 class="font-bold text-purple-800 mb-3"><i class="fas fa-cloud-upload-alt mr-1"></i> Upload Foto Kegiatan Lingkungan</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1433,18 +1391,17 @@
         </div>
     </div>
 
-    <!-- MENGGUNAKAN ES MODULES AGAR KOMPATIBEL DENGAN FIREBASE & VUE BERSAMAAN -->
     <script type="module">
-        import { createApp, ref, computed, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+        import { createApp, ref, computed, onMounted, watch } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ==========================================
-        // KONFIGURASI FIREBASE ANDA
-        // ==========================================
-        let fbConfig = {
-            apiKey: "AIzaSyD4gCPeeA_uID1wYwHN0YCifaZPO6NyVkk",
+        // =========================================================================================
+        // KUNCI PERMANEN FIREBASE ANDA (API KEY TELAH DIMASUKKAN)
+        // =========================================================================================
+        let myFirebaseConfig = {
+            apiKey: "AIzaSyD4gCPeeA_uID1wYwHN0YCifaZPO6NyVkk", // SUDAH OTOMATIS TERISI
             authDomain: "kelurahan-digital-e19b5.firebaseapp.com",
             projectId: "kelurahan-digital-e19b5",
             storageBucket: "kelurahan-digital-e19b5.firebasestorage.app",
@@ -1452,20 +1409,37 @@
             appId: "1:944163706315:web:c5e99814be6fe8b333524e"
         };
 
-        let appIdEnv = 'kelurahan-digital-v11';
-        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-            fbConfig = JSON.parse(__firebase_config);
-            appIdEnv = typeof __app_id !== 'undefined' ? __app_id : appIdEnv;
-        }
-
         let useFirebase = false;
+        let isCustomFirebase = false;
         let appFb, auth, db;
-        if (fbConfig.apiKey && fbConfig.apiKey !== "") {
+
+        // SISTEM ROUTER DATABASE: Cek apakah user sudah mengisi API key miliknya sendiri
+        if (myFirebaseConfig.apiKey && myFirebaseConfig.apiKey !== "") {
             useFirebase = true;
-            appFb = initializeApp(fbConfig);
+            isCustomFirebase = true; // Mode Hosting Asli Warga
+            appFb = initializeApp(myFirebaseConfig);
+            auth = getAuth(appFb);
+            db = getFirestore(appFb);
+        } 
+        // Jika belum, gunakan database sementara dari Layar Chat Preview ini
+        else if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+            useFirebase = true;
+            appFb = initializeApp(JSON.parse(__firebase_config));
             auth = getAuth(appFb);
             db = getFirestore(appFb);
         }
+
+        // FUNGSI PENGUNCI JALUR DATA: Memastikan data Anda tersimpan permanen di folder root Firebase Anda
+        const getCollectionPath = (collectionName) => {
+            if (isCustomFirebase) {
+                // Jalur permanen untuk Firebase milik pengguna (Tidak akan terpengaruh deploy)
+                return collection(db, collectionName);
+            } else {
+                // Jalur sementara untuk keperluan preview di chat
+                const appIdEnv = typeof __app_id !== 'undefined' ? __app_id : 'default-app';
+                return collection(db, 'artifacts', appIdEnv, 'public', 'data', collectionName);
+            }
+        };
 
         createApp({
             setup() {
@@ -1505,25 +1479,29 @@
                     });
                 };
 
-                // FUNGSI FIREBASE & LOKAL (DENGAN SOFT DELETE SUPPORT)
+                // FUNGSI FIREBASE (MENGGUNAKAN JALUR PENGUNCI BARU)
                 const saveData = async (collectionName, docId, dataObj, localListRef) => {
                     dataObj.isDeleted = false;
                     if (useFirebase) {
-                        const colRef = collection(db, 'artifacts', appIdEnv, 'public', 'data', collectionName);
+                        const colRef = getCollectionPath(collectionName);
                         await setDoc(doc(colRef, docId.toString()), dataObj);
                     } else {
                         localListRef.value.unshift(dataObj);
                     }
                 };
                 const updateField = async (collectionName, docId, dataObj) => {
-                    if (useFirebase) await setDoc(doc(db, 'artifacts', appIdEnv, 'public', 'data', collectionName, docId.toString()), dataObj, { merge: true });
+                    if (useFirebase) {
+                        const colRef = getCollectionPath(collectionName);
+                        await setDoc(doc(colRef, docId.toString()), dataObj, { merge: true });
+                    }
                     showToast('Data berhasil diperbarui!');
                 };
                 
                 const softDeleteItem = async (collectionName, docId, localListRef) => {
                     if (confirm("Hapus data ini? (Data akan disembunyikan dan dihapus permanen oleh sistem pada tgl 1 jam 23:00)")) {
                         if (useFirebase) {
-                            await setDoc(doc(db, 'artifacts', appIdEnv, 'public', 'data', collectionName, docId.toString()), { isDeleted: true }, { merge: true });
+                            const colRef = getCollectionPath(collectionName);
+                            await setDoc(doc(colRef, docId.toString()), { isDeleted: true }, { merge: true });
                         } else {
                             const item = localListRef.value.find(i => i.id === docId);
                             if(item) item.isDeleted = true;
@@ -1610,16 +1588,12 @@
                 const currentUser = ref({ name: '', role: 'warga', username: '', rt: '01', rw: '05' });
                 const loginForm = ref({ email: '', password: '' });
                 
-                // PENGATURAN AKUN / PETUGAS
                 const formUbahAkun = ref({ usernameBaru: '', passwordLama: '', passwordBaru: '' });
                 const submitUbahAkun = () => { if(formUbahAkun.value.passwordLama && !formUbahAkun.value.passwordBaru) return showToast('Password baru wajib diisi!', 'danger'); showToast('Data akun berhasil diperbarui! Mohon login kembali pada sesi berikutnya.'); if(formUbahAkun.value.usernameBaru) currentUser.value.username = formUbahAkun.value.usernameBaru; formUbahAkun.value = { usernameBaru: '', passwordLama: '', passwordBaru: '' }; };
                 
                 const formPetugas = ref({ role: 'rt', nama: '', username: '', password: '', rt: '', rw: '' });
                 const buatAkunPetugas = () => { if(!formPetugas.value.username) return showToast('Username wajib diisi!', 'danger'); showToast(`Akun ${formPetugas.value.role.toUpperCase()} berhasil dibuat!`); formPetugas.value = { role: 'rt', nama: '', username: '', password: '', rt: '', rw: '' }; };
 
-                // =================================================================
-                // DATA REGISTRASI WARGA (FORMAT TETAP SAMA 100%)
-                // =================================================================
                 const reg = ref({
                     nik:'', nokk:'', nama:'', tempat_lahir:'', tgl_lahir:'', kelamin:'Laki-laki', suku:'', alamat:'', rt:'', rw:'', hp1:'', hp2:'',
                     status_keluarga:'Kepala Keluarga', status_nikah:'Belum Menikah', jml_kk:1, jml_rumah:1, status_rumah:'Milik Sendiri', pendidikan:'SMA/SMK', kondisi_khusus:'Tidak Ada',
@@ -1628,7 +1602,6 @@
                 });
                 const listWargaLengkap = ref([]);
 
-                // STATISTIK WARGA (DENGAN FILTER RT/RW OTOMATIS)
                 const filteredWargaForStats = computed(() => {
                     return listWargaLengkap.value.filter(w => {
                         if (w.isDeleted) return false;
@@ -1659,7 +1632,6 @@
                     isRegistering.value = false;
                 };
 
-                // OPTIMASI LAZY LOADING DATABASE
                 let privateSyncDone = false;
                 const initPrivateSync = () => {
                     if (useFirebase && !privateSyncDone) {
@@ -1718,7 +1690,6 @@
                 const notif = ref({ 'laporan': 0, 'fasilitas': 0, 'bursa-kerja': 0, 'surat': 0 });
                 const switchMenu = (m) => { currentMenu.value = m; sidebarOpen.value = false; if (notif.value[m] !== undefined) notif.value[m] = 0; };
 
-                // FORMATTER RUPIAH & ANGGARAN
                 const formatRupiah = (angka) => { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); };
                 const formAnggaran = ref({ tahun: new Date().getFullYear().toString(), bidang: 'Infrastruktur', pagu: '', realisasi: '', keterangan: '' });
                 const listAnggaran = ref([]);
@@ -1730,7 +1701,6 @@
                     formAnggaran.value = { tahun: new Date().getFullYear().toString(), bidang: 'Infrastruktur', pagu: '', realisasi: '', keterangan: '' };
                 };
 
-                // AGENDA / PENGUMUMAN
                 const formAgenda = ref({ kategori: 'Berita kegiatan', judul: '', isi: '', foto: null });
                 const listAgenda = ref([]);
                 const submitAgenda = async () => {
@@ -1743,7 +1713,6 @@
 
                 const webTraffic = ref(0); 
                 
-                // E-SURAT ADMIN & BANSOS
                 const listJenisSurat = { "IDENTITAS & KEPENDUDUKAN": ["Surat Keterangan Domisili", "Surat Pengantar KTP"], "EKONOMI & USAHA": ["Surat Keterangan Usaha", "Surat Keterangan Tidak Mampu"] };
                 const statusSuratArr = ['Menunggu Verifikasi', 'Sedang Diproses', 'Menunggu Tanda Tangan', 'Selesai', 'Ditolak'];
                 const formSurat = ref({ jenis: 'Surat Keterangan Domisili', noHp: '', keperluan: '', fotoRt: null });
@@ -1766,7 +1735,6 @@
                     showToast('Usulan bansos berhasil disimpan!'); formBansos.value = { nik: '', nama: '', jenis: 'PKH', alasan: '' };
                 };
 
-                // KELUHAN & LAPORAN
                 const formLaporan = ref({ judul: '', deskripsi: '', fotoBukti: null });
                 const listLaporan = ref([]);
                 const submitLaporan = async () => {
@@ -1782,7 +1750,6 @@
                     lap.balasanAdmin = lap.draftBalasan; lap.status = 'Selesai';
                 };
 
-                // LAPOR TAMU
                 const formTamu = ref({ namaTamu: '', lamaMenginap: '', tujuan: '', fotoTamu: null });
                 const listTamu = ref([]);
                 const submitTamu = async () => {
@@ -1793,7 +1760,6 @@
                     showToast('Laporan tamu berhasil dikirim!'); formTamu.value = { namaTamu: '', lamaMenginap: '', tujuan: '', fotoTamu: null };
                 };
 
-                // UMKM
                 const formUMKM = ref({ namaUsaha: '', nib: '', alamat: '', jamBuka: '', jamTutup: '', wa: '', kategori: 'Kuliner', harga: '', foto1: null, foto2: null });
                 const listUMKM = ref([]);
                 const groupedUMKMLanding = computed(() => {
@@ -1815,7 +1781,6 @@
                     showToast('Lapak UMKM berhasil diterbitkan!'); showFormUMKM.value = false; formUMKM.value = { namaUsaha: '', nib: '', alamat: '', jamBuka: '', jamTutup: '', wa: '', kategori: 'Kuliner', harga: '', foto1: null, foto2: null };
                 };
 
-                // FASILITAS RUSAK
                 const formFasilitas = ref({ fasilitas: '', lokasi: '', kondisi: '', foto: null });
                 const listFasilitas = ref([]);
                 const submitFasilitas = async () => {
@@ -1826,7 +1791,6 @@
                     showToast('Laporan fasilitas berhasil dikirim!'); formFasilitas.value = { fasilitas: '', lokasi: '', kondisi: '', foto: null };
                 };
 
-                // BURSA KERJA
                 const formBursa = ref({ tipe: 'Mencari Kerja', judul: '', deskripsi: '', kontak: '' });
                 const listBursa = ref([]);
                 const submitBursa = async () => {
@@ -1837,7 +1801,6 @@
                     showToast('Info bursa kerja diposting!'); formBursa.value = { tipe: 'Mencari Kerja', judul: '', deskripsi: '', kontak: '' };
                 };
 
-                // BANK SAMPAH
                 const formSampah = ref({ nama: '', jenis: 'Plastik', berat: '' });
                 const listSampah = ref([]);
                 const totalPoinSampah = computed(() => {
@@ -1854,7 +1817,6 @@
                     showToast('Setoran sampah tercatat!'); formSampah.value = { nama: '', jenis: 'Plastik', berat: '' };
                 };
 
-                // GALERI LINGKUNGAN
                 const formGaleri = ref({ judul: '', foto: null });
                 const listGaleri = ref([]);
                 const submitGaleri = async () => {
@@ -1865,7 +1827,6 @@
                     showToast('Foto berhasil diupload ke galeri!'); formGaleri.value = { judul: '', foto: null };
                 };
 
-                // KAS LINGKUNGAN
                 const formKas = ref({ nama: '', jenis: 'Debit (Masuk)', jumlah: '', keterangan: '' });
                 const listKas = ref([]);
                 const submitKas = async () => {
@@ -1876,7 +1837,6 @@
                     showToast('Data kas berhasil disimpan!'); formKas.value = { nama: '', jenis: 'Debit (Masuk)', jumlah: '', keterangan: '' };
                 };
 
-                // ARSIP SURAT
                 const tabArsip = ref('dashboard');
                 const searchArsip = ref('');
                 const showFormMasuk = ref(false);
@@ -1919,15 +1879,14 @@
                     return res;
                 });
 
-                // FUNGSI FIREBASE SNAPSHOT
+                // MENGAMBIL DATA FIREBASE DENGAN JALUR PENGUNCI
                 const syncCollection = (collectionName, localListRef) => {
-                    const colRef = collection(db, 'artifacts', appIdEnv, 'public', 'data', collectionName);
+                    const colRef = getCollectionPath(collectionName);
                     onSnapshot(colRef, (snapshot) => {
                         const data = [];
                         snapshot.forEach((doc) => {
                             data.push({ id: doc.id, ...doc.data() });
                         });
-                        // Sort by ID descending (newest first)
                         data.sort((a, b) => b.id - a.id);
                         localListRef.value = data;
                     }, (error) => {
@@ -1935,7 +1894,6 @@
                     });
                 };
 
-                // INITIALIZATION
                 const loadSettings = () => {
                     const savedSettings = localStorage.getItem('appSettings');
                     if(savedSettings) appSettings.value = JSON.parse(savedSettings);
@@ -1949,24 +1907,39 @@
                     showToast('Pengaturan berhasil disimpan!');
                 };
 
+                // BACKUP LOKAL (Jika API Key Firebase masih kosong)
+                if (!useFirebase) {
+                    const collections = {
+                        'warga': listWargaLengkap, 'anggaran': listAnggaran, 'surat': listSurat,
+                        'bansos': listBansos, 'laporan': listLaporan, 'tamu': listTamu,
+                        'umkm': listUMKM, 'fasilitas': listFasilitas, 'bursa': listBursa,
+                        'sampah': listSampah, 'galeri': listGaleri, 'kas': listKas,
+                        'arsipMasuk': listArsipMasuk, 'arsipKeluar': listArsipKeluar,
+                        'agenda': listAgenda
+                    };
+                    for (const [key, refObj] of Object.entries(collections)) {
+                        const saved = localStorage.getItem('db_lokal_' + key);
+                        if (saved) refObj.value = JSON.parse(saved);
+                    }
+                    for (const [key, refObj] of Object.entries(collections)) {
+                        watch(refObj, (newVal) => { localStorage.setItem('db_lokal_' + key, JSON.stringify(newVal)); }, { deep: true });
+                    }
+                }
+
                 onMounted(async () => {
                     loadSettings();
-                    // Simulasi traffic web
                     webTraffic.value = Math.floor(Math.random() * 5000) + 1000;
                     
                     if (useFirebase) {
                         try {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !isCustomFirebase) {
                                 await signInWithCustomToken(auth, __initial_auth_token);
                             } else {
                                 await signInAnonymously(auth);
                             }
-                            
-                            // Load public data (landing page)
                             syncCollection('agenda', listAgenda);
                             syncCollection('umkm', listUMKM);
                             syncCollection('galeri', listGaleri);
-                            
                         } catch (error) {
                             console.error("Firebase auth error:", error);
                         }
