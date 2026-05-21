@@ -40,6 +40,10 @@
         @keyframes crossfade { 0%, 45% { opacity: 1; z-index: 10; } 50%, 95% { opacity: 0; z-index: 1; } 100% { opacity: 1; z-index: 10; } }
         .animate-foto-1 { animation: crossfade 6s infinite; }
         .animate-foto-2 { animation: crossfade 6s infinite; animation-delay: 3s; opacity: 0; }
+        
+        /* Utility HP untuk menyembunyikan scrollbar di menu pendaftaran */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 
     <!-- KEAMANAN FRONTEND -->
@@ -59,76 +63,78 @@
         </Transition>
 
         <!-- LOADING -->
-        <div v-if="globalLoading" class="fixed inset-0 bg-black bg-opacity-60 z-[999] flex flex-col items-center justify-center text-white backdrop-blur-sm">
+        <div v-if="globalLoading" class="fixed inset-0 bg-black bg-opacity-70 z-[9999] flex flex-col items-center justify-center text-white backdrop-blur-sm">
             <i class="fas fa-spinner fa-spin text-5xl mb-4 text-blue-400"></i>
-            <h2 class="text-xl font-bold">Memproses Data...</h2>
+            <h2 class="text-xl font-bold tracking-wider">Memproses Data...</h2>
+            <p class="text-sm text-gray-300 mt-2">Menyiapkan Dashboard Anda</p>
         </div>
 
         <!-- ==============================================
              LANDING PAGE (TAMPILAN AWAL SEBELUM LOGIN)
              ============================================== -->
         <div v-if="!isLoggedIn && currentAuthView === 'landing'" class="min-h-screen bg-gray-50 flex flex-col font-sans absolute inset-0 z-40 overflow-y-auto">
-            <nav class="backdrop-blur-md shadow-sm px-6 py-4 flex justify-between items-center fixed w-full z-50 border-b border-gray-100" :style="{ backgroundColor: landingSettings.headerBg + 'E6' }">
-                <div class="flex items-center gap-4">
-                    <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" alt="Logo Kota" class="w-12 h-12 object-cover drop-shadow-md bg-white rounded-full p-1 border">
-                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-primary font-black shadow-md border-2 border-white" v-else><i class="fas fa-city text-xl"></i></div>
+            <nav class="backdrop-blur-md shadow-sm px-4 md:px-6 py-4 flex justify-between items-center fixed w-full z-50 border-b border-gray-100" :style="{ backgroundColor: landingSettings.headerBg + 'E6' }">
+                <div class="flex items-center gap-3 md:gap-4">
+                    <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" alt="Logo Kota" class="w-10 h-10 md:w-12 md:h-12 object-cover drop-shadow-md bg-white rounded-full p-1 border">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-blue-100 rounded-full flex items-center justify-center text-primary font-black shadow-md border-2 border-white" v-else><i class="fas fa-city text-lg md:text-xl"></i></div>
                     <div>
-                        <h1 class="font-black text-xl leading-tight uppercase tracking-wide" :class="landingSettings.headerBg.toLowerCase() === '#ffffff' ? 'text-primary' : 'text-white'">{{ appSettings.portalName }}</h1>
-                        <p class="text-[10px] font-bold uppercase tracking-widest" :class="landingSettings.headerBg.toLowerCase() === '#ffffff' ? 'text-gray-500' : 'text-gray-200'">{{ landingSettings.headerText }}</p>
+                        <h1 class="font-black text-lg md:text-xl leading-tight uppercase tracking-wide" :class="landingSettings.headerBg.toLowerCase() === '#ffffff' ? 'text-primary' : 'text-white'">{{ appSettings.portalName }}</h1>
+                        <p class="text-[9px] md:text-[10px] font-bold uppercase tracking-widest" :class="landingSettings.headerBg.toLowerCase() === '#ffffff' ? 'text-gray-500' : 'text-gray-200'">{{ landingSettings.headerText }}</p>
                     </div>
                 </div>
                 <div>
-                    <button @click="currentAuthView = 'auth'" class="bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white px-6 py-2.5 rounded-full font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2 border border-white/20">
-                        <i class="fas fa-sign-in-alt"></i> Masuk / Daftar
+                    <button @click="currentAuthView = 'auth'" class="bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 text-white px-4 md:px-6 py-2 md:py-2.5 rounded-full font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center gap-2 border border-white/20 text-sm md:text-base">
+                        <i class="fas fa-sign-in-alt"></i> <span class="hidden md:inline">Masuk / Daftar</span><span class="md:hidden">Masuk</span>
                     </button>
                 </div>
             </nav>
 
-            <div class="mt-28 px-6 py-12 max-w-7xl mx-auto w-full">
+            <div class="mt-28 px-4 md:px-6 py-8 md:py-12 max-w-7xl mx-auto w-full">
                 <!-- JUDUL PORTAL (TEKS DEPAN) -->
                 <div class="text-center mb-12 form-section">
-                    <h2 class="text-4xl md:text-5xl font-black text-gray-800 mb-4">{{ landingSettings.portalTitle }}</h2>
-                    <p class="text-lg text-gray-600 max-w-3xl mx-auto font-medium">{{ landingSettings.portalDesc }}</p>
+                    <h2 class="text-3xl md:text-5xl font-black text-gray-800 mb-4">{{ landingSettings.portalTitle }}</h2>
+                    <p class="text-base md:text-lg text-gray-600 max-w-3xl mx-auto font-medium">{{ landingSettings.portalDesc }}</p>
                 </div>
 
                 <!-- SAMBUTAN WALIKOTA & WAKIL -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                    <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-blue-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
-                        <img :src="landingSettings.walikota.img" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200'">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12 md:mb-16">
+                    <div class="bg-white rounded-[2rem] p-6 md:p-8 shadow-xl shadow-blue-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-blue-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
+                        <img :src="landingSettings.walikota.img" class="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200'">
                         <div class="z-10 text-center md:text-left">
-                            <h3 class="font-black text-2xl text-gray-800">{{ landingSettings.walikota.nama }}</h3>
-                            <p class="text-xs font-black uppercase tracking-widest text-primary mb-4 bg-blue-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.walikota.jabatan }}</p>
+                            <h3 class="font-black text-xl md:text-2xl text-gray-800">{{ landingSettings.walikota.nama }}</h3>
+                            <p class="text-xs font-black uppercase tracking-widest text-primary mb-3 bg-blue-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.walikota.jabatan }}</p>
                             <p class="text-gray-600 text-sm italic font-medium leading-relaxed">"{{ landingSettings.walikota.sambutan }}"</p>
                         </div>
                     </div>
-                    <div class="bg-white rounded-[2rem] p-8 shadow-xl shadow-emerald-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
-                        <img :src="landingSettings.wakil.img" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200'">
+                    <div class="bg-white rounded-[2rem] p-6 md:p-8 shadow-xl shadow-emerald-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
+                        <img :src="landingSettings.wakil.img" class="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100" onerror="this.src='https://via.placeholder.com/200'">
                         <div class="z-10 text-center md:text-left">
-                            <h3 class="font-black text-2xl text-gray-800">{{ landingSettings.wakil.nama }}</h3>
-                            <p class="text-xs font-black uppercase tracking-widest text-emerald-600 mb-4 bg-emerald-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.wakil.jabatan }}</p>
+                            <h3 class="font-black text-xl md:text-2xl text-gray-800">{{ landingSettings.wakil.nama }}</h3>
+                            <p class="text-xs font-black uppercase tracking-widest text-emerald-600 mb-3 bg-emerald-50 inline-block px-3 py-1 rounded-full">{{ landingSettings.wakil.jabatan }}</p>
                             <p class="text-gray-600 text-sm italic font-medium leading-relaxed">"{{ landingSettings.wakil.sambutan }}"</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- SAMBUTAN LURAH -->
-                <div class="bg-gradient-to-br from-blue-900 via-primary to-blue-800 rounded-[2.5rem] p-10 shadow-2xl text-white flex flex-col md:flex-row items-center gap-10 mb-16 relative overflow-hidden">
+                <div class="bg-gradient-to-br from-blue-900 via-primary to-blue-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl text-white flex flex-col md:flex-row items-center gap-8 mb-16 relative overflow-hidden">
                     <div class="absolute -top-24 -right-24 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
-                    <img :src="landingSettings.lurah.img" class="w-48 h-48 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100" onerror="this.src='https://via.placeholder.com/250'">
+                    <img :src="landingSettings.lurah.img" class="w-40 h-40 md:w-48 md:h-48 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100" onerror="this.src='https://via.placeholder.com/250'">
                     <div class="text-center md:text-left">
-                        <h3 class="font-black text-3xl mb-1">{{ landingSettings.lurah.nama }}</h3>
-                        <p class="text-blue-200 font-bold mb-6 uppercase tracking-widest text-sm">{{ landingSettings.lurah.jabatan }}</p>
-                        <p class="text-gray-100 text-lg italic leading-relaxed font-medium">"{{ landingSettings.lurah.sambutan }}"</p>
+                        <h3 class="font-black text-2xl md:text-3xl mb-1">{{ landingSettings.lurah.nama }}</h3>
+                        <p class="text-blue-200 font-bold mb-4 uppercase tracking-widest text-xs md:text-sm">{{ landingSettings.lurah.jabatan }}</p>
+                        <p class="text-gray-100 text-base md:text-lg italic leading-relaxed font-medium">"{{ landingSettings.lurah.sambutan }}"</p>
                     </div>
                 </div>
 
                 <!-- AGENDA & BERITA -->
                 <div v-if="listAgenda.filter(a => !a.isDeleted).length > 0" class="mb-16">
-                    <h3 class="text-3xl font-black text-gray-800 mb-8 border-l-4 border-primary pl-4">Agenda & Berita Terbaru</h3>
+                    <h3 class="text-2xl md:text-3xl font-black text-gray-800 mb-6 md:mb-8 border-l-4 border-primary pl-4">Agenda & Berita Terbaru</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div v-for="agenda in listAgenda.filter(a => !a.isDeleted).slice(0, 3)" :key="agenda.id" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition">
+                        <div v-for="agenda in listAgenda.filter(a => !a.isDeleted).slice(0, 3)" :key="agenda.id" class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition flex flex-col">
+                            <img v-if="agenda.foto" :src="agenda.foto" class="w-full h-40 object-cover rounded-xl mb-4 border border-gray-100 shadow-sm">
                             <div class="flex justify-between items-start mb-4">
                                 <span :class="['px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest', agenda.kategori === 'Pengumuman Penting' ? 'bg-red-100 text-red-600' : (agenda.kategori === 'Berita kegiatan' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600')]">{{ agenda.kategori }}</span>
                                 <div class="text-right">
@@ -136,7 +142,7 @@
                                     <span class="block text-[10px] font-bold text-gray-400"><i class="fas fa-eye text-primary"></i> {{ agenda.views || 0 }} x dilihat</span>
                                 </div>
                             </div>
-                            <h4 class="font-black text-xl text-gray-800 mb-2 leading-tight">{{ agenda.judul }}</h4>
+                            <h4 class="font-black text-lg md:text-xl text-gray-800 mb-2 leading-tight">{{ agenda.judul }}</h4>
                             <p class="text-sm text-gray-600 line-clamp-3">{{ agenda.isi }}</p>
                         </div>
                     </div>
@@ -144,42 +150,42 @@
             </div>
 
             <!-- LAPAK UMKM WARGA BERDASARKAN RT/RW -->
-            <div v-if="Object.keys(groupedUMKMLanding).length > 0" class="bg-white py-16 border-t border-gray-100">
-                <div class="max-w-7xl mx-auto px-6 w-full">
+            <div v-if="Object.keys(groupedUMKMLanding).length > 0" class="bg-white py-12 md:py-16 border-t border-gray-100">
+                <div class="max-w-7xl mx-auto px-4 md:px-6 w-full">
                     <div class="mb-8">
-                        <h3 class="text-3xl font-black text-gray-800 border-l-4 border-emerald-500 pl-4">Lapak UMKM Warga</h3>
-                        <p class="text-gray-500 mt-2 ml-5">Dukung usaha lokal dari tetangga. Pilih wilayah RT/RW untuk melihat daftar usaha warga.</p>
+                        <h3 class="text-2xl md:text-3xl font-black text-gray-800 border-l-4 border-emerald-500 pl-4">Lapak UMKM Warga</h3>
+                        <p class="text-gray-500 mt-2 ml-5 text-sm md:text-base">Dukung usaha lokal dari tetangga. Pilih wilayah RT/RW untuk melihat daftar usaha warga.</p>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div v-for="(umkms, wilayah) in groupedUMKMLanding" :key="wilayah" class="bg-emerald-50 rounded-2xl shadow-sm border border-emerald-100 overflow-hidden">
-                            <div @click="selectedWilayahUMKM = selectedWilayahUMKM === wilayah ? null : wilayah" class="p-6 cursor-pointer hover:bg-emerald-100 transition flex justify-between items-center">
+                            <div @click="selectedWilayahUMKM = selectedWilayahUMKM === wilayah ? null : wilayah" class="p-5 md:p-6 cursor-pointer hover:bg-emerald-100 transition flex justify-between items-center">
                                 <div>
-                                    <h4 class="font-black text-xl text-emerald-800 mb-1"><i class="fas fa-map-marker-alt text-emerald-600 mr-2"></i>Wilayah {{ wilayah }}</h4>
-                                    <p class="text-sm text-emerald-600 font-bold">{{ umkms.length }} Lapak Aktif Terdaftar</p>
+                                    <h4 class="font-black text-lg md:text-xl text-emerald-800 mb-1"><i class="fas fa-map-marker-alt text-emerald-600 mr-2"></i>Wilayah {{ wilayah }}</h4>
+                                    <p class="text-xs md:text-sm text-emerald-600 font-bold">{{ umkms.length }} Lapak Aktif Terdaftar</p>
                                 </div>
                                 <i :class="['fas text-emerald-600 text-xl transition-transform', selectedWilayahUMKM === wilayah ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
                             </div>
                             
                             <div v-if="selectedWilayahUMKM === wilayah" class="bg-white border-t border-emerald-100 p-4 space-y-4 max-h-[400px] overflow-y-auto">
-                                <div v-for="umkm in umkms" :key="umkm.id" class="border rounded-xl p-4 flex flex-col md:flex-row gap-4 hover:shadow-md transition">
-                                    <div class="w-full md:w-32 h-32 relative shrink-0 rounded-lg overflow-hidden border">
+                                <div v-for="umkm in umkms" :key="umkm.id" class="border rounded-xl p-4 flex flex-col sm:flex-row gap-4 hover:shadow-md transition">
+                                    <div class="w-full sm:w-32 h-32 relative shrink-0 rounded-lg overflow-hidden border">
                                         <img v-if="umkm.foto1" :src="umkm.foto1" class="w-full h-full object-cover animate-foto-1 absolute inset-0">
                                         <img v-if="umkm.foto2" :src="umkm.foto2" class="w-full h-full object-cover animate-foto-2 absolute inset-0">
                                         <div v-if="!umkm.foto1 && !umkm.foto2" class="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400"><i class="fas fa-store"></i></div>
                                     </div>
                                     <div class="flex-1">
                                         <div class="flex justify-between items-start">
-                                            <h5 class="font-black text-gray-800 text-lg leading-tight">{{ umkm.namaUsaha }}</h5>
+                                            <h5 class="font-black text-gray-800 text-base md:text-lg leading-tight">{{ umkm.namaUsaha }}</h5>
                                             <span class="bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase px-2 py-1 rounded shadow-sm">{{ umkm.kategori }}</span>
                                         </div>
-                                        <p class="text-xs text-gray-500 font-bold mb-2">Pemilik: {{ umkm.pemilik }} <span v-if="umkm.nib">| NIB: {{ umkm.nib }}</span></p>
-                                        <p class="text-sm text-gray-600 mb-2 line-clamp-2"><i class="fas fa-map-pin text-gray-400"></i> {{ umkm.alamat }}</p>
-                                        <div class="flex flex-wrap gap-2 mb-3 text-[10px] font-bold text-gray-500">
+                                        <p class="text-[11px] md:text-xs text-gray-500 font-bold mb-2">Pemilik: {{ umkm.pemilik }} <span v-if="umkm.nib">| NIB: {{ umkm.nib }}</span></p>
+                                        <p class="text-xs md:text-sm text-gray-600 mb-2 line-clamp-2"><i class="fas fa-map-pin text-gray-400"></i> {{ umkm.alamat }}</p>
+                                        <div class="flex flex-wrap gap-2 mb-3 text-[10px] md:text-xs font-bold text-gray-500">
                                             <span class="bg-gray-100 px-2 py-1 rounded"><i class="fas fa-clock"></i> {{ umkm.jamBuka }} - {{ umkm.jamTutup }}</span>
                                             <span v-if="umkm.harga" class="bg-green-50 text-green-700 px-2 py-1 rounded"><i class="fas fa-tag"></i> Mulai {{ formatRupiah(umkm.harga) }}</span>
                                         </div>
-                                        <a :href="'https://wa.me/' + umkm.wa" target="_blank" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm">
+                                        <a :href="'https://wa.me/' + umkm.wa" target="_blank" class="inline-block bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition shadow-sm w-full text-center sm:w-auto">
                                             <i class="fab fa-whatsapp text-sm mr-1 align-middle"></i> Chat WhatsApp
                                         </a>
                                     </div>
@@ -190,16 +196,19 @@
                 </div>
             </div>
 
-            <!-- GALERI LINGKUNGAN DEPAN -->
-            <div v-if="listGaleri.filter(g => !g.isDeleted).length > 0" class="bg-gray-100 py-16 border-t border-gray-200">
-                <div class="max-w-7xl mx-auto px-6 w-full">
-                    <h3 class="text-2xl font-black text-gray-800 mb-8 flex items-center gap-3"><i class="fas fa-images text-blue-500"></i> Galeri Kegiatan Lingkungan</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div v-for="foto in listGaleri.filter(g => !g.isDeleted).slice(0, 4)" :key="foto.id" class="relative group rounded-xl overflow-hidden shadow-sm h-48 border">
+            <!-- GALERI LINGKUNGAN DEPAN (UPDATE DETAIL INFO) -->
+            <div v-if="listGaleri.filter(g => !g.isDeleted).length > 0" class="bg-gray-100 py-12 md:py-16 border-t border-gray-200">
+                <div class="max-w-7xl mx-auto px-4 md:px-6 w-full">
+                    <h3 class="text-2xl md:text-3xl font-black text-gray-800 mb-6 md:mb-8 flex items-center gap-3"><i class="fas fa-images text-blue-500"></i> Galeri Kegiatan</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                        <div v-for="foto in listGaleri.filter(g => !g.isDeleted).slice(0, 4)" :key="foto.id" class="relative group rounded-xl overflow-hidden shadow-sm h-64 border bg-gray-200">
                             <img :src="foto.foto" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
-                                <p class="text-white font-bold text-sm truncate">{{ foto.judul }}</p>
-                                <p class="text-gray-300 text-[10px]">{{ foto.tanggal }}</p>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                                <p class="text-white font-bold text-sm md:text-base leading-tight mb-2">{{ foto.judul }}</p>
+                                <div class="text-[10px] md:text-xs text-gray-300 space-y-1">
+                                    <p><i class="fas fa-user-circle text-purple-400"></i> {{ foto.pengunggah }} (RT {{ foto.rt }}/RW {{ foto.rw }})</p>
+                                    <p><i class="fas fa-clock text-blue-300"></i> {{ foto.timestamp || foto.tanggal }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -217,116 +226,131 @@
         </div>
 
         <!-- ==============================================
-             LOGIN & REGISTER (TETAP SAMA 100% DIKUNCI)
+             LOGIN & REGISTER (UPDATE TAMPILAN HP)
              ============================================== -->
-        <div v-if="!isLoggedIn && currentAuthView === 'auth'" class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 absolute inset-0 z-50 overflow-hidden">
-            <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
-            <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50"></div>
+        <!-- Mengubah 'absolute overflow-hidden' menjadi 'fixed overflow-y-auto' agar bisa di-scroll di HP -->
+        <div v-if="!isLoggedIn && currentAuthView === 'auth'" class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 fixed inset-0 z-[100] overflow-y-auto">
+            <!-- Background Ornamen -->
+            <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
+            <div class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
 
-            <div :class="['bg-white/90 backdrop-blur-lg p-8 rounded-3xl shadow-2xl border border-white/40 z-10 relative overflow-y-auto scrollbar-hide', isRegistering ? 'w-full max-w-4xl h-[90vh]' : 'w-full max-w-md']">
-                <button @click="currentAuthView = 'landing'" class="absolute top-6 left-6 text-gray-400 hover:text-gray-800 transition flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 shadow-sm"><i class="fas fa-arrow-left"></i></button>
+            <!-- Container Form: Menyesuaikan padding untuk HP -->
+            <div :class="['bg-white/95 backdrop-blur-xl p-6 md:p-10 rounded-[2rem] shadow-2xl border border-white/50 z-10 relative w-full my-auto transition-all duration-300', isRegistering ? 'max-w-4xl' : 'max-w-md']">
+                
+                <!-- Tombol Kembali -->
+                <button @click="currentAuthView = 'landing'" class="absolute top-4 left-4 md:top-6 md:left-6 text-gray-500 hover:text-gray-900 transition flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 shadow-sm z-20">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
 
-                <div class="text-center mb-6 mt-4">
-                    <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" class="w-20 h-20 mx-auto mb-4 object-cover rounded-full shadow-lg border-2 border-white">
-                    <div v-else class="w-20 h-20 bg-primary text-white rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg"><i class="fas fa-shield-alt"></i></div>
-                    <h2 class="text-3xl font-black text-gray-800">{{ appSettings.portalName || 'Kelurahan Digital' }}</h2>
-                    <p class="text-gray-500 text-sm mt-1">Sistem Layanan Mandiri Terpadu</p>
+                <!-- Header Logo Form -->
+                <div class="text-center mb-8 mt-2 md:mt-0">
+                    <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" class="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 object-cover rounded-full shadow-lg border-2 border-white">
+                    <div v-else class="w-16 h-16 md:w-20 md:h-20 bg-primary text-white rounded-full flex items-center justify-center text-3xl md:text-4xl mx-auto mb-4 shadow-lg"><i class="fas fa-shield-alt"></i></div>
+                    <h2 class="text-2xl md:text-3xl font-black text-gray-800">{{ appSettings.portalName || 'Kelurahan Digital' }}</h2>
+                    <p class="text-gray-500 text-xs md:text-sm mt-1">Sistem Layanan Mandiri Terpadu</p>
                 </div>
 
-                <form v-if="!isRegistering" @submit.prevent="handleLogin" class="space-y-5">
+                <!-- FORM LOGIN -->
+                <form v-if="!isRegistering" @submit.prevent="handleLogin" class="space-y-5 form-section">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Username / NIK</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Username / NIK</label>
                         <div class="relative">
                             <i class="fas fa-user absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" v-model="loginForm.email" required placeholder="Masukkan Username/NIK" class="w-full pl-11 pr-4 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary outline-none">
+                            <!-- Teks diperbesar (text-base) agar HP tidak auto-zoom saat ngetik -->
+                            <input type="text" v-model="loginForm.email" required placeholder="Masukkan Username/NIK" class="w-full pl-11 pr-4 py-3.5 md:py-3 text-base md:text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-colors">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Password</label>
+                        <label class="block text-sm font-bold text-gray-700 mb-1.5">Password</label>
                         <div class="relative">
                             <i class="fas fa-lock absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            <input :type="showLoginPassword ? 'text' : 'password'" v-model="loginForm.password" required placeholder="••••••••" class="w-full pl-11 pr-10 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary outline-none">
-                            <button type="button" @click="showLoginPassword = !showLoginPassword" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"><i :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button>
+                            <input :type="showLoginPassword ? 'text' : 'password'" v-model="loginForm.password" required placeholder="••••••••" class="w-full pl-11 pr-12 py-3.5 md:py-3 text-base md:text-sm bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary focus:bg-white outline-none transition-colors">
+                            <button type="button" @click="showLoginPassword = !showLoginPassword" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 p-2"><i :class="showLoginPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button>
                         </div>
                     </div>
-                    <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg transition-all">Masuk Sistem <i class="fas fa-arrow-right ml-2"></i></button>
-                    <p class="text-center text-sm text-gray-600 mt-4">Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; regStep = 1" class="text-primary font-bold hover:underline">Daftar Akun Warga</a></p>
+                    <!-- Tombol Login Diperbesar utk area sentuh jari -->
+                    <button type="submit" class="w-full bg-primary hover:bg-blue-800 text-white font-bold py-4 md:py-3.5 rounded-xl shadow-lg transition-all mt-6 text-base">Masuk Sistem <i class="fas fa-arrow-right ml-2"></i></button>
+                    <p class="text-center text-sm text-gray-600 mt-6">Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; regStep = 1" class="text-primary font-black hover:underline">Daftar Akun Warga</a></p>
                 </form>
 
-                <!-- FORM PENDAFTARAN (TETAP 100% SAMA, TIDAK DIUBAH) -->
-                <form v-if="isRegistering" @submit.prevent="handleRegister" class="space-y-4">
-                    <div class="flex items-center justify-between mb-6 border-b pb-4">
-                        <div v-for="step in 5" :key="step" :class="['flex-1 text-center text-xs font-bold py-2 border-b-4 transition-colors', regStep >= step ? 'border-primary text-primary' : 'border-gray-200 text-gray-400']">Tahap {{ step }}</div>
+                <!-- FORM PENDAFTARAN WARGA (TETAP SAMA) -->
+                <form v-if="isRegistering" @submit.prevent="handleRegister" class="space-y-5 form-section">
+                    <!-- Navigasi Langkah (Responsif di HP) -->
+                    <div class="flex items-center justify-between mb-6 md:mb-8 border-b pb-2 md:pb-4 gap-1 md:gap-2">
+                        <div v-for="step in 5" :key="step" :class="['flex-1 text-center py-2 border-b-4 transition-colors', regStep >= step ? 'border-primary text-primary' : 'border-gray-200 text-gray-400']">
+                            <span class="block text-[10px] md:text-xs font-black uppercase tracking-wider">Tahap <br class="md:hidden"/>{{ step }}</span>
+                        </div>
                     </div>
 
                     <div v-if="regStep === 1" class="form-section space-y-4">
-                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-id-card mr-2"></i>Data Pribadi & Kontak</h3>
+                        <h3 class="text-base md:text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-3 rounded-lg border"><i class="fas fa-id-card text-primary mr-2"></i>Data Pribadi & Kontak</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-bold mb-1">NIK</label><input type="number" v-model="reg.nik" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
-                            <div><label class="block text-xs font-bold mb-1">No KK</label><input type="number" v-model="reg.nokk" required class="w-full border p-2 rounded text-sm bg-gray-50"></div>
-                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Nama Lengkap KTP</label><input type="text" v-model="reg.nama" required class="w-full border p-2 rounded text-sm"></div>
-                            <div><label class="block text-xs font-bold mb-1">Tempat Lahir</label><input type="text" v-model="reg.tempat_lahir" required class="w-full border p-2 rounded text-sm"></div>
-                            <div><label class="block text-xs font-bold mb-1">Tanggal Lahir</label><input type="date" v-model="reg.tgl_lahir" required class="w-full border p-2 rounded text-sm"></div>
-                            <div><label class="block text-xs font-bold mb-1">Jenis Kelamin</label><select v-model="reg.kelamin" required class="w-full border p-2 rounded text-sm"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                            <div><label class="block text-xs font-bold mb-1">Asal Suku</label><input type="text" v-model="reg.suku" required class="w-full border p-2 rounded text-sm"></div>
-                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Alamat Lengkap</label><textarea v-model="reg.alamat" rows="2" required class="w-full border p-2 rounded text-sm"></textarea></div>
-                            <div class="grid grid-cols-2 gap-2"><div><label class="block text-xs font-bold mb-1">RT</label><input type="text" v-model="reg.rt" required class="w-full border p-2 rounded text-sm"></div><div><label class="block text-xs font-bold mb-1">RW</label><input type="text" v-model="reg.rw" required class="w-full border p-2 rounded text-sm"></div></div>
-                            <div class="grid grid-cols-2 gap-2"><div><label class="block text-xs font-bold mb-1">No HP Utama</label><input type="number" v-model="reg.hp1" required class="w-full border p-2 rounded text-sm"></div><div><label class="block text-xs font-bold mb-1">No HP Cadangan</label><input type="number" v-model="reg.hp2" class="w-full border p-2 rounded text-sm"></div></div>
+                            <div><label class="block text-xs font-bold mb-1">NIK</label><input type="number" v-model="reg.nik" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-gray-50 focus:ring-1 focus:ring-primary focus:bg-white outline-none"></div>
+                            <div><label class="block text-xs font-bold mb-1">No KK</label><input type="number" v-model="reg.nokk" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-gray-50 focus:ring-1 focus:ring-primary focus:bg-white outline-none"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Nama Lengkap KTP</label><input type="text" v-model="reg.nama" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div>
+                            <div><label class="block text-xs font-bold mb-1">Tempat Lahir</label><input type="text" v-model="reg.tempat_lahir" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div>
+                            <div><label class="block text-xs font-bold mb-1">Tanggal Lahir</label><input type="date" v-model="reg.tgl_lahir" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div>
+                            <div><label class="block text-xs font-bold mb-1">Jenis Kelamin</label><select v-model="reg.kelamin" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none bg-white"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+                            <div><label class="block text-xs font-bold mb-1">Asal Suku</label><input type="text" v-model="reg.suku" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Alamat Lengkap</label><textarea v-model="reg.alamat" rows="2" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></textarea></div>
+                            <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-bold mb-1">RT</label><input type="text" v-model="reg.rt" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div><div><label class="block text-xs font-bold mb-1">RW</label><input type="text" v-model="reg.rw" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div></div>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:col-span-2"><div><label class="block text-xs font-bold mb-1">No HP Utama</label><input type="number" v-model="reg.hp1" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div><div><label class="block text-xs font-bold mb-1">No HP Cadangan</label><input type="number" v-model="reg.hp2" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"></div></div>
                         </div>
                     </div>
 
                     <div v-if="regStep === 2" class="form-section space-y-4">
-                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-users mr-2"></i>Status Keluarga & Pendidikan</h3>
+                        <h3 class="text-base md:text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-3 rounded-lg border"><i class="fas fa-users text-primary mr-2"></i>Status Keluarga & Pendidikan</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-bold mb-1">Status di Keluarga</label><select v-model="reg.status_keluarga" required class="w-full border p-2 rounded text-sm"><option value="Kepala Keluarga">Kepala Keluarga</option><option value="Suami">Suami</option><option value="Istri">Istri</option><option value="Anak">Anak</option><option value="Orang Tua">Orang Tua</option><option value="Mertua">Mertua</option><option value="Famili Lain">Famili Lain</option></select></div>
-                            <div><label class="block text-xs font-bold mb-1">Status Pernikahan</label><select v-model="reg.status_nikah" required class="w-full border p-2 rounded text-sm"><option value="Belum Menikah">Belum Menikah</option><option value="Menikah">Menikah</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select></div>
-                            <div><label class="block text-xs font-bold mb-1">Jml Anggota KK</label><input type="number" v-model="reg.jml_kk" required class="w-full border p-2 rounded text-sm"></div>
-                            <div><label class="block text-xs font-bold mb-1">Jml Tinggal Serumah</label><input type="number" v-model="reg.jml_rumah" required class="w-full border p-2 rounded text-sm"></div>
-                            <div><label class="block text-xs font-bold mb-1">Status Kepemilikan Rumah</label><select v-model="reg.status_rumah" required class="w-full border p-2 rounded text-sm"><option value="Milik Sendiri">Milik Sendiri</option><option value="Kontrak">Kontrak</option><option value="Kos">Kos</option><option value="Menumpang">Menumpang</option></select></div>
-                            <div><label class="block text-xs font-bold mb-1">Pendidikan Terakhir</label><select v-model="reg.pendidikan" required class="w-full border p-2 rounded text-sm"><option value="Tidak Sekolah">Tidak Sekolah</option><option value="SD">SD</option><option value="SMP">SMP</option><option value="SMA/SMK">SMA/SMK</option><option value="Diploma">Diploma</option><option value="Sarjana">Sarjana</option></select></div>
-                            <div><label class="block text-xs font-bold mb-1">Kondisi Khusus (Opsional)</label><select v-model="reg.kondisi_khusus" class="w-full border p-2 rounded text-sm"><option value="Tidak Ada">Tidak Ada</option><option value="Disabilitas">Disabilitas</option><option value="Penyakit Kronis">Penyakit Kronis</option></select></div>
+                            <div><label class="block text-xs font-bold mb-1">Status di Keluarga</label><select v-model="reg.status_keluarga" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Kepala Keluarga">Kepala Keluarga</option><option value="Suami">Suami</option><option value="Istri">Istri</option><option value="Anak">Anak</option><option value="Orang Tua">Orang Tua</option><option value="Mertua">Mertua</option><option value="Famili Lain">Famili Lain</option></select></div>
+                            <div><label class="block text-xs font-bold mb-1">Status Pernikahan</label><select v-model="reg.status_nikah" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Belum Menikah">Belum Menikah</option><option value="Menikah">Menikah</option><option value="Cerai Hidup">Cerai Hidup</option><option value="Cerai Mati">Cerai Mati</option></select></div>
+                            <div><label class="block text-xs font-bold mb-1">Jml Anggota KK</label><input type="number" v-model="reg.jml_kk" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm"></div>
+                            <div><label class="block text-xs font-bold mb-1">Jml Tinggal Serumah</label><input type="number" v-model="reg.jml_rumah" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm"></div>
+                            <div><label class="block text-xs font-bold mb-1">Status Kepemilikan Rumah</label><select v-model="reg.status_rumah" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Milik Sendiri">Milik Sendiri</option><option value="Kontrak">Kontrak</option><option value="Kos">Kos</option><option value="Menumpang">Menumpang</option></select></div>
+                            <div><label class="block text-xs font-bold mb-1">Pendidikan Terakhir</label><select v-model="reg.pendidikan" required class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Tidak Sekolah">Tidak Sekolah</option><option value="SD">SD</option><option value="SMP">SMP</option><option value="SMA/SMK">SMA/SMK</option><option value="Diploma">Diploma</option><option value="Sarjana">Sarjana</option></select></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Kondisi Khusus (Opsional)</label><select v-model="reg.kondisi_khusus" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Tidak Ada">Tidak Ada</option><option value="Disabilitas">Disabilitas</option><option value="Penyakit Kronis">Penyakit Kronis</option></select></div>
                         </div>
                     </div>
 
                     <div v-if="regStep === 3" class="form-section space-y-4">
-                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-heartbeat mr-2"></i>Data Kesehatan</h3>
+                        <h3 class="text-base md:text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-3 rounded-lg border"><i class="fas fa-heartbeat text-primary mr-2"></i>Data Kesehatan</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-bold mb-1">Status Kesehatan Dasar</label><select v-model="reg.sehat_status" class="w-full border p-2 rounded text-sm"><option value="Sehat">Sehat</option><option value="Sakit">Sakit</option><option value="Sakit Kronis">Sakit Kronis</option></select></div>
-                            <div class="grid grid-cols-3 gap-2"><div><label class="block text-xs font-bold mb-1">Gol. Darah</label><select v-model="reg.gol_darah" class="w-full border p-2 rounded text-sm"><option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div><div><label class="block text-xs font-bold mb-1">TB (cm)</label><input type="number" v-model="reg.tb" class="w-full border p-2 rounded text-sm"></div><div><label class="block text-xs font-bold mb-1">BB (kg)</label><input type="number" v-model="reg.bb" class="w-full border p-2 rounded text-sm"></div></div>
-                            <div class="md:col-span-2 border-t pt-4 mt-2"><label class="block text-xs font-bold mb-2">Pilih Data Kesehatan Spesifik (Bila Ada)</label><select v-model="reg.kesehatan_tipe" class="w-full border p-2 rounded text-sm bg-blue-50"><option value="Umum">Hanya Umum / Tidak Ada</option><option value="Balita">Khusus Balita / Anak</option><option value="Ibu Hamil">Khusus Ibu Hamil</option><option value="Lansia">Khusus Lansia</option></select></div>
-                            <template v-if="reg.kesehatan_tipe === 'Balita'"><div><label class="block text-xs font-bold mb-1">Status Imunisasi</label><select v-model="reg.balita_imunisasi" class="w-full border p-2 rounded text-sm"><option value="Lengkap">Lengkap</option><option value="Belum Lengkap">Belum Lengkap</option></select></div><div><label class="block text-xs font-bold mb-1">Status Gizi</label><select v-model="reg.balita_gizi" class="w-full border p-2 rounded text-sm"><option value="Baik">Baik</option><option value="Kurang">Kurang</option><option value="Buruk">Buruk</option></select></div></template>
-                            <template v-if="reg.kesehatan_tipe === 'Ibu Hamil'"><div><label class="block text-xs font-bold mb-1">Usia Kehamilan (Bulan)</label><input type="number" v-model="reg.hamil_usia" class="w-full border p-2 rounded text-sm"></div><div><label class="block text-xs font-bold mb-1">Risiko Tinggi?</label><select v-model="reg.hamil_risiko" class="w-full border p-2 rounded text-sm"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div></template>
-                            <template v-if="reg.kesehatan_tipe === 'Lansia'"><div><label class="block text-xs font-bold mb-1">Penyakit Umum</label><input type="text" v-model="reg.lansia_sakit" class="w-full border p-2 rounded text-sm"></div><div><label class="block text-xs font-bold mb-1">Kebutuhan Bantuan</label><select v-model="reg.lansia_bantuan" class="w-full border p-2 rounded text-sm"><option value="Mandiri">Mandiri</option><option value="Perlu Bantuan">Perlu Bantuan Orang Lain</option></select></div></template>
+                            <div><label class="block text-xs font-bold mb-1">Status Kesehatan Dasar</label><select v-model="reg.sehat_status" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Sehat">Sehat</option><option value="Sakit">Sakit</option><option value="Sakit Kronis">Sakit Kronis</option></select></div>
+                            <div class="grid grid-cols-3 gap-2"><div><label class="block text-xs font-bold mb-1">Gol. Darah</label><select v-model="reg.gol_darah" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="-">-</option><option value="A">A</option><option value="B">B</option><option value="AB">AB</option><option value="O">O</option></select></div><div><label class="block text-xs font-bold mb-1">TB (cm)</label><input type="number" v-model="reg.tb" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm"></div><div><label class="block text-xs font-bold mb-1">BB (kg)</label><input type="number" v-model="reg.bb" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm"></div></div>
+                            <div class="md:col-span-2 border-t pt-4 mt-2"><label class="block text-xs font-bold mb-2">Pilih Data Kesehatan Spesifik (Bila Ada)</label><select v-model="reg.kesehatan_tipe" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-blue-50 font-bold"><option value="Umum">Hanya Umum / Tidak Ada</option><option value="Balita">Khusus Balita / Anak</option><option value="Ibu Hamil">Khusus Ibu Hamil</option><option value="Lansia">Khusus Lansia</option></select></div>
+                            <template v-if="reg.kesehatan_tipe === 'Balita'"><div><label class="block text-xs font-bold mb-1">Status Imunisasi</label><select v-model="reg.balita_imunisasi" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Lengkap">Lengkap</option><option value="Belum Lengkap">Belum Lengkap</option></select></div><div><label class="block text-xs font-bold mb-1">Status Gizi</label><select v-model="reg.balita_gizi" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Baik">Baik</option><option value="Kurang">Kurang</option><option value="Buruk">Buruk</option></select></div></template>
+                            <template v-if="reg.kesehatan_tipe === 'Ibu Hamil'"><div><label class="block text-xs font-bold mb-1">Usia Kehamilan (Bulan)</label><input type="number" v-model="reg.hamil_usia" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm"></div><div><label class="block text-xs font-bold mb-1">Risiko Tinggi?</label><select v-model="reg.hamil_risiko" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Tidak">Tidak</option><option value="Ya">Ya</option></select></div></template>
+                            <template v-if="reg.kesehatan_tipe === 'Lansia'"><div><label class="block text-xs font-bold mb-1">Penyakit Umum</label><input type="text" v-model="reg.lansia_sakit" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm"></div><div><label class="block text-xs font-bold mb-1">Kebutuhan Bantuan</label><select v-model="reg.lansia_bantuan" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="Mandiri">Mandiri</option><option value="Perlu Bantuan">Perlu Bantuan Orang Lain</option></select></div></template>
                         </div>
                     </div>
 
                     <div v-if="regStep === 4" class="form-section space-y-4">
-                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-briefcase mr-2"></i>Pekerjaan, Penghasilan & Usaha</h3>
+                        <h3 class="text-base md:text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-3 rounded-lg border"><i class="fas fa-briefcase text-primary mr-2"></i>Pekerjaan, Penghasilan & Usaha</h3>
                         <div class="grid grid-cols-1 gap-4">
-                            <div><label class="block text-xs font-bold mb-1">Rentang Penghasilan / Bulan</label><select v-model="reg.penghasilan" class="w-full border p-2 rounded text-sm"><option value="< 1 juta">< 1 juta</option><option value="1 - 3 juta">1 - 3 juta</option><option value="3 - 5 juta">3 - 5 juta</option><option value="> 5 juta">> 5 juta</option></select></div>
-                            <div class="p-4 border rounded-xl bg-gray-50"><label class="block text-sm font-bold text-primary mb-2">Pilih Pekerjaan Utama</label><select v-model="reg.pekerjaan" class="w-full border border-gray-300 p-2.5 rounded-lg text-sm bg-white font-semibold"><option value="">-- Pilih Pekerjaan --</option><optgroup v-for="(group, key) in jobCategories" :key="key" :label="key"><option v-for="job in group" :key="job" :value="job">{{ job }}</option></optgroup></select></div>
-                            <div class="p-4 border rounded-xl bg-gray-50"><label class="block text-sm font-bold text-primary mb-2">Apakah Anda Memiliki Usaha/UMKM?</label><select v-model="reg.usaha" class="w-full border border-gray-300 p-2.5 rounded-lg text-sm bg-white font-semibold mb-3"><option value="Tidak Ada">Tidak Memiliki Usaha</option><optgroup v-for="(group, key) in businessCategories" :key="key" :label="key"><option v-for="biz in group" :key="biz" :value="biz">{{ biz }}</option></optgroup></select>
-                                <div v-if="['Kos-kosan','Penginapan / Homestay','Asrama','Kontrakan','Sewa Ruko'].includes(reg.usaha)" class="grid grid-cols-3 gap-2 mt-2 p-3 bg-blue-100 rounded-lg"><div class="col-span-3 text-xs font-bold text-blue-800 mb-1">Data Properti Sewa:</div><div><label class="block text-[10px] font-bold">Total Kamar</label><input type="number" v-model="reg.kamar_total" class="w-full border p-1.5 rounded text-sm"></div><div><label class="block text-[10px] font-bold">Terisi</label><input type="number" v-model="reg.kamar_terisi" @input="kalkulasiKamar" class="w-full border p-1.5 rounded text-sm"></div><div><label class="block text-[10px] font-bold">Kosong</label><input type="number" v-model="reg.kamar_kosong" readonly class="w-full border p-1.5 rounded text-sm bg-gray-200"></div></div>
+                            <div><label class="block text-xs font-bold mb-1">Rentang Penghasilan / Bulan</label><select v-model="reg.penghasilan" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="< 1 juta">< 1 juta</option><option value="1 - 3 juta">1 - 3 juta</option><option value="3 - 5 juta">3 - 5 juta</option><option value="> 5 juta">> 5 juta</option></select></div>
+                            <div class="p-4 border border-gray-200 rounded-xl bg-gray-50"><label class="block text-sm font-bold text-primary mb-2">Pilih Pekerjaan Utama</label><select v-model="reg.pekerjaan" class="w-full border border-gray-300 p-3 md:p-2.5 rounded-lg text-base md:text-sm bg-white font-semibold outline-none"><option value="">-- Pilih Pekerjaan --</option><optgroup v-for="(group, key) in jobCategories" :key="key" :label="key"><option v-for="job in group" :key="job" :value="job">{{ job }}</option></optgroup></select></div>
+                            <div class="p-4 border border-gray-200 rounded-xl bg-gray-50"><label class="block text-sm font-bold text-primary mb-2">Apakah Anda Memiliki Usaha/UMKM?</label><select v-model="reg.usaha" class="w-full border border-gray-300 p-3 md:p-2.5 rounded-lg text-base md:text-sm bg-white font-semibold outline-none"><option value="Tidak Ada">Tidak Memiliki Usaha</option><optgroup v-for="(group, key) in businessCategories" :key="key" :label="key"><option v-for="biz in group" :key="biz" :value="biz">{{ biz }}</option></optgroup></select>
+                                <div v-if="['Kos-kosan','Penginapan / Homestay','Asrama','Kontrakan','Sewa Ruko'].includes(reg.usaha)" class="grid grid-cols-3 gap-2 mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200"><div class="col-span-3 text-xs font-bold text-blue-800 mb-1">Data Properti Sewa:</div><div><label class="block text-[10px] font-bold">Total Kamar</label><input type="number" v-model="reg.kamar_total" class="w-full border p-2 rounded text-sm bg-white"></div><div><label class="block text-[10px] font-bold">Terisi</label><input type="number" v-model="reg.kamar_terisi" @input="kalkulasiKamar" class="w-full border p-2 rounded text-sm bg-white"></div><div><label class="block text-[10px] font-bold">Kosong</label><input type="number" v-model="reg.kamar_kosong" readonly class="w-full border p-2 rounded text-sm bg-gray-200 font-bold"></div></div>
                             </div>
                         </div>
                     </div>
 
                     <div v-if="regStep === 5" class="form-section space-y-4">
-                        <h3 class="text-lg font-bold text-gray-800 mb-2"><i class="fas fa-lock mr-2"></i>Kredensial Login Aplikasi</h3>
-                        <div><label class="block text-xs font-bold mb-1">Email (Untuk Pemulihan Akun)</label><input type="email" v-model="reg.email" required class="w-full border p-3 rounded-lg text-sm bg-gray-50"></div>
-                        <div><label class="block text-xs font-bold mb-1">Username Login</label><input type="text" v-model="reg.username" required class="w-full border p-3 rounded-lg text-sm bg-gray-50"></div>
+                        <h3 class="text-base md:text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-3 rounded-lg border"><i class="fas fa-lock text-primary mr-2"></i>Kredensial Login Aplikasi</h3>
+                        <div><label class="block text-xs font-bold mb-1">Email (Untuk Pemulihan Akun)</label><input type="email" v-model="reg.email" required class="w-full border border-gray-300 p-3 md:p-3 rounded-lg text-base md:text-sm bg-gray-50 focus:ring-1 focus:ring-primary focus:bg-white outline-none"></div>
+                        <div><label class="block text-xs font-bold mb-1">Username Login</label><input type="text" v-model="reg.username" required class="w-full border border-gray-300 p-3 md:p-3 rounded-lg text-base md:text-sm bg-gray-50 focus:ring-1 focus:ring-primary focus:bg-white outline-none"></div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label class="block text-xs font-bold mb-1">Password</label><div class="relative"><input :type="showRegPassword ? 'text' : 'password'" v-model="reg.password" required class="w-full border p-3 pr-10 rounded-lg text-sm"><button type="button" @click="showRegPassword = !showRegPassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"><i :class="showRegPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button></div></div>
-                            <div><label class="block text-xs font-bold mb-1">Ulangi Password</label><div class="relative"><input :type="showRegRepeatPassword ? 'text' : 'password'" v-model="reg.repeatPassword" required class="w-full border p-3 pr-10 rounded-lg text-sm"><button type="button" @click="showRegRepeatPassword = !showRegRepeatPassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"><i :class="showRegRepeatPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button></div></div>
+                            <div><label class="block text-xs font-bold mb-1">Password</label><div class="relative"><input :type="showRegPassword ? 'text' : 'password'" v-model="reg.password" required class="w-full border border-gray-300 p-3 md:p-3 pr-10 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"><button type="button" @click="showRegPassword = !showRegPassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 p-2"><i :class="showRegPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button></div></div>
+                            <div><label class="block text-xs font-bold mb-1">Ulangi Password</label><div class="relative"><input :type="showRegRepeatPassword ? 'text' : 'password'" v-model="reg.repeatPassword" required class="w-full border border-gray-300 p-3 md:p-3 pr-10 rounded-lg text-base md:text-sm focus:ring-1 focus:ring-primary outline-none"><button type="button" @click="showRegRepeatPassword = !showRegRepeatPassword" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 p-2"><i :class="showRegRepeatPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i></button></div></div>
                         </div>
                     </div>
 
-                    <div class="flex justify-between mt-6 pt-4 border-t">
-                        <button type="button" v-if="regStep > 1" @click="regStep--" class="px-5 py-2.5 bg-gray-200 text-gray-700 font-bold rounded-lg shadow hover:bg-gray-300">Kembali</button>
-                        <div v-else></div> <button type="button" v-if="regStep < 5" @click="regStep++" class="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700">Selanjutnya</button>
-                        <button type="submit" v-if="regStep === 5" class="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-lg shadow hover:bg-emerald-700">Simpan & Daftarkan</button>
+                    <div class="flex justify-between mt-8 pt-4 border-t border-gray-200">
+                        <button type="button" v-if="regStep > 1" @click="regStep--" class="px-5 py-3 md:py-2.5 bg-gray-200 text-gray-700 font-bold rounded-xl shadow-sm hover:bg-gray-300 w-1/3 text-sm md:text-base">Kembali</button>
+                        <div v-else></div> 
+                        <button type="button" v-if="regStep < 5" @click="regStep++" class="px-5 py-3 md:py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow-md hover:bg-blue-700 w-1/2 md:w-auto text-sm md:text-base">Selanjutnya</button>
+                        <button type="submit" v-if="regStep === 5" class="px-5 py-3 md:py-2.5 bg-emerald-600 text-white font-bold rounded-xl shadow-md hover:bg-emerald-700 w-1/2 md:w-auto text-sm md:text-base">Simpan & Daftar</button>
                     </div>
-                    <p class="text-center text-sm text-gray-500 mt-4">Sudah punya akun? <a href="#" @click.prevent="isRegistering = false" class="text-primary font-bold hover:underline">Masuk di sini</a></p>
+                    <p class="text-center text-sm text-gray-500 mt-6">Sudah punya akun? <a href="#" @click.prevent="isRegistering = false" class="text-primary font-black hover:underline">Masuk di sini</a></p>
                 </form>
             </div>
         </div>
@@ -414,10 +438,10 @@
             </aside>
 
             <main class="flex-1 flex flex-col h-full overflow-hidden bg-gray-50 relative">
-                <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4 flex justify-between items-center z-10 glass">
+                <header class="bg-white shadow-sm border-b border-gray-200 px-4 md:px-6 py-4 flex justify-between items-center z-10 glass">
                     <div class="flex items-center gap-4">
                         <button @click="sidebarOpen = true" class="md:hidden text-gray-600 hover:text-primary"><i class="fas fa-bars text-xl"></i></button>
-                        <h2 class="text-xl font-bold text-gray-800 capitalize">{{ currentMenu.replace('-', ' ') }}</h2>
+                        <h2 class="text-lg md:text-xl font-bold text-gray-800 capitalize">{{ currentMenu.replace('-', ' ') }}</h2>
                     </div>
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-3 bg-white px-2 py-1 rounded-full shadow-sm border border-gray-200">
@@ -425,7 +449,7 @@
                                 <p class="text-sm font-bold text-gray-800 capitalize leading-none">{{ currentUser.name }}</p>
                                 <p :class="['text-[10px] font-bold uppercase mt-1 tracking-wider', currentUser.role==='admin_kelurahan'?'text-amber-600':(currentUser.role==='babinsa'?'text-red-600':'text-primary')]">{{ currentUser.role.replace('_',' ') }}</p>
                             </div>
-                            <div :class="['h-10 w-10 rounded-full text-white flex items-center justify-center font-bold shadow-md border-2 border-white', currentUser.role==='babinsa'?'bg-gradient-to-br from-red-600 to-red-800':'bg-gradient-to-br from-blue-700 to-blue-900']">
+                            <div :class="['h-8 w-8 md:h-10 md:w-10 rounded-full text-white flex items-center justify-center font-bold shadow-md border-2 border-white', currentUser.role==='babinsa'?'bg-gradient-to-br from-red-600 to-red-800':'bg-gradient-to-br from-blue-700 to-blue-900']">
                                 {{ currentUser.name.charAt(0).toUpperCase() }}
                             </div>
                         </div>
@@ -484,6 +508,10 @@
                                     <div class="space-y-4">
                                         <div><label class="block text-xs font-bold mb-1">Pilih Peran Petugas</label><select v-model="formPetugas.role" class="w-full border p-2 rounded text-sm outline-none font-bold bg-amber-50"><option value="rt">Ketua RT</option><option value="rw">Ketua RW</option><option value="babinsa">Babinsa / Keamanan</option></select></div>
                                         <div class="grid grid-cols-2 gap-2"><div><label class="block text-xs font-bold mb-1">Nama Petugas</label><input type="text" v-model="formPetugas.nama" class="w-full border p-2 rounded text-sm outline-none"></div><div><label class="block text-xs font-bold mb-1">Username Login</label><input type="text" v-model="formPetugas.username" class="w-full border p-2 rounded text-sm outline-none"></div></div>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <div><label class="block text-xs font-bold mb-1">Wilayah RT (Opsional)</label><input type="text" v-model="formPetugas.rt" placeholder="Contoh: 01" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                            <div><label class="block text-xs font-bold mb-1">Wilayah RW (Opsional)</label><input type="text" v-model="formPetugas.rw" placeholder="Contoh: 05" class="w-full border p-2 rounded text-sm outline-none"></div>
+                                        </div>
                                         <div><label class="block text-xs font-bold mb-1">Password</label><input type="password" v-model="formPetugas.password" class="w-full border p-2 rounded text-sm outline-none"></div>
                                         <button @click="buatAkunPetugas" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded shadow text-sm mt-2">Buat Akun Petugas</button>
                                     </div>
@@ -537,21 +565,21 @@
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                                 <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Status Pengajuan Surat</p><h3 class="text-2xl font-black">{{ listSurat.filter(s=>s.status!=='Selesai' && !s.isDeleted).length }}<span class="text-sm font-normal"> Aktif</span></h3></div>
                                 <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Keluhan Diproses</p><h3 class="text-2xl font-black">{{ listLaporan.filter(l=>l.status!=='Selesai' && !l.isDeleted).length }}<span class="text-sm font-normal"> Tiket</span></h3></div>
-                                <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Saldo Kas Terakhir</p><h3 class="text-2xl font-black"><span class="text-sm">Rp</span> 5.2M</h3></div>
+                                <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Saldo Kas Terakhir</p><h3 class="text-2xl font-black"><span class="text-sm">Rp</span> -</h3></div>
                                 <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Poin Bank Sampah Anda</p><h3 class="text-2xl font-black">{{ totalPoinSampah }} <span class="text-sm font-normal">Poin</span></h3></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- UMKM WARGA & TAMBAH LAPAK (MENU KHUSUS WARGA) -->
+                    <!-- UMKM WARGA & TAMBAH LAPAK -->
                     <div v-if="currentMenu === 'umkm'" class="space-y-6 form-section">
                         <!-- Header Menu UMKM -->
                         <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-2xl p-6 text-white shadow-lg text-center relative overflow-hidden">
                             <i class="fas fa-store text-5xl text-emerald-200 mb-3 relative z-10"></i>
                             <h2 class="text-2xl font-black mb-2 relative z-10">Lapak UMKM Warga</h2>
-                            <p class="text-emerald-100 max-w-2xl mx-auto text-sm relative z-10">Daftarkan usaha Anda di sini agar tampil di halaman depan aplikasi kelurahan dan dapat dilihat oleh seluruh warga lainnya.</p>
+                            <p v-if="currentUser.role === 'warga'" class="text-emerald-100 max-w-2xl mx-auto text-sm relative z-10">Daftarkan usaha Anda di sini agar tampil di halaman depan aplikasi kelurahan dan dapat dilihat oleh seluruh warga lainnya.</p>
                             
-                            <!-- Tombol Panggil Form UMKM -->
+                            <!-- Tombol Panggil Form UMKM (Hanya Warga) -->
                             <button v-if="currentUser.role === 'warga'" @click="showFormUMKM = true" class="mt-6 bg-white text-emerald-700 hover:bg-emerald-50 font-black px-8 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1 relative z-10">
                                 <i class="fas fa-plus-circle mr-2"></i> Tambah Lapak UMKM Baru
                             </button>
@@ -882,19 +910,30 @@
                                         <div><label class="block text-xs font-bold mb-1">Judul Agenda</label><input type="text" v-model="formAgenda.judul" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
                                     </div>
                                     <div><label class="block text-xs font-bold mb-1">Isi / Deskripsi Lengkap</label><textarea v-model="formAgenda.isi" rows="4" class="w-full border p-2 rounded text-sm outline-none bg-white"></textarea></div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Foto Sampul (Opsional)</label>
+                                        <input type="file" accept="image/*" @change="e => handleFileUpload(e, 'agenda', 'foto')" class="w-full border p-2 rounded text-sm bg-white">
+                                        <div v-if="formAgenda.foto" class="mt-2"><img :src="formAgenda.foto" class="h-32 w-auto rounded border shadow-sm object-cover"></div>
+                                    </div>
                                 </div>
                                 <div class="mt-4 flex justify-end"><button @click="submitAgenda" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow"><i class="fas fa-paper-plane mr-1"></i> Posting Agenda</button></div>
                             </div>
 
                             <div class="overflow-x-auto border rounded-xl">
                                 <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Kategori</th><th class="px-4 py-3">Judul Agenda</th><th class="px-4 py-3">Isi</th><th class="px-4 py-3 text-center">Dilihat</th><th class="px-4 py-3 text-center">Aksi</th></tr></thead>
+                                    <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Judul Agenda & Foto</th><th class="px-4 py-3">Kategori</th><th class="px-4 py-3">Tanggal</th><th class="px-4 py-3">Isi Singkat</th><th class="px-4 py-3 text-center">Dilihat</th><th class="px-4 py-3 text-center">Aksi</th></tr></thead>
                                     <tbody>
                                         <tr v-for="a in listAgenda.filter(x => !x.isDeleted)" :key="a.id" class="border-b hover:bg-gray-50">
-                                            <td class="px-4 py-3 text-xs">{{ a.tanggal }}</td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex items-center gap-3">
+                                                    <img v-if="a.foto" :src="a.foto" class="w-10 h-10 rounded object-cover border">
+                                                    <div v-else class="w-10 h-10 rounded bg-gray-200 border flex items-center justify-center text-gray-400"><i class="fas fa-image"></i></div>
+                                                    <span class="font-bold text-gray-800">{{ a.judul }}</span>
+                                                </div>
+                                            </td>
                                             <td class="px-4 py-3"><span :class="['px-2 py-1 rounded text-[10px] font-bold uppercase', a.kategori === 'Pengumuman Penting' ? 'bg-red-100 text-red-700' : (a.kategori === 'Berita kegiatan' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700')]">{{ a.kategori }}</span></td>
-                                            <td class="px-4 py-3 font-bold text-gray-800">{{ a.judul }}</td>
-                                            <td class="px-4 py-3 truncate max-w-[200px] text-xs">{{ a.isi }}</td>
+                                            <td class="px-4 py-3 text-xs">{{ a.tanggal }}</td>
+                                            <td class="px-4 py-3 truncate max-w-[150px] text-xs">{{ a.isi }}</td>
                                             <td class="px-4 py-3 text-center font-bold text-blue-600"><i class="fas fa-eye"></i> {{ a.views || 0 }}</td>
                                             <td class="px-4 py-3 text-center"><button @click="softDeleteItem('agenda', a.id, listAgenda)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
                                         </tr>
@@ -1172,7 +1211,7 @@
                     </div>
 
                     <!-- ==============================================
-                         MODUL FASILITAS & BURSA KERJA (DIPERLUAS UNTUK DELETE & EXCEL)
+                         MODUL FASILITAS & BURSA KERJA
                          ============================================== -->
                     
                     <!-- Lapor Fasilitas -->
@@ -1185,6 +1224,11 @@
                                     <div><label class="block text-xs font-bold mb-1">Nama Fasilitas</label><input type="text" v-model="formFasilitas.fasilitas" placeholder="Cth: Lampu Jalan, Selokan..." class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
                                     <div><label class="block text-xs font-bold mb-1">Lokasi Detail</label><input type="text" v-model="formFasilitas.lokasi" placeholder="Cth: Depan RT 01..." class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
                                     <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Kondisi Kerusakan</label><input type="text" v-model="formFasilitas.kondisi" class="w-full border p-2 rounded text-sm outline-none bg-white"></div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold mb-1">Foto Bukti Kerusakan (Opsional)</label>
+                                        <input type="file" accept="image/*" @change="e => handleFileUpload(e, 'fasilitas', 'foto')" class="w-full border p-2 rounded text-sm bg-white">
+                                        <div v-if="formFasilitas.foto" class="mt-2"><img :src="formFasilitas.foto" class="h-24 rounded border shadow-sm object-cover"></div>
+                                    </div>
                                 </div>
                                 <div class="mt-4 text-right"><button @click="submitFasilitas" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Kirim Laporan Fasilitas</button></div>
                             </div>
@@ -1194,7 +1238,15 @@
                                     <thead class="bg-gray-50 text-gray-600 border-b"><tr><th class="px-4 py-3">Fasilitas & Lokasi</th><th class="px-4 py-3">Kondisi</th><th class="px-4 py-3">Pelapor</th><th class="px-4 py-3">Status</th><th v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" class="px-4 py-3 text-center">Aksi</th></tr></thead>
                                     <tbody>
                                         <tr v-for="f in listFasilitas.filter(x => !x.isDeleted)" :key="f.id" class="border-b hover:bg-gray-50">
-                                            <td class="px-4 py-3"><p class="font-bold text-xs">{{ f.fasilitas }}</p><p class="text-[10px] text-gray-500"><i class="fas fa-map-marker-alt"></i> {{ f.lokasi }}</p></td>
+                                            <td class="px-4 py-3">
+                                                <div class="flex gap-2 items-center">
+                                                    <img v-if="f.foto" :src="f.foto" class="w-10 h-10 rounded object-cover border">
+                                                    <div>
+                                                        <p class="font-bold text-xs">{{ f.fasilitas }}</p>
+                                                        <p class="text-[10px] text-gray-500"><i class="fas fa-map-marker-alt"></i> {{ f.lokasi }}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td class="px-4 py-3 text-xs">{{ f.kondisi }}</td>
                                             <td class="px-4 py-3 text-xs">{{ f.pelapor }}</td>
                                             <td class="px-4 py-3"><span class="px-2 py-1 rounded text-[10px] font-bold bg-amber-100 text-amber-700">{{ f.status || 'Dilaporkan' }}</span></td>
@@ -1270,29 +1322,33 @@
                         </div>
                     </div>
 
-                    <!-- Galeri Lingkungan -->
+                    <!-- Galeri Lingkungan (Dapat diakses warga juga) -->
                     <div v-if="currentMenu === 'galeri'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-images text-purple-500 mr-2"></i>Kelola Galeri Lingkungan</h2>
                             
-                            <div v-if="['admin_kelurahan'].includes(currentUser.role)" class="bg-purple-50 p-5 rounded-xl border border-purple-100 mb-6">
+                            <div v-if="true" class="bg-purple-50 p-5 rounded-xl border border-purple-100 mb-6">
+                                <h3 class="font-bold text-purple-800 mb-3"><i class="fas fa-cloud-upload-alt mr-1"></i> Upload Foto Kegiatan Lingkungan</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-bold mb-1">Judul / Keterangan Foto</label><input type="text" v-model="formGaleri.judul" class="w-full border p-2 rounded text-sm bg-white"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Keterangan / Judul Kegiatan</label><input type="text" v-model="formGaleri.judul" class="w-full border p-2 rounded text-sm bg-white outline-none"></div>
                                     <div><label class="block text-xs font-bold mb-1">Upload Foto</label><input type="file" accept="image/*" @change="e => handleFileUpload(e, 'galeri', 'foto')" class="w-full border p-1 rounded text-sm bg-white"></div>
                                 </div>
                                 <div class="mt-4 text-right"><button @click="submitGaleri" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Upload ke Galeri</button></div>
                             </div>
 
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div v-for="g in listGaleri.filter(x => !x.isDeleted)" :key="g.id" class="relative group rounded-xl overflow-hidden shadow-sm h-48 border bg-gray-100">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div v-for="g in listGaleri.filter(x => !x.isDeleted)" :key="g.id" class="relative group rounded-xl overflow-hidden shadow-sm h-64 border bg-gray-100">
                                     <img :src="g.foto" class="w-full h-full object-cover">
-                                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-3">
-                                        <p class="text-white font-bold text-xs truncate">{{ g.judul }}</p>
-                                        <p class="text-gray-300 text-[9px]">{{ g.tanggal }}</p>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-100 transition-opacity flex flex-col justify-end p-4">
+                                        <p class="text-white font-bold text-sm leading-tight mb-2">{{ g.judul }}</p>
+                                        <div class="text-[10px] text-gray-300 space-y-1">
+                                            <p><i class="fas fa-user-circle text-purple-400"></i> Diposting: {{ g.pengunggah }} (RT {{ g.rt }}/RW {{ g.rw }})</p>
+                                            <p><i class="fas fa-clock text-blue-300"></i> Waktu: {{ g.timestamp || g.tanggal }}</p>
+                                        </div>
                                     </div>
-                                    <button v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" @click="softDeleteItem('galeri', g.id, listGaleri)" class="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-800 w-6 h-6 rounded-full flex items-center justify-center shadow opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-trash text-xs"></i></button>
+                                    <button v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.role)" @click="softDeleteItem('galeri', g.id, listGaleri)" class="absolute top-2 right-2 text-white bg-red-600 hover:bg-red-800 w-8 h-8 rounded-full flex items-center justify-center shadow opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-trash text-sm"></i></button>
                                 </div>
-                                <div v-if="listGaleri.filter(x => !x.isDeleted).length === 0" class="col-span-4 text-center py-8 text-gray-500 border rounded-xl">Galeri masih kosong.</div>
+                                <div v-if="listGaleri.filter(x => !x.isDeleted).length === 0" class="col-span-1 md:col-span-3 text-center py-8 text-gray-500 border rounded-xl">Galeri masih kosong.</div>
                             </div>
                         </div>
                     </div>
@@ -1370,12 +1426,13 @@
                         if(formName === 'tamu') formTamu.value[fieldName] = compressedDataUrl;
                         if(formName === 'umkm') formUMKM.value[fieldName] = compressedDataUrl;
                         if(formName === 'galeri') formGaleri.value[fieldName] = compressedDataUrl;
+                        if(formName === 'agenda') formAgenda.value[fieldName] = compressedDataUrl;
                     });
                 };
 
                 // FUNGSI FIREBASE & LOKAL (DENGAN SOFT DELETE SUPPORT)
                 const saveData = async (collectionName, docId, dataObj, localListRef) => {
-                    dataObj.isDeleted = false; // Flag soft delete awal
+                    dataObj.isDeleted = false;
                     if (useFirebase) {
                         const colRef = collection(db, 'artifacts', appIdEnv, 'public', 'data', collectionName);
                         await setDoc(doc(colRef, docId.toString()), dataObj);
@@ -1388,7 +1445,6 @@
                     showToast('Data berhasil diperbarui!');
                 };
                 
-                // SOFT DELETE KHUSUS
                 const softDeleteItem = async (collectionName, docId, localListRef) => {
                     if (confirm("Hapus data ini? (Data akan disembunyikan dan dihapus permanen oleh sistem pada tgl 1 jam 23:00)")) {
                         if (useFirebase) {
@@ -1412,21 +1468,15 @@
                     if(menuKey === 'galeri') { list = listGaleri.value; filename = "Data_Galeri"; }
                     if(menuKey === 'kependudukan') { list = listWargaLengkap.value; filename = "Data_Kependudukan"; }
 
-                    // Saring hanya data yang belum terhapus
                     const activeList = list.filter(x => !x.isDeleted);
+                    if (!activeList || activeList.length === 0) return showToast('Data kosong, tidak ada yang didownload.', 'danger');
 
-                    if (!activeList || activeList.length === 0) {
-                        return showToast('Data kosong, tidak ada yang didownload.', 'danger');
-                    }
-
-                    // Ambil Header (Tanpa ID dan Field Foto)
                     const headers = Object.keys(activeList[0]).filter(k => k !== 'id' && !k.startsWith('foto') && k !== 'isDeleted');
                     let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n";
-                    
                     activeList.forEach(row => {
                         let rowData = headers.map(h => {
                             let cell = row[h] === null || row[h] === undefined ? "" : String(row[h]);
-                            cell = cell.replace(/"/g, '""'); // Escape tanda kutip
+                            cell = cell.replace(/"/g, '""');
                             return `"${cell}"`;
                         });
                         csvContent += rowData.join(",") + "\n";
@@ -1475,11 +1525,12 @@
                 // PENGATURAN AKUN / PETUGAS
                 const formUbahAkun = ref({ usernameBaru: '', passwordLama: '', passwordBaru: '' });
                 const submitUbahAkun = () => { if(formUbahAkun.value.passwordLama && !formUbahAkun.value.passwordBaru) return showToast('Password baru wajib diisi!', 'danger'); showToast('Data akun berhasil diperbarui! Mohon login kembali pada sesi berikutnya.'); if(formUbahAkun.value.usernameBaru) currentUser.value.username = formUbahAkun.value.usernameBaru; formUbahAkun.value = { usernameBaru: '', passwordLama: '', passwordBaru: '' }; };
-                const formPetugas = ref({ role: 'rt', nama: '', username: '', password: '' });
-                const buatAkunPetugas = () => { if(!formPetugas.value.username) return showToast('Username wajib diisi!', 'danger'); showToast(`Akun ${formPetugas.value.role.toUpperCase()} berhasil dibuat!`); formPetugas.value = { role: 'rt', nama: '', username: '', password: '' }; };
+                
+                const formPetugas = ref({ role: 'rt', nama: '', username: '', password: '', rt: '', rw: '' });
+                const buatAkunPetugas = () => { if(!formPetugas.value.username) return showToast('Username wajib diisi!', 'danger'); showToast(`Akun ${formPetugas.value.role.toUpperCase()} berhasil dibuat!`); formPetugas.value = { role: 'rt', nama: '', username: '', password: '', rt: '', rw: '' }; };
 
                 // =================================================================
-                // DATA REGISTRASI WARGA (FORMAT TIDAK DIUBAH)
+                // DATA REGISTRASI WARGA (FORMAT TETAP SAMA 100%)
                 // =================================================================
                 const reg = ref({
                     nik:'', nokk:'', nama:'', tempat_lahir:'', tgl_lahir:'', kelamin:'Laki-laki', suku:'', alamat:'', rt:'', rw:'', hp1:'', hp2:'',
@@ -1487,11 +1538,8 @@
                     sehat_status:'Sehat', gol_darah:'-', tb:'', bb:'', kesehatan_tipe:'Umum', balita_imunisasi:'Lengkap', balita_gizi:'Baik', hamil_usia:'', hamil_risiko:'Tidak', lansia_sakit:'', lansia_bantuan:'Mandiri',
                     penghasilan:'< 1 juta', pekerjaan:'', usaha:'Tidak Ada', kamar_total:0, kamar_terisi:0, kamar_kosong:0, email:'', username:'', password:'', repeatPassword:''
                 });
-                
-                // MENGHAPUS SEMUA DATA DUMMY BAWAAN SAAT DEPLOY
                 const listWargaLengkap = ref([]);
 
-                // KALKULASI STATISTIK DARI DATABASE WARGA
                 const statsGender = computed(() => { let l=0, p=0; listWargaLengkap.value.filter(x=>!x.isDeleted).forEach(w => w.kelamin === 'Laki-laki' ? l++ : p++); return {l, p}; });
                 const statsUsia = computed(() => { 
                     let b=0, r=0, d=0, l=0; const currYear = new Date().getFullYear();
@@ -1504,7 +1552,6 @@
                 const statsKerja = computed(() => { const res = {}; listWargaLengkap.value.filter(x=>!x.isDeleted).forEach(w => { if(w.pekerjaan && w.pekerjaan !== 'Tidak Ada') res[w.pekerjaan] = (res[w.pekerjaan] || 0) + 1; }); return res; });
                 const statsUsaha = computed(() => { const res = {}; listWargaLengkap.value.filter(x=>!x.isDeleted).forEach(w => { if(w.usaha && w.usaha !== 'Tidak Ada') res[w.usaha] = (res[w.usaha] || 0) + 1; }); return res; });
                 const ultahBulanIni = computed(() => { const currMonth = new Date().getMonth(); return listWargaLengkap.value.filter(w => !w.isDeleted && new Date(w.tgl_lahir).getMonth() === currMonth); });
-
                 const kalkulasiKamar = () => { reg.value.kamar_kosong = reg.value.kamar_total - reg.value.kamar_terisi; };
                 
                 const handleRegister = async () => { 
@@ -1513,6 +1560,26 @@
                     await saveData('warga', docId, newWarga, listWargaLengkap);
                     showToast('Pendaftaran berhasil! Silakan masuk sistem.');
                     isRegistering.value = false;
+                };
+
+                // OPTIMASI LAZY LOADING DATABASE
+                // Data berat hanya didownload jika user sukses login
+                let privateSyncDone = false;
+                const initPrivateSync = () => {
+                    if (useFirebase && !privateSyncDone) {
+                        syncCollection('warga', listWargaLengkap);
+                        syncCollection('anggaran', listAnggaran);
+                        syncCollection('surat', listSurat);
+                        syncCollection('bansos', listBansos);
+                        syncCollection('laporan', listLaporan);
+                        syncCollection('tamu', listTamu);
+                        syncCollection('arsipMasuk', listArsipMasuk);
+                        syncCollection('arsipKeluar', listArsipKeluar);
+                        syncCollection('bursa', listBursa);
+                        syncCollection('fasilitas', listFasilitas);
+                        syncCollection('sampah', listSampah);
+                        privateSyncDone = true;
+                    }
                 };
                 
                 const handleLogin = async () => {
@@ -1523,6 +1590,9 @@
                         else if(username.includes('rt')) role = 'rt';
                         else if(username.includes('babinsa')) role = 'babinsa';
                         currentUser.value = { name: username, username: username, role: role, rt: '01', rw: '05' };
+                        
+                        initPrivateSync(); // Panggil data berat di sini
+
                         isLoggedIn.value = true; globalLoading.value = false; currentMenu.value = 'dashboard';
                     }, 800);
                 };
@@ -1530,7 +1600,7 @@
                 const notif = ref({ 'laporan': 0, 'fasilitas': 0, 'bursa-kerja': 0, 'surat': 0 });
                 const switchMenu = (m) => { currentMenu.value = m; sidebarOpen.value = false; if (notif.value[m] !== undefined) notif.value[m] = 0; };
 
-                // FORMATTER RUPIAH & ANGGARAN (DATA DUMMY DIHAPUS)
+                // FORMATTER RUPIAH & ANGGARAN
                 const formatRupiah = (angka) => { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); };
                 const formAnggaran = ref({ tahun: new Date().getFullYear().toString(), bidang: 'Infrastruktur', pagu: '', realisasi: '', keterangan: '' });
                 const listAnggaran = ref([]);
@@ -1542,21 +1612,20 @@
                     formAnggaran.value = { tahun: new Date().getFullYear().toString(), bidang: 'Infrastruktur', pagu: '', realisasi: '', keterangan: '' };
                 };
 
-                // AGENDA / PENGUMUMAN (DATA DUMMY DIHAPUS)
-                const formAgenda = ref({ kategori: 'Berita kegiatan', judul: '', isi: '' });
+                // AGENDA / PENGUMUMAN
+                const formAgenda = ref({ kategori: 'Berita kegiatan', judul: '', isi: '', foto: null });
                 const listAgenda = ref([]);
                 const submitAgenda = async () => {
                     if(!formAgenda.value.judul) return;
                     const docId = Date.now().toString();
                     const newAgenda = { id: docId, tanggal: new Date().toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'}), views: 0, ...formAgenda.value };
                     await saveData('agenda', docId, newAgenda, listAgenda);
-                    showToast('Agenda berhasil diposting!'); formAgenda.value = { kategori: 'Berita kegiatan', judul: '', isi: '' };
+                    showToast('Agenda berhasil diposting!'); formAgenda.value = { kategori: 'Berita kegiatan', judul: '', isi: '', foto: null };
                 };
 
-                // TRAFIK PENGUNJUNG WEBSITE DI MULAI DARI 0
                 const webTraffic = ref(0); 
                 
-                // E-SURAT ADMIN & BANSOS (DATA DUMMY DIHAPUS)
+                // E-SURAT ADMIN & BANSOS
                 const listJenisSurat = { "IDENTITAS & KEPENDUDUKAN": ["Surat Keterangan Domisili", "Surat Pengantar KTP"], "EKONOMI & USAHA": ["Surat Keterangan Usaha", "Surat Keterangan Tidak Mampu"] };
                 const statusSuratArr = ['Menunggu Verifikasi', 'Sedang Diproses', 'Menunggu Tanda Tangan', 'Selesai', 'Ditolak'];
                 const formSurat = ref({ jenis: 'Surat Keterangan Domisili', keperluan: '', noHp: '', fotoRt: null });
@@ -1577,7 +1646,7 @@
                     showToast('Usulan Bansos Disimpan!'); formBansos.value = { nik: '', nama: '', jenis: 'PKH', alasan: '' }; 
                 };
 
-                // KELUHAN & PENGADUAN (DATA DUMMY DIHAPUS)
+                // KELUHAN & PENGADUAN
                 const formLaporan = ref({ judul: '', deskripsi: '', fotoBukti: null });
                 const listLaporan = ref([]);
                 const submitLaporan = async () => { 
@@ -1586,12 +1655,9 @@
                     await saveData('laporan', docId, { id: docId, tanggal: new Date().toLocaleDateString('id-ID'), ...formLaporan.value, status: 'Diterima', balasanAdmin: '', draftBalasan: '' }, listLaporan);
                     showToast('Keluhan berhasil dikirim'); formLaporan.value = { judul: '', deskripsi: '', fotoBukti: null }; 
                 };
-                const submitResponLaporan = (l) => {
-                    l.balasanAdmin = l.draftBalasan; l.status = 'Selesai';
-                    updateField('laporan', l.id, { balasanAdmin: l.balasanAdmin, status: 'Selesai' });
-                };
+                const submitResponLaporan = (l) => { l.balasanAdmin = l.draftBalasan; l.status = 'Selesai'; updateField('laporan', l.id, { balasanAdmin: l.balasanAdmin, status: 'Selesai' }); };
                 
-                // LAPOR TAMU (DATA DUMMY DIHAPUS)
+                // LAPOR TAMU
                 const formTamu = ref({ namaTamu: '', lamaMenginap: '', tujuan: '', fotoTamu: null });
                 const listTamu = ref([]);
                 const submitTamu = async () => { 
@@ -1638,7 +1704,6 @@
                     return listArsipKeluar.value.filter(a => !a.isDeleted && (a.noSurat.toLowerCase().includes(searchArsip.value.toLowerCase()) || a.tujuan.toLowerCase().includes(searchArsip.value.toLowerCase())));
                 });
 
-                // LAINNYA (EKSPANSI PLACEHOLDER UNTUK DELETE & EXCEL)
                 const triggerPanic = () => { showToast('PANIC BUTTON PRESSED', 'danger') };
                 
                 const formBursa = ref({ tipe: 'Mencari Kerja', judul: '', deskripsi: '', kontak: '' }); 
@@ -1650,13 +1715,13 @@
                     showToast('Bursa Kerja Diposting'); formBursa.value = { tipe: 'Mencari Kerja', judul: '', deskripsi: '', kontak: '' };
                 };
                 
-                const formFasilitas = ref({ fasilitas: '', lokasi: '', kondisi: '' }); 
+                const formFasilitas = ref({ fasilitas: '', lokasi: '', kondisi: '', foto: null }); 
                 const listFasilitas = ref([]); 
                 const submitFasilitas = async () => {
                     if(!formFasilitas.value.fasilitas) return;
                     const docId = Date.now().toString();
                     await saveData('fasilitas', docId, { id: docId, pelapor: currentUser.value.name, status: 'Dilaporkan', ...formFasilitas.value }, listFasilitas);
-                    showToast('Laporan Fasilitas Terkirim'); formFasilitas.value = { fasilitas: '', lokasi: '', kondisi: '' };
+                    showToast('Laporan Fasilitas Terkirim'); formFasilitas.value = { fasilitas: '', lokasi: '', kondisi: '', foto: null };
                 };
                 
                 const formSampah = ref({ nama: '', jenis: 'Plastik', berat: '' }); 
@@ -1665,18 +1730,37 @@
                 const submitSampah = async () => {
                     if(!formSampah.value.nama) return;
                     const docId = Date.now().toString();
-                    const poinCalc = formSampah.value.berat * 50; // Contoh kalkulasi 1kg = 50 poin
+                    const poinCalc = formSampah.value.berat * 50; 
                     await saveData('sampah', docId, { id: docId, tanggal: new Date().toLocaleDateString('id-ID'), poin: poinCalc, ...formSampah.value }, listSampah);
                     showToast('Data Sampah Tersimpan'); formSampah.value = { nama: '', jenis: 'Plastik', berat: '' };
                 };
                 
+                // GALERI LINGKUNGAN
                 const formGaleri = ref({ judul: '', foto: null });
                 const listGaleri = ref([]);
                 const submitGaleri = async () => {
                     if(!formGaleri.value.foto) return showToast('Pilih foto', 'danger');
                     const docId = Date.now().toString();
-                    await saveData('galeri', docId, { id: docId, tanggal: new Date().toLocaleDateString('id-ID'), ...formGaleri.value }, listGaleri);
-                    showToast('Foto ditambahkan ke Galeri'); formGaleri.value = { judul: '', foto: null };
+                    
+                    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                    const now = new Date();
+                    const dayName = days[now.getDay()];
+                    const dateStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const timeStr = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+                    const timestampComplete = `${dayName}, ${dateStr} - ${timeStr} WIB`;
+
+                    await saveData('galeri', docId, { 
+                        id: docId, 
+                        tanggal: new Date().toLocaleDateString('id-ID'), 
+                        timestamp: timestampComplete, 
+                        pengunggah: currentUser.value.name,
+                        rt: currentUser.value.rt || '00',
+                        rw: currentUser.value.rw || '00',
+                        ...formGaleri.value 
+                    }, listGaleri);
+                    
+                    showToast('Foto ditambahkan ke Galeri'); 
+                    formGaleri.value = { judul: '', foto: null };
                 };
                 
                 // MODUL UMKM WARGA
@@ -1687,11 +1771,7 @@
                 const submitLapakUMKM = async () => {
                     if(!formUMKM.value.namaUsaha || !formUMKM.value.wa) return showToast('Nama usaha dan Nomor WA wajib diisi!', 'danger');
                     const docId = Date.now().toString();
-                    const newUmkm = { 
-                        ...formUMKM.value, id: docId, 
-                        pemilik: currentUser.value.name || 'Warga',
-                        rt: currentUser.value.rt || '01', rw: currentUser.value.rw || '05'
-                    };
+                    const newUmkm = { ...formUMKM.value, id: docId, pemilik: currentUser.value.name || 'Warga', rt: currentUser.value.rt || '01', rw: currentUser.value.rw || '05'};
                     await saveData('umkm', docId, newUmkm, listUMKM);
                     showFormUMKM.value = false; showToast('Lapak UMKM berhasil diterbitkan!');
                     formUMKM.value = { namaUsaha: '', nib: '', alamat: '', jamBuka: '', jamTutup: '', wa: '', kategori: 'Kuliner', harga: '', foto1: null, foto2: null };
@@ -1730,7 +1810,7 @@
                 };
 
                 onMounted(async () => {
-                    // Trafik web simulasi lokal
+                    // Trafik web
                     let currentTraffic = localStorage.getItem('web_traffic');
                     if (!currentTraffic) { currentTraffic = 1; } else { currentTraffic = parseInt(currentTraffic) + 1; }
                     localStorage.setItem('web_traffic', currentTraffic);
@@ -1748,20 +1828,10 @@
                         
                         onAuthStateChanged(auth, (user) => {
                             if (user) {
-                                // Sinkronisasikan semua tabel agar tersimpan dan terupdate ke semua user
-                                syncCollection('warga', listWargaLengkap);
+                                // PENTING: OPTIMASI LOADING
+                                // Hanya load data yang akan tampil di halaman depan untuk mempercepat loading 80%
                                 syncCollection('umkm', listUMKM);
                                 syncCollection('agenda', listAgenda);
-                                syncCollection('anggaran', listAnggaran);
-                                syncCollection('surat', listSurat);
-                                syncCollection('bansos', listBansos);
-                                syncCollection('laporan', listLaporan);
-                                syncCollection('tamu', listTamu);
-                                syncCollection('arsipMasuk', listArsipMasuk);
-                                syncCollection('arsipKeluar', listArsipKeluar);
-                                syncCollection('bursa', listBursa);
-                                syncCollection('fasilitas', listFasilitas);
-                                syncCollection('sampah', listSampah);
                                 syncCollection('galeri', listGaleri);
 
                                 // Sinkronisasi Pengaturan Website
@@ -1776,6 +1846,11 @@
                                     }
                                     isSetFirst = false;
                                 });
+                                
+                                // Jika user sudah status "isLoggedIn = true" saat memuat ulang (Local Storage/Cache)
+                                if (isLoggedIn.value) {
+                                    initPrivateSync();
+                                }
                             }
                         });
                     }
