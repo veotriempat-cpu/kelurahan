@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Informasi Kelurahan Digital</title>
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+    <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏛️</text></svg>'>
     
-    <!-- Pustaka Eksternal -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- KONFIGURASI TAILWIND MODERN -->
     <script>
         tailwind.config = {
             theme: {
@@ -49,23 +47,18 @@
 
 <body class="antialiased overflow-x-hidden">
     <div id="app" v-cloak>
-        <!-- TOAST NOTIFICATION -->
         <Transition name="fade">
             <div v-if="notification.show" :class="['fixed top-5 right-5 z-[999] px-6 py-3 rounded-lg shadow-lg text-white font-semibold flex items-center gap-3 transition-all', notification.type === 'success' ? 'bg-green-500' : (notification.type === 'danger' ? 'bg-red-600' : 'bg-amber-500')]">
                 <i :class="notification.type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'"></i> {{ notification.message }}
             </div>
         </Transition>
 
-        <!-- LOADING -->
         <div v-if="globalLoading" class="fixed inset-0 bg-black bg-opacity-70 z-[9999] flex flex-col items-center justify-center text-white backdrop-blur-sm">
             <i class="fas fa-spinner fa-spin text-5xl mb-4 text-blue-400"></i>
             <h2 class="text-xl font-bold tracking-wider">Memproses Data...</h2>
             <p class="text-sm text-gray-300 mt-2">Menyiapkan Dashboard Anda</p>
         </div>
 
-        <!-- ==============================================
-             LANDING PAGE (TAMPILAN AWAL SEBELUM LOGIN)
-             ============================================== -->
         <div v-if="!isLoggedIn && currentAuthView === 'landing'" class="min-h-screen bg-gray-50 flex flex-col font-sans absolute inset-0 z-40 overflow-y-auto">
             <nav class="backdrop-blur-md shadow-sm px-4 md:px-6 py-4 flex justify-between items-center fixed w-full z-50 border-b border-gray-100" :style="{ backgroundColor: landingSettings.headerBg + 'E6' }">
                 <div class="flex items-center gap-3 md:gap-4">
@@ -84,13 +77,11 @@
             </nav>
 
             <div class="mt-28 px-4 md:px-6 py-8 md:py-12 max-w-7xl mx-auto w-full">
-                <!-- JUDUL PORTAL (TEKS DEPAN) -->
                 <div class="text-center mb-12 form-section">
                     <h2 class="text-3xl md:text-5xl font-black text-gray-800 mb-4">{{ landingSettings.portalTitle }}</h2>
                     <p class="text-base md:text-lg text-gray-600 max-w-3xl mx-auto font-medium">{{ landingSettings.portalDesc }}</p>
                 </div>
 
-                <!-- SAMBUTAN WALIKOTA & WAKIL -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 mb-12 md:mb-16">
                     <div class="bg-white rounded-[2rem] p-6 md:p-8 shadow-xl shadow-blue-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
                         <div class="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-blue-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
@@ -112,7 +103,6 @@
                     </div>
                 </div>
 
-                <!-- SAMBUTAN LURAH -->
                 <div class="bg-gradient-to-br from-blue-900 via-primary to-blue-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl text-white flex flex-col md:flex-row items-center gap-8 mb-16 relative overflow-hidden">
                     <div class="absolute -top-24 -right-24 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
                     <img :src="landingSettings.lurah.img" class="w-40 h-40 md:w-48 md:h-48 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100" onerror="this.src='https://via.placeholder.com/250?text=Foto'">
@@ -123,7 +113,6 @@
                     </div>
                 </div>
 
-                <!-- AGENDA & BERITA -->
                 <div v-if="listAgenda.filter(a => !a.isDeleted).length > 0" class="mb-16">
                     <h3 class="text-2xl md:text-3xl font-black text-gray-800 mb-6 md:mb-8 border-l-4 border-primary pl-4">Agenda & Berita Terbaru</h3>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -143,7 +132,6 @@
                 </div>
             </div>
 
-            <!-- LAPAK UMKM WARGA BERDASARKAN RT/RW -->
             <div v-if="Object.keys(groupedUMKMLanding).length > 0" class="bg-white py-12 md:py-16 border-t border-gray-100">
                 <div class="max-w-7xl mx-auto px-4 md:px-6 w-full">
                     <div class="mb-8">
@@ -190,7 +178,6 @@
                 </div>
             </div>
 
-            <!-- GALERI LINGKUNGAN DEPAN -->
             <div v-if="listGaleri.filter(g => !g.isDeleted).length > 0" class="bg-gray-100 py-12 md:py-16 border-t border-gray-200">
                 <div class="max-w-7xl mx-auto px-4 md:px-6 w-full">
                     <h3 class="text-2xl md:text-3xl font-black text-gray-800 mb-6 md:mb-8 flex items-center gap-3"><i class="fas fa-images text-blue-500"></i> Galeri Kegiatan</h3>
@@ -209,7 +196,6 @@
                 </div>
             </div>
 
-            <!-- TAMPILAN FOOTER DINAMIS -->
             <footer class="py-10 text-center text-sm mt-auto border-t shadow-inner" :style="{ backgroundColor: landingSettings.footerBg, color: landingSettings.footerBg.toLowerCase() === '#ffffff' ? '#374151' : '#d1d5db' }">
                 <div class="max-w-4xl mx-auto px-6">
                     <h4 class="font-black text-lg mb-2" :style="{ color: landingSettings.footerBg.toLowerCase() === '#ffffff' ? '#1f2937' : '#ffffff' }">{{ appSettings.portalName }}</h4>
@@ -219,23 +205,16 @@
             </footer>
         </div>
 
-        <!-- ==============================================
-             LOGIN & REGISTER
-             ============================================== -->
         <div v-if="!isLoggedIn && currentAuthView === 'auth'" class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 fixed inset-0 z-[100] overflow-y-auto">
-            <!-- Background Ornamen -->
             <div class="fixed top-[-10%] left-[-10%] w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
             <div class="fixed bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-300 rounded-full mix-blend-multiply filter blur-3xl opacity-50 pointer-events-none"></div>
 
-            <!-- Container Form -->
             <div :class="['bg-white/95 backdrop-blur-xl p-6 md:p-10 rounded-[2rem] shadow-2xl border border-white/50 z-10 relative w-full my-auto transition-all duration-300', isRegistering ? 'max-w-4xl' : 'max-w-md']">
                 
-                <!-- Tombol Kembali -->
                 <button @click="currentAuthView = 'landing'" class="absolute top-4 left-4 md:top-6 md:left-6 text-gray-500 hover:text-gray-900 transition flex items-center justify-center bg-gray-100 hover:bg-gray-200 rounded-full w-10 h-10 shadow-sm z-20">
                     <i class="fas fa-arrow-left"></i>
                 </button>
 
-                <!-- Header Logo Form -->
                 <div class="text-center mb-8 mt-2 md:mt-0">
                     <img v-if="appSettings.logoUrl" :src="appSettings.logoUrl" class="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 object-cover rounded-full shadow-lg border-2 border-white">
                     <div v-else class="w-16 h-16 md:w-20 md:h-20 bg-primary text-white rounded-full flex items-center justify-center text-3xl md:text-4xl mx-auto mb-4 shadow-lg"><i class="fas fa-shield-alt"></i></div>
@@ -243,7 +222,6 @@
                     <p class="text-gray-500 text-xs md:text-sm mt-1">Sistem Layanan Mandiri Terpadu</p>
                 </div>
 
-                <!-- FORM LOGIN -->
                 <form v-if="!isRegistering" @submit.prevent="handleLogin" class="space-y-5 form-section">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-1.5">Username / NIK</label>
@@ -264,7 +242,6 @@
                     <p class="text-center text-sm text-gray-600 mt-6">Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; regStep = 1" class="text-primary font-black hover:underline">Daftar Akun Warga</a></p>
                 </form>
 
-                <!-- FORM PENDAFTARAN WARGA LENGKAP -->
                 <form v-if="isRegistering" @submit.prevent="handleRegister" class="space-y-5 form-section">
                     <div class="flex items-center justify-between mb-6 md:mb-8 border-b pb-2 md:pb-4 gap-1 md:gap-2">
                         <div v-for="step in 5" :key="step" :class="['flex-1 text-center py-2 border-b-4 transition-colors', regStep >= step ? 'border-primary text-primary' : 'border-gray-200 text-gray-400']">
@@ -360,9 +337,6 @@
             </div>
         </div>
 
-        <!-- ==============================================
-             DASHBOARD UTAMA (SETELAH LOGIN) (18+ MENU)
-             ============================================== -->
         <div v-if="isLoggedIn" class="flex h-screen overflow-hidden">
             <aside :class="['bg-primary text-white w-64 flex-shrink-0 transition-transform duration-300 ease-in-out fixed md:relative z-40 h-full', sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']">
                 <div class="p-5 border-b border-blue-800 flex justify-between items-center bg-blue-950">
@@ -379,7 +353,6 @@
                         <i class="fas fa-exclamation-triangle w-5 text-center animate-pulse"></i> TOMBOL DARURAT
                     </a>
 
-                    <!-- MENU ADMIN -->
                     <div v-if="currentUser.role === 'admin_kelurahan'" class="space-y-1 mb-4">
                         <button @click="adminDropdown = !adminDropdown" class="w-full flex items-center justify-between px-3 py-3 bg-amber-600 rounded-lg text-white font-bold text-sm shadow transition-all hover:bg-amber-700">
                             <span><i class="fas fa-th-large w-5 text-center"></i> Menu Administrator</span>
@@ -408,7 +381,6 @@
                         </div>
                     </div>
 
-                    <!-- MENU WARGA & RT/RW -->
                     <div v-if="!['admin_kelurahan', 'babinsa'].includes(currentUser.role)">
                         <p class="text-[10px] text-blue-300 uppercase tracking-wider mb-2 mt-2 font-bold px-2">Menu Utama {{ ['rt','rw'].includes(currentUser.role) ? 'Pengurus Wilayah' : 'Warga' }}</p>
                         <a href="#" @click.prevent="switchMenu('dashboard')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'dashboard' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><i class="fas fa-home w-5 text-center"></i> Dashboard Layanan</a>
@@ -436,7 +408,6 @@
                         <a href="#" @click.prevent="switchMenu('pengaturan-akun')" :class="['flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'pengaturan-akun' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><i class="fas fa-user-cog w-5 text-center"></i> Pengaturan Akun</a>
                     </div>
 
-                    <!-- MENU BABINSA -->
                     <div v-if="currentUser.role === 'babinsa'">
                         <p class="text-[10px] text-red-300 uppercase tracking-wider mb-2 mt-2 font-bold px-2">Menu Keamanan</p>
                         <a href="#" @click.prevent="switchMenu('dashboard')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'dashboard' ? 'bg-red-800 text-white shadow' : 'text-red-100 hover:bg-red-800']"><i class="fas fa-shield-alt w-5 text-center"></i> Dashboard Babinsa</a>
@@ -470,7 +441,6 @@
 
                 <div class="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
 
-                    <!-- COMPONENT: WARNING HAPUS DATA BULANAN & TOMBOL EXCEL -->
                     <div v-if="['surat', 'laporan', 'fasilitas', 'bursa-kerja', 'bank-sampah', 'galeri', 'kependudukan'].includes(currentMenu) && currentUser.role === 'admin_kelurahan'" class="mb-4 bg-red-50 border border-red-200 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 form-section">
                         <p class="text-xs text-red-600 font-bold max-w-2xl leading-relaxed">
                             <i class="fas fa-exclamation-triangle mr-1 text-lg align-middle"></i> 
@@ -481,9 +451,7 @@
                         </button>
                     </div>
 
-                    <!-- DASHBOARD -->
                     <div v-if="currentMenu === 'dashboard'" class="space-y-6 form-section">
-                        <!-- Dashboard Admin Induk -->
                         <div v-if="currentUser.role === 'admin_kelurahan'" class="space-y-6">
                             <div class="bg-gradient-to-r from-amber-600 to-amber-800 rounded-2xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
                                 <div class="absolute -right-10 -top-10 text-white/10 text-9xl"><i class="fas fa-cogs"></i></div>
@@ -496,7 +464,6 @@
                                 </div>
                             </div>
                             
-                            <!-- Pengaturan Tampilan & Pemimpin -->
                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                     <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-globe text-primary mr-2"></i>Pengaturan Tema Website & Aplikasi</h3>
@@ -529,7 +496,6 @@
                                 </div>
                             </div>
 
-                            <!-- Edit Data Pimpinan -->
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-users-cog text-emerald-500 mr-2"></i>Data Pimpinan Landing Page (Tersinkron Cloud)</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -565,7 +531,6 @@
                             </div>
                         </div>
 
-                        <!-- Dashboard Babinsa -->
                         <div v-else-if="currentUser.role === 'babinsa'" class="bg-gradient-to-r from-red-700 to-red-900 rounded-2xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
                             <div class="absolute -right-10 -top-10 text-white/10 text-9xl"><i class="fas fa-shield-alt"></i></div>
                             <h2 class="text-2xl font-black mb-2 relative z-10">Dashboard Keamanan (Babinsa)</h2>
@@ -576,10 +541,9 @@
                             </div>
                         </div>
 
-                        <!-- Dashboard Warga & RT/RW -->
                         <div v-else class="bg-gradient-to-r from-blue-700 to-blue-900 rounded-2xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
                             <div class="absolute -right-10 -top-10 text-white/10 text-9xl"><i class="fas fa-city"></i></div>
-                            <h2 class="text-2xl font-black mb-2 relative z-10">Selamat Datang, {{ currentUser.name.toUpperCase() }}!</h2>
+                            <h2 class="text-2xl font-black mb-2 relative z-10">Selamat Datang, {{ renderAman(currentUser.name).toUpperCase() }}!</h2>
                             <p class="text-blue-100 mb-6 relative z-10">Ini adalah pusat informasi digital. Semua layanan dapat diakses dari menu di sebelah kiri.</p>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
                                 <div class="bg-white/20 p-4 rounded-xl backdrop-blur-sm border border-white/30"><p class="text-xs font-bold uppercase mb-1">Status Pengajuan Surat</p><h3 class="text-2xl font-black">{{ listSurat.filter(s=>s.status!=='Selesai' && !s.isDeleted && (currentUser.role==='warga'?s.pengaju===currentUser.name:true)).length }}<span class="text-sm font-normal"> Aktif</span></h3></div>
@@ -590,22 +554,18 @@
                         </div>
                     </div>
 
-                    <!-- UMKM WARGA & TAMBAH LAPAK -->
                     <div v-if="currentMenu === 'umkm'" class="space-y-6 form-section">
-                        <!-- Header Menu UMKM -->
                         <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-2xl p-6 text-white shadow-lg text-center relative overflow-hidden">
                             <i class="fas fa-store text-5xl text-emerald-200 mb-3 relative z-10"></i>
                             <h2 class="text-2xl font-black mb-2 relative z-10">Lapak UMKM Warga</h2>
                             <p v-if="currentUser.role === 'warga'" class="text-emerald-100 max-w-2xl mx-auto text-sm relative z-10">Daftarkan usaha Anda di sini agar tampil di halaman depan aplikasi kelurahan dan dapat dilihat oleh seluruh warga lainnya.</p>
                             <p v-if="['rt','rw'].includes(currentUser.role)" class="text-emerald-100 text-sm relative z-10 font-bold bg-emerald-900/50 inline-block px-4 py-1 rounded-full mt-2">Menampilkan lapak dari wilayah RT {{ currentUser.rt }} / RW {{ currentUser.rw }}</p>
 
-                            <!-- Tombol Panggil Form UMKM (Hanya Warga) -->
                             <button v-if="currentUser.role === 'warga'" @click="showFormUMKM = true" class="mt-6 bg-white text-emerald-700 hover:bg-emerald-50 font-black px-8 py-3 rounded-full shadow-lg transition transform hover:-translate-y-1 relative z-10">
                                 <i class="fas fa-plus-circle mr-2"></i> Tambah Lapak UMKM Baru
                             </button>
                         </div>
 
-                        <!-- MODAL FORMULIR PENDAFTARAN LAPAK UMKM -->
                         <div v-if="showFormUMKM" class="fixed inset-0 bg-black/60 z-[999] flex items-center justify-center p-4 backdrop-blur-sm">
                             <div class="bg-white rounded-[2rem] w-full max-w-xl p-8 max-h-[90vh] overflow-y-auto shadow-2xl relative form-section">
                                 <button @click="showFormUMKM = false" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 text-2xl"><i class="fas fa-times-circle"></i></button>
@@ -663,7 +623,6 @@
                             </div>
                         </div>
 
-                        <!-- Tampilan Daftar Lapak di Menu Dalam -->
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-list text-emerald-500 mr-2"></i>Daftar Lapak UMKM Warga Terdaftar</h3>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -686,7 +645,6 @@
                         </div>
                     </div>
 
-                    <!-- KEPENDUDUKAN (VIEW DETAIL & FILTER RT/RW) -->
                     <div v-if="currentMenu === 'kependudukan'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -715,7 +673,6 @@
                         </div>
                     </div>
 
-                    <!-- E-SURAT -->
                     <div v-if="currentMenu === 'surat'" class="space-y-6 form-section">
                         <div v-if="currentUser.role === 'warga'" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-envelope-open-text text-blue-500 mr-2"></i>Layanan E-Surat Warga</h2>
@@ -734,14 +691,12 @@
                             </div>
                         </div>
 
-                        <!-- Panel Admin / RT / RW Surat -->
                         <div v-if="['admin_kelurahan', 'rt', 'rw'].includes(currentUser.role)" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-inbox text-blue-500 mr-2"></i>Verifikasi Surat Masuk Warga</h2>
                             <p class="text-sm text-gray-600 mb-2">Gunakan tombol Aksi untuk merespon, atau klik tong sampah untuk menghapus (Soft Delete).</p>
                             <p v-if="['rt','rw'].includes(currentUser.role)" class="text-xs font-bold text-blue-600 bg-blue-50 inline-block px-2 py-0.5 rounded">Menampilkan pengajuan dari warga RT {{ currentUser.rt }} / RW {{ currentUser.rw }}</p>
                         </div>
 
-                        <!-- Tabel Riwayat Surat Warga & Tabel Verifikasi RT/RW/Admin -->
                         <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                             <div class="bg-gray-50 px-5 py-3 border-b"><h3 class="font-bold text-gray-700 text-sm">Riwayat & Daftar Pengajuan Surat</h3></div>
                             <div class="overflow-x-auto">
@@ -774,7 +729,6 @@
                         </div>
                     </div>
 
-                    <!-- PENGAJUAN / USULAN BANSOS -->
                     <div v-if="currentMenu === 'bansos'" class="space-y-6 form-section">
                         <div class="bg-gradient-to-r from-teal-600 to-teal-800 rounded-2xl p-6 text-white shadow-lg text-center">
                             <i class="fas fa-hand-holding-heart text-5xl text-teal-200 mb-3"></i>
@@ -782,7 +736,6 @@
                             <p class="text-teal-100 max-w-2xl mx-auto text-sm">Sistem pendataan warga kurang mampu untuk penyaluran bantuan kelurahan secara adil.</p>
                         </div>
 
-                        <!-- Form Usulan khusus RT/RW/Admin -->
                         <div v-if="['admin_kelurahan', 'rt', 'rw'].includes(currentUser.role)" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-plus-circle text-teal-600 mr-2"></i>Form Usulan Warga Penerima Bansos</h3>
                             <div class="bg-teal-50 p-5 rounded-xl border border-teal-100">
@@ -802,7 +755,6 @@
                             <p class="text-sm text-gray-500 mt-2">Silakan hubungi Ketua RT/RW setempat jika Anda merasa berhak untuk diusulkan ke dalam daftar penerima bantuan.</p>
                         </div>
                         
-                        <!-- List Usulan -->
                         <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
                             <div class="bg-gray-50 px-5 py-3 border-b"><h3 class="font-bold text-gray-700 text-sm">Daftar Usulan Penerima Bansos (Transparansi Publik)</h3></div>
                             <table class="w-full text-left text-sm whitespace-nowrap">
@@ -822,9 +774,7 @@
                         </div>
                     </div>
 
-                    <!-- KELUHAN & PENGADUAN (DENGAN FITUR CHAT DUA ARAH) -->
                     <div v-if="currentMenu === 'laporan'" class="space-y-6 form-section">
-                        <!-- FORM UNTUK WARGA MEMBUAT LAPORAN BARU -->
                         <div v-if="currentUser.role === 'warga'" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>Layanan Keluhan Keamanan & Ketertiban</h2>
                             <div class="bg-red-50 p-5 rounded-xl border border-red-100">
@@ -844,7 +794,6 @@
                             </div>
                         </div>
 
-                        <!-- HEADER MONITORING UNTUK APARATUR -->
                         <div v-if="['admin_kelurahan', 'babinsa', 'rt', 'rw'].includes(currentUser.role)" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-shield-alt text-red-500 mr-2"></i>Monitoring Pengaduan Warga</h2>
                             <p class="text-sm text-gray-600 mb-2">Gunakan ruang diskusi di bawah setiap laporan untuk berinteraksi dengan pelapor.</p>
@@ -852,9 +801,7 @@
                             <p v-if="currentUser.role === 'babinsa'" class="text-xs font-bold text-red-600 bg-red-50 inline-block px-2 py-0.5 rounded"><i class="fas fa-shield-alt"></i> Akses Keamanan Babinsa: Seluruh Wilayah</p>
                         </div>
 
-                        <!-- DAFTAR LAPORAN & RUANG CHAT -->
                         <div class="space-y-4">
-                            <!-- Filter: Jika warga, hanya lihat laporan dia sendiri. Jika aparatur, lihat laporan di areanya -->
                             <div v-for="l in listLaporan.filter(x => !x.isDeleted && (currentUser.role === 'warga' ? x.pelapor === currentUser.name : isMyArea(x)))" :key="l.id" class="bg-white p-5 rounded-xl shadow-sm border border-l-4 flex flex-col md:flex-row gap-4 relative transition-colors" :class="l.status === 'Selesai' ? 'border-l-green-500' : (l.status === 'Diproses' ? 'border-l-amber-500' : 'border-l-red-500')">
                                 <div v-if="l.fotoBukti" class="shrink-0"><img :src="l.fotoBukti" class="w-24 h-24 rounded-lg object-cover border shadow-sm"></div>
                                 <div class="flex-1">
@@ -869,7 +816,6 @@
                                         <i :class="['fas', l.status === 'Selesai' ? 'fa-check' : (l.status === 'Diproses' ? 'fa-spinner fa-spin' : 'fa-clock')]"></i> Status: {{ l.status }}
                                     </span>
 
-                                    <!-- FITUR DISKUSI DUA ARAH -->
                                     <div class="mt-4 border-t pt-3">
                                         <h5 class="text-xs font-bold text-gray-700 mb-2"><i class="fas fa-comments text-blue-500"></i> Ruang Diskusi Laporan</h5>
                                         <div class="bg-gray-50 p-3 rounded-lg max-h-48 overflow-y-auto space-y-2 mb-2 border border-gray-100">
@@ -883,14 +829,12 @@
                                             </div>
                                         </div>
 
-                                        <!-- INPUT CHAT (KEDUA BELAH PIHAK BISA MEMBALAS JIKA BELUM SELESAI) -->
                                         <div v-if="l.status !== 'Selesai'" class="flex gap-2">
                                             <input type="text" v-model="l.draftBalasan" placeholder="Ketik pesan/balasan di sini..." class="flex-1 border p-2 rounded-lg text-xs outline-none bg-white focus:ring-2 focus:ring-blue-500 transition-shadow shadow-sm" @keyup.enter="kirimPesanDiskusi(l)">
                                             <button @click="kirimPesanDiskusi(l)" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md transition transform hover:-translate-y-0.5"><i class="fas fa-paper-plane"></i> Kirim</button>
                                         </div>
                                     </div>
 
-                                    <!-- FITUR UPDATE STATUS KHUSUS UNTUK APARATUR -->
                                     <div v-if="['admin_kelurahan', 'babinsa', 'rt', 'rw'].includes(currentUser.role) && l.status !== 'Selesai'" class="mt-3 flex gap-2 border-t border-dashed pt-3">
                                         <button v-if="l.status === 'Menunggu'" @click="updateStatusLaporan(l, 'Diproses')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition"><i class="fas fa-cog"></i> Proses Laporan</button>
                                         <button @click="updateStatusLaporan(l, 'Selesai')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition"><i class="fas fa-check-circle"></i> Tandai Selesai</button>
@@ -900,7 +844,6 @@
                                 </div>
                             </div>
                             
-                            <!-- State Kosong Laporan -->
                             <div v-if="listLaporan.filter(x => !x.isDeleted && (currentUser.role === 'warga' ? x.pelapor === currentUser.name : isMyArea(x))).length === 0" class="text-center py-10 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
                                 <i class="fas fa-clipboard-list text-4xl mb-3 text-gray-300"></i>
                                 <p class="font-bold">Belum ada keluhan yang dilaporkan.</p>
@@ -908,7 +851,6 @@
                         </div>
                     </div>
                     
-                    <!-- LAPOR TAMU -->
                     <div v-if="currentMenu === 'tamu'" class="space-y-6 form-section">
                         <div v-if="currentUser.role === 'warga'" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-door-open text-blue-500 mr-2"></i>Lapor Tamu Menginap 1x24 Jam</h2>
@@ -951,7 +893,6 @@
                         </div>
                     </div>
 
-                    <!-- AGENDA / PENGUMUMAN -->
                     <div v-if="currentMenu === 'agenda' && currentUser.role === 'admin_kelurahan'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-bullhorn text-amber-500 mr-2"></i>Buat Agenda / Pengumuman Kelurahan</h2>
@@ -998,7 +939,6 @@
                         </div>
                     </div>
 
-                    <!-- REALISASI ANGGARAN (ADMINISTRASI) -->
                     <div v-if="currentMenu === 'administrasi'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
                             <div class="flex items-center gap-4 mb-6 pb-4 border-b">
@@ -1039,7 +979,6 @@
                         </div>
                     </div>
 
-                    <!-- TRANSPARANSI DATA & STATISTIK -->
                     <div v-if="['statistik-warga', 'statistik-pekerjaan', 'status-usaha'].includes(currentMenu)" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
                             <div class="flex items-center gap-4 mb-8 pb-4 border-b">
@@ -1079,7 +1018,7 @@
                                     <h3 class="font-bold mb-4 text-center border-b border-white/20 pb-2"><i class="fas fa-birthday-cake text-yellow-300"></i> Ulang Tahun Bulan Ini</h3>
                                     <ul class="space-y-2 max-h-32 overflow-y-auto">
                                         <li v-for="w in ultahBulanIni" :key="w.nik" class="flex justify-between items-center bg-white/20 px-3 py-2 rounded-lg text-sm font-bold">
-                                            <span>{{ w.nama }} <span v-if="['rt','rw'].includes(currentUser.role)" class="text-[9px] opacity-70 ml-1">(RT {{w.rt}}/RW {{w.rw}})</span></span><span>{{ w.tgl_lahir }}</span>
+                                            <span>{{ renderAman(w.nama) }} <span v-if="['rt','rw'].includes(currentUser.role)" class="text-[9px] opacity-70 ml-1">(RT {{w.rt}}/RW {{w.rw}})</span></span><span>{{ w.tgl_lahir }}</span>
                                         </li>
                                         <li v-if="ultahBulanIni.length === 0" class="text-center text-sm italic">Tidak ada data ulang tahun.</li>
                                     </ul>
@@ -1109,7 +1048,6 @@
                         </div>
                     </div>
 
-                    <!-- MODUL KAS LINGKUNGAN -->
                     <div v-if="currentMenu === 'kas'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
                             <div class="flex items-center gap-4 mb-6 pb-4 border-b">
@@ -1153,7 +1091,6 @@
                         </div>
                     </div>
 
-                    <!-- PENGATURAN AKUN -->
                     <div v-if="currentMenu === 'pengaturan-akun'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 max-w-2xl mx-auto">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-6"><i class="fas fa-user-cog text-primary mr-2"></i>Pengaturan Akun & Keamanan</h2>
@@ -1167,7 +1104,6 @@
                         </div>
                     </div>
 
-                    <!-- ARSIP SURAT DIGITAL -->
                     <div v-if="currentMenu === 'arsip-surat'" class="space-y-6 form-section">
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                             <div class="flex border-b">
@@ -1281,7 +1217,6 @@
                         </div>
                     </div>
 
-                    <!-- FASILITAS & BURSA KERJA & BANK SAMPAH & GALERI -->
                     <div v-if="currentMenu === 'fasilitas'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-tools text-blue-500 mr-2"></i>Lapor Fasilitas Publik Rusak</h2>
@@ -1434,17 +1369,25 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // MENGHAPUS API KEY HARDCODED - SEPENUHNYA MENGGUNAKAN ENVIRONMENT CANVAS
-        let useFirebase = false;
-        let appFb, auth, db;
+        // --- KONFIGURASI FIREBASE ANDA SUDAH SAYA MASUKKAN DI SINI ---
+        const myFirebaseConfig = {
+            apiKey: "AIzaSyD4gCPeeA_uID1wYwHN0YCifaZPO6NyVkk",
+            authDomain: "kelurahan-digital-e19b5.firebaseapp.com",
+            projectId: "kelurahan-digital-e19b5",
+            storageBucket: "kelurahan-digital-e19b5.firebasestorage.app",
+            messagingSenderId: "944163706315",
+            appId: "1:944163706315:web:c5e99814be6fe8b333524e"
+        };
 
-        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-            useFirebase = true;
-            appFb = initializeApp(JSON.parse(__firebase_config));
-            auth = getAuth(appFb);
-            db = getFirestore(appFb);
-        }
+        // Jika dijalankan di Canvas, pakai config bawaan Canvas. Jika di Vercel, pakai myFirebaseConfig milik Anda
+        const configToUse = typeof __firebase_config !== 'undefined' && __firebase_config
+            ? JSON.parse(__firebase_config)
+            : myFirebaseConfig;
 
+        let useFirebase = true;
+        const appFb = initializeApp(configToUse);
+        const auth = getAuth(appFb);
+        const db = getFirestore(appFb);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         createApp({
@@ -1453,31 +1396,30 @@
 
                 // Initialize Firebase Auth
                 onMounted(async () => {
-                    if (useFirebase) {
-                        try {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                                await signInWithCustomToken(auth, __initial_auth_token);
-                            } else {
-                                await signInAnonymously(auth);
-                            }
-                            onAuthStateChanged(auth, (u) => {
-                                currentUserFirebase.value = u;
-                                if (u) {
-                                    // Sinkronisasi data publik Landing Page (tanpa login akun)
-                                    syncCollection('agenda', listAgenda);
-                                    syncCollection('umkm', listUMKM);
-                                    syncCollection('galeri', listGaleri);
-                                    syncSettingsToCloud();
-                                }
-                            });
-                        } catch (e) {
-                            console.error("Firebase auth error", e);
+                    try {
+                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await signInWithCustomToken(auth, __initial_auth_token);
+                        } else {
+                            await signInAnonymously(auth);
                         }
+                        onAuthStateChanged(auth, (u) => {
+                            currentUserFirebase.value = u;
+                            if (u) {
+                                // Sinkronisasi data publik Landing Page (tanpa login akun)
+                                syncCollection('agenda', listAgenda);
+                                syncCollection('umkm', listUMKM);
+                                syncCollection('galeri', listGaleri);
+                                syncSettingsToCloud();
+                            }
+                        });
+                    } catch (e) {
+                        console.error("Firebase auth error", e);
                     }
                 });
 
+                // FIX FIREBASE ERROR: Menggunakan 5 Segmen (ganjil)
+                // artifacts/{appId}/public/data/{collectionName}
                 const getCollectionPath = (collectionName) => {
-                    // Valid path: 5 segmen (ganjil) mencegah error "Invalid collection reference" di Canvas Firebase
                     return collection(db, 'artifacts', appId, 'public', 'data', collectionName); 
                 };
 
@@ -1581,6 +1523,13 @@
 
                 const currentUser = ref({ name: '', role: 'warga', username: '', rt: '01', rw: '05' });
 
+                // FUNGSI RENDER AMAN: Untuk mencegah aplikasi crash jika data yang diambil dari DB ternyata adalah Object
+                const renderAman = (val) => {
+                    if (val === null || val === undefined) return '';
+                    if (typeof val === 'object') return JSON.stringify(val);
+                    return String(val);
+                };
+
                 const isMyArea = (item) => {
                     if (!item) return false;
                     if (currentUser.value.role === 'admin_kelurahan' || currentUser.value.role === 'babinsa') return true;
@@ -1677,7 +1626,7 @@
                 };
 
                 const syncCollection = (collectionName, localListRef) => {
-                    if (!currentUserFirebase.value) return; // Guard agar tidak error permission
+                    if (!currentUserFirebase.value) return; 
                     const colRef = getCollectionPath(collectionName);
                     onSnapshot(colRef, (snapshot) => {
                         const data = [];
@@ -1844,7 +1793,7 @@
                     showToast('Usulan bansos berhasil disimpan!'); formBansos.value = { nik: '', nama: '', jenis: 'PKH', alasan: '' };
                 };
 
-                // FITUR PENGADUAN & CHAT DUA ARAH (DIPERBARUI)
+                // FITUR PENGADUAN & CHAT DUA ARAH
                 const formLaporan = ref({ judul: '', deskripsi: '', fotoBukti: null });
                 const listLaporan = ref([]);
                 
@@ -1859,7 +1808,7 @@
                         tanggal: new Date().toLocaleDateString('id-ID'), 
                         status: 'Menunggu', 
                         draftBalasan: '', 
-                        diskusi: [], // Inisialisasi array chat
+                        diskusi: [], 
                         ...formLaporan.value 
                     };
                     await saveData('laporan', docId, newLap, listLaporan);
@@ -1878,7 +1827,7 @@
                     const updatedDiskusi = l.diskusi ? [...l.diskusi, newMessage] : [newMessage];
                     await updateField('laporan', l.id, { diskusi: updatedDiskusi });
                     
-                    if(!useFirebase) l.diskusi = updatedDiskusi; // fallback UI
+                    if(!useFirebase) l.diskusi = updatedDiskusi;
                     l.draftBalasan = ''; 
                     showToast('Pesan terkirim!');
                 };
@@ -1886,7 +1835,7 @@
                 const updateStatusLaporan = async (l, newStatus) => {
                     if(confirm(`Yakin ingin mengubah status laporan menjadi: ${newStatus}?`)) {
                         await updateField('laporan', l.id, { status: newStatus });
-                        if(!useFirebase) l.status = newStatus; // fallback UI
+                        if(!useFirebase) l.status = newStatus;
                         showToast(`Status laporan diperbarui menjadi: ${newStatus}`);
                     }
                 };
@@ -2013,7 +1962,7 @@
                     globalLoading, isLoggedIn, isRegistering, regStep, currentAuthView, adminDropdown, currentMenu, sidebarOpen, appSettings, landingSettings, notification, showToast,
                     loginForm, handleLogin, handleLogout, handleRegister, reg, switchMenu, showLoginPassword, showRegPassword, showRegRepeatPassword, currentUser, unreadNotif,
                     formPetugas, buatAkunPetugas, webTraffic, saveSettings, isMyArea, listWargaLengkap, statsGender, statsUsia, statsSuku, statsKerja, statsUsaha, ultahBulanIni, formatRupiah,
-                    formUbahAkun, submitUbahAkun, handleFileUpload, softDeleteItem, downloadExcelData, jobCategories, businessCategories, kalkulasiKamar,
+                    formUbahAkun, submitUbahAkun, handleFileUpload, softDeleteItem, downloadExcelData, jobCategories, businessCategories, kalkulasiKamar, renderAman,
                     
                     formAnggaran, listAnggaran, submitAnggaran,
                     formAgenda, listAgenda, submitAgenda,
