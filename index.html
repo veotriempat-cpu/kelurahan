@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Informasi Kelurahan Digital</title>
     
-    <!-- FIX BUG VATIVON/FAVICON -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
     
     <!-- Pustaka Eksternal -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <!-- KONFIGURASI TAILWIND MODERN -->
     <script>
@@ -44,16 +42,9 @@
         .animate-foto-1 { animation: crossfade 6s infinite; }
         .animate-foto-2 { animation: crossfade 6s infinite; animation-delay: 3s; opacity: 0; }
         
-        /* Utility HP untuk menyembunyikan scrollbar di menu pendaftaran */
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
-
-    <!-- KEAMANAN FRONTEND -->
-    <script>
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) return false; };
-    </script>
 </head>
 
 <body class="antialiased overflow-x-hidden">
@@ -273,7 +264,7 @@
                     <p class="text-center text-sm text-gray-600 mt-6">Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; regStep = 1" class="text-primary font-black hover:underline">Daftar Akun Warga</a></p>
                 </form>
 
-                <!-- FORM PENDAFTARAN WARGA -->
+                <!-- FORM PENDAFTARAN WARGA LENGKAP -->
                 <form v-if="isRegistering" @submit.prevent="handleRegister" class="space-y-5 form-section">
                     <div class="flex items-center justify-between mb-6 md:mb-8 border-b pb-2 md:pb-4 gap-1 md:gap-2">
                         <div v-for="step in 5" :key="step" :class="['flex-1 text-center py-2 border-b-4 transition-colors', regStep >= step ? 'border-primary text-primary' : 'border-gray-200 text-gray-400']">
@@ -326,8 +317,23 @@
                         <h3 class="text-base md:text-lg font-bold text-gray-800 mb-4 bg-gray-50 p-3 rounded-lg border"><i class="fas fa-briefcase text-primary mr-2"></i>Pekerjaan, Penghasilan & Usaha</h3>
                         <div class="grid grid-cols-1 gap-4">
                             <div><label class="block text-xs font-bold mb-1">Rentang Penghasilan / Bulan</label><select v-model="reg.penghasilan" class="w-full border border-gray-300 p-3 md:p-2 rounded-lg text-base md:text-sm bg-white"><option value="< 1 juta">< 1 juta</option><option value="1 - 3 juta">1 - 3 juta</option><option value="3 - 5 juta">3 - 5 juta</option><option value="> 5 juta">> 5 juta</option></select></div>
-                            <div class="p-4 border border-gray-200 rounded-xl bg-gray-50"><label class="block text-sm font-bold text-primary mb-2">Pilih Pekerjaan Utama</label><select v-model="reg.pekerjaan" class="w-full border border-gray-300 p-3 md:p-2.5 rounded-lg text-base md:text-sm bg-white font-semibold outline-none"><option value="">-- Pilih Pekerjaan --</option><optgroup v-for="(group, key) in jobCategories" :key="key" :label="key"><option v-for="job in group" :key="job" :value="job">{{ job }}</option></optgroup></select></div>
-                            <div class="p-4 border border-gray-200 rounded-xl bg-gray-50"><label class="block text-sm font-bold text-primary mb-2">Apakah Anda Memiliki Usaha/UMKM?</label><select v-model="reg.usaha" class="w-full border border-gray-300 p-3 md:p-2.5 rounded-lg text-base md:text-sm bg-white font-semibold outline-none"><option value="Tidak Ada">Tidak Memiliki Usaha</option><optgroup v-for="(group, key) in businessCategories" :key="key" :label="key"><option v-for="biz in group" :key="biz" :value="biz">{{ biz }}</option></optgroup></select>
+                            <div class="p-4 border border-gray-200 rounded-xl bg-gray-50">
+                                <label class="block text-sm font-bold text-primary mb-2">Pilih Pekerjaan Utama Lengkap</label>
+                                <select v-model="reg.pekerjaan" class="w-full border border-gray-300 p-3 md:p-2.5 rounded-lg text-base md:text-sm bg-white font-semibold outline-none">
+                                    <option value="">-- Pilih Pekerjaan --</option>
+                                    <optgroup v-for="(group, key) in jobCategories" :key="key" :label="key">
+                                        <option v-for="job in group" :key="job" :value="job">{{ job }}</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-xl bg-gray-50">
+                                <label class="block text-sm font-bold text-primary mb-2">Apakah Anda Memiliki Usaha/UMKM?</label>
+                                <select v-model="reg.usaha" class="w-full border border-gray-300 p-3 md:p-2.5 rounded-lg text-base md:text-sm bg-white font-semibold outline-none">
+                                    <option value="Tidak Ada">Tidak Memiliki Usaha</option>
+                                    <optgroup v-for="(group, key) in businessCategories" :key="key" :label="key">
+                                        <option v-for="biz in group" :key="biz" :value="biz">{{ biz }}</option>
+                                    </optgroup>
+                                </select>
                                 <div v-if="['Kos-kosan','Penginapan / Homestay','Asrama','Kontrakan','Sewa Ruko'].includes(reg.usaha)" class="grid grid-cols-3 gap-2 mt-4 p-3 bg-blue-100 rounded-lg border border-blue-200"><div class="col-span-3 text-xs font-bold text-blue-800 mb-1">Data Properti Sewa:</div><div><label class="block text-[10px] font-bold">Total Kamar</label><input type="number" v-model="reg.kamar_total" class="w-full border p-2 rounded text-sm bg-white"></div><div><label class="block text-[10px] font-bold">Terisi</label><input type="number" v-model="reg.kamar_terisi" @input="kalkulasiKamar" class="w-full border p-2 rounded text-sm bg-white"></div><div><label class="block text-[10px] font-bold">Kosong</label><input type="number" v-model="reg.kamar_kosong" readonly class="w-full border p-2 rounded text-sm bg-gray-200 font-bold"></div></div>
                             </div>
                         </div>
@@ -505,7 +511,7 @@
                                             <div><label class="block text-xs font-bold mb-1">Warna Latar Footer</label><input type="color" v-model="landingSettings.footerBg" class="w-full h-10 border rounded cursor-pointer"></div>
                                         </div>
                                         <div><label class="block text-xs font-bold mb-1">Teks Footer Bawah</label><input type="text" v-model="landingSettings.footerText" class="w-full border p-2 rounded text-sm outline-none bg-gray-50"></div>
-                                        <button @click="saveSettings" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded shadow text-sm mt-2">Simpan Pengaturan Tema</button>
+                                        <button @click="saveSettings" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded shadow text-sm mt-2">Simpan ke Cloud Database</button>
                                     </div>
                                 </div>
                                 <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -525,7 +531,7 @@
 
                             <!-- Edit Data Pimpinan -->
                             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-users-cog text-emerald-500 mr-2"></i>Data Pimpinan Landing Page</h3>
+                                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-users-cog text-emerald-500 mr-2"></i>Data Pimpinan Landing Page (Tersinkron Cloud)</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div class="border p-4 rounded-xl bg-gray-50">
                                         <h4 class="font-bold text-sm mb-3 text-primary">Data Walikota</h4>
@@ -555,7 +561,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <button @click="saveSettings" class="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded shadow text-sm">Update Landing Page</button>
+                                <button @click="saveSettings" class="mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded shadow text-sm">Simpan Perubahan ke Seluruh Perangkat (Cloud)</button>
                             </div>
                         </div>
 
@@ -742,7 +748,6 @@
                                 <table class="w-full text-left text-sm whitespace-nowrap">
                                     <thead><tr class="bg-white border-b text-gray-500"><th class="px-5 py-3">Tanggal</th><th class="px-5 py-3">Warga & Jenis Surat</th><th class="px-5 py-3">Keperluan & Foto RT</th><th class="px-5 py-3">Status Dokumen</th><th v-if="['admin_kelurahan', 'rt', 'rw'].includes(currentUser.role)" class="px-5 py-3 text-center">Aksi</th></tr></thead>
                                     <tbody>
-                                        <!-- Filter untuk tabel: Admin/RT/RW melihat sesuai wewenang, Warga melihat miliknya -->
                                         <tr v-for="s in listSurat.filter(x => !x.isDeleted && (['admin_kelurahan', 'rt', 'rw'].includes(currentUser.role) ? isMyArea(x) : x.pengaju === currentUser.name))" :key="s.id" class="border-b hover:bg-gray-50">
                                             <td class="px-5 py-3 text-xs">{{ s.tanggal }}</td>
                                             <td class="px-5 py-3"><p class="font-bold text-gray-800">{{ s.jenis }}</p><p class="text-[10px] text-gray-500"><i class="fas fa-user"></i> {{ s.pengaju }} | HP: {{ s.noHp }}</p><p v-if="s.rt" class="text-[9px] font-bold text-blue-500">RT {{s.rt}}/RW {{s.rw}}</p></td>
@@ -817,8 +822,9 @@
                         </div>
                     </div>
 
-                    <!-- KELUHAN & PENGADUAN -->
+                    <!-- KELUHAN & PENGADUAN (DENGAN FITUR CHAT DUA ARAH) -->
                     <div v-if="currentMenu === 'laporan'" class="space-y-6 form-section">
+                        <!-- FORM UNTUK WARGA MEMBUAT LAPORAN BARU -->
                         <div v-if="currentUser.role === 'warga'" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>Layanan Keluhan Keamanan & Ketertiban</h2>
                             <div class="bg-red-50 p-5 rounded-xl border border-red-100">
@@ -832,43 +838,73 @@
                                     </div>
                                 </div>
                                 <div class="mt-4 flex justify-between items-center">
-                                    <p class="text-xs text-red-600 font-bold"><i class="fas fa-lock"></i> Identitas Pelapor Dirahasiakan (Anonim)</p>
+                                    <p class="text-xs text-red-600 font-bold"><i class="fas fa-lock"></i> Laporan Anda aman tercatat di sistem</p>
                                     <button @click="submitLaporan" class="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2 rounded-lg text-sm shadow">Kirim Pengaduan</button>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- HEADER MONITORING UNTUK APARATUR -->
                         <div v-if="['admin_kelurahan', 'babinsa', 'rt', 'rw'].includes(currentUser.role)" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-shield-alt text-red-500 mr-2"></i>Monitoring Pengaduan Warga</h2>
-                            <p class="text-sm text-gray-600 mb-2">Berikan respon/balasan kepada warga dan tandai kasus jika sudah selesai ditangani.</p>
+                            <p class="text-sm text-gray-600 mb-2">Gunakan ruang diskusi di bawah setiap laporan untuk berinteraksi dengan pelapor.</p>
                             <p v-if="['rt','rw'].includes(currentUser.role)" class="text-xs font-bold text-blue-600 bg-blue-50 inline-block px-2 py-0.5 rounded">Menampilkan keluhan dari wilayah RT {{ currentUser.rt }} / RW {{ currentUser.rw }}</p>
                             <p v-if="currentUser.role === 'babinsa'" class="text-xs font-bold text-red-600 bg-red-50 inline-block px-2 py-0.5 rounded"><i class="fas fa-shield-alt"></i> Akses Keamanan Babinsa: Seluruh Wilayah</p>
                         </div>
 
+                        <!-- DAFTAR LAPORAN & RUANG CHAT -->
                         <div class="space-y-4">
-                            <div v-for="l in listLaporan.filter(x => !x.isDeleted && isMyArea(x))" :key="l.id" class="bg-white p-5 rounded-xl shadow-sm border border-l-4 border-l-red-500 flex flex-col md:flex-row gap-4 relative">
+                            <!-- Filter: Jika warga, hanya lihat laporan dia sendiri. Jika aparatur, lihat laporan di areanya -->
+                            <div v-for="l in listLaporan.filter(x => !x.isDeleted && (currentUser.role === 'warga' ? x.pelapor === currentUser.name : isMyArea(x)))" :key="l.id" class="bg-white p-5 rounded-xl shadow-sm border border-l-4 flex flex-col md:flex-row gap-4 relative transition-colors" :class="l.status === 'Selesai' ? 'border-l-green-500' : (l.status === 'Diproses' ? 'border-l-amber-500' : 'border-l-red-500')">
                                 <div v-if="l.fotoBukti" class="shrink-0"><img :src="l.fotoBukti" class="w-24 h-24 rounded-lg object-cover border shadow-sm"></div>
                                 <div class="flex-1">
-                                    <div class="flex justify-between items-center mb-2"><h4 class="font-black text-gray-800">{{ l.judul }}</h4><span class="text-[10px] text-gray-400 font-bold">{{ l.tanggal }}</span></div>
-                                    <p v-if="l.rt" class="text-[10px] text-red-500 font-bold mb-1"><i class="fas fa-map-marker-alt"></i> Lokasi Pelapor: RT {{ l.rt }} / RW {{ l.rw }}</p>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <h4 class="font-black text-gray-800">{{ l.judul }}</h4>
+                                        <span class="text-[10px] text-gray-400 font-bold">{{ l.tanggal }}</span>
+                                    </div>
+                                    <p v-if="l.rt" class="text-[10px] text-gray-500 font-bold mb-1"><i class="fas fa-map-marker-alt text-red-400"></i> Lokasi Pelapor: RT {{ l.rt }} / RW {{ l.rw }}</p>
                                     <p class="text-sm text-gray-600 mb-3">{{ l.deskripsi }}</p>
-                                    <span :class="['px-2 py-1 rounded text-[10px] font-bold uppercase', l.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600']">
-                                        <i :class="['fas', l.status === 'Selesai' ? 'fa-check' : 'fa-spinner fa-spin']"></i> Status: {{ l.status }}
-                                    </span>
                                     
-                                    <div v-if="l.balasanAdmin" class="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
-                                        <p class="text-[10px] font-bold text-blue-800 mb-1"><i class="fas fa-user-shield"></i> Respon Petugas/Babinsa:</p>
-                                        <p class="text-sm text-blue-900">{{ l.balasanAdmin }}</p>
+                                    <span :class="['px-2 py-1 rounded text-[10px] font-bold uppercase shadow-sm inline-block', l.status === 'Selesai' ? 'bg-green-100 text-green-700' : (l.status === 'Diproses' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700')]">
+                                        <i :class="['fas', l.status === 'Selesai' ? 'fa-check' : (l.status === 'Diproses' ? 'fa-spinner fa-spin' : 'fa-clock')]"></i> Status: {{ l.status }}
+                                    </span>
+
+                                    <!-- FITUR DISKUSI DUA ARAH -->
+                                    <div class="mt-4 border-t pt-3">
+                                        <h5 class="text-xs font-bold text-gray-700 mb-2"><i class="fas fa-comments text-blue-500"></i> Ruang Diskusi Laporan</h5>
+                                        <div class="bg-gray-50 p-3 rounded-lg max-h-48 overflow-y-auto space-y-2 mb-2 border border-gray-100">
+                                            <div v-if="!l.diskusi || l.diskusi.length === 0" class="text-center text-[10px] text-gray-400 italic">Belum ada diskusi / respon.</div>
+                                            <div v-for="(chat, idx) in (l.diskusi || [])" :key="idx" :class="['p-2 rounded-lg w-fit max-w-[85%] shadow-sm', chat.senderId === currentUser.username ? 'bg-blue-100 text-blue-900 ml-auto rounded-tr-sm' : 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm']">
+                                                <p class="text-[9px] font-bold text-gray-500 mb-1 flex items-center gap-1">
+                                                    {{ chat.sender }} 
+                                                    <span :class="['px-1.5 py-0.5 rounded text-[8px] uppercase tracking-wider', chat.role === 'warga' ? 'bg-gray-200 text-gray-600' : 'bg-blue-200 text-blue-800']">{{ chat.role.replace('_',' ') }}</span>
+                                                </p>
+                                                <p class="text-xs">{{ chat.message }}</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- INPUT CHAT (KEDUA BELAH PIHAK BISA MEMBALAS JIKA BELUM SELESAI) -->
+                                        <div v-if="l.status !== 'Selesai'" class="flex gap-2">
+                                            <input type="text" v-model="l.draftBalasan" placeholder="Ketik pesan/balasan di sini..." class="flex-1 border p-2 rounded-lg text-xs outline-none bg-white focus:ring-2 focus:ring-blue-500 transition-shadow shadow-sm" @keyup.enter="kirimPesanDiskusi(l)">
+                                            <button @click="kirimPesanDiskusi(l)" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-md transition transform hover:-translate-y-0.5"><i class="fas fa-paper-plane"></i> Kirim</button>
+                                        </div>
                                     </div>
 
-                                    <div v-if="['admin_kelurahan', 'babinsa', 'rt', 'rw'].includes(currentUser.role) && l.status !== 'Selesai'" class="mt-4 pt-4 border-t border-gray-100 flex gap-2">
-                                        <input type="text" v-model="l.draftBalasan" placeholder="Ketik komentar/tindakan..." class="flex-1 border p-2 rounded text-xs outline-none bg-gray-50">
-                                        <button @click="submitResponLaporan(l)" class="bg-blue-600 text-white px-4 py-2 rounded text-xs font-bold">Kirim Respon & Selesai</button>
+                                    <!-- FITUR UPDATE STATUS KHUSUS UNTUK APARATUR -->
+                                    <div v-if="['admin_kelurahan', 'babinsa', 'rt', 'rw'].includes(currentUser.role) && l.status !== 'Selesai'" class="mt-3 flex gap-2 border-t border-dashed pt-3">
+                                        <button v-if="l.status === 'Menunggu'" @click="updateStatusLaporan(l, 'Diproses')" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition"><i class="fas fa-cog"></i> Proses Laporan</button>
+                                        <button @click="updateStatusLaporan(l, 'Selesai')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm transition"><i class="fas fa-check-circle"></i> Tandai Selesai</button>
                                     </div>
-                                    <button v-if="currentUser.role === 'admin_kelurahan'" @click="softDeleteItem('laporan', l.id, listLaporan)" class="absolute top-2 right-2 text-red-400 hover:text-red-700 bg-red-50 p-1.5 rounded-lg"><i class="fas fa-trash"></i></button>
+                                    
+                                    <button v-if="currentUser.role === 'admin_kelurahan'" @click="softDeleteItem('laporan', l.id, listLaporan)" class="absolute top-4 right-4 text-gray-400 hover:text-red-600 transition"><i class="fas fa-trash"></i></button>
                                 </div>
                             </div>
-                            <div v-if="listLaporan.filter(x => !x.isDeleted && isMyArea(x)).length === 0" class="text-center py-6 text-gray-500 bg-white rounded-xl border">Belum ada keluhan yang dilaporkan di wilayah/akses ini.</div>
+                            
+                            <!-- State Kosong Laporan -->
+                            <div v-if="listLaporan.filter(x => !x.isDeleted && (currentUser.role === 'warga' ? x.pelapor === currentUser.name : isMyArea(x))).length === 0" class="text-center py-10 text-gray-500 bg-white rounded-xl border border-dashed border-gray-300">
+                                <i class="fas fa-clipboard-list text-4xl mb-3 text-gray-300"></i>
+                                <p class="font-bold">Belum ada keluhan yang dilaporkan.</p>
+                            </div>
                         </div>
                     </div>
                     
@@ -1393,52 +1429,58 @@
     </div>
 
     <script type="module">
-        import { createApp, ref, computed, onMounted, watch } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+        import { createApp, ref, computed, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // =========================================================================================
-        // KUNCI PERMANEN FIREBASE
-        // =========================================================================================
-        let myFirebaseConfig = {
-            apiKey: "AIzaSyD4gCPeeA_uID1wYwHN0YCifaZPO6NyVkk", // SUDAH OTOMATIS TERISI
-            authDomain: "kelurahan-digital-e19b5.firebaseapp.com",
-            projectId: "kelurahan-digital-e19b5",
-            storageBucket: "kelurahan-digital-e19b5.firebasestorage.app",
-            messagingSenderId: "944163706315",
-            appId: "1:944163706315:web:c5e99814be6fe8b333524e"
-        };
-
+        // MENGHAPUS API KEY HARDCODED - SEPENUHNYA MENGGUNAKAN ENVIRONMENT CANVAS
         let useFirebase = false;
-        let isCustomFirebase = false;
         let appFb, auth, db;
 
-        if (myFirebaseConfig.apiKey && myFirebaseConfig.apiKey !== "") {
-            useFirebase = true;
-            isCustomFirebase = true;
-            appFb = initializeApp(myFirebaseConfig);
-            auth = getAuth(appFb);
-            db = getFirestore(appFb);
-        } else if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
             useFirebase = true;
             appFb = initializeApp(JSON.parse(__firebase_config));
             auth = getAuth(appFb);
             db = getFirestore(appFb);
         }
 
-        // FUNGSI PENGUNCI JALUR DATA - Memperbaiki BUG (Format 5 Segmen)
-        const getCollectionPath = (collectionName) => {
-            if (isCustomFirebase) {
-                return collection(db, collectionName);
-            } else {
-                const appIdEnv = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-                return collection(db, 'artifacts', appIdEnv, 'public', 'data', collectionName);
-            }
-        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         createApp({
             setup() {
+                const currentUserFirebase = ref(null);
+
+                // Initialize Firebase Auth
+                onMounted(async () => {
+                    if (useFirebase) {
+                        try {
+                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                                await signInWithCustomToken(auth, __initial_auth_token);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                            onAuthStateChanged(auth, (u) => {
+                                currentUserFirebase.value = u;
+                                if (u) {
+                                    // Sinkronisasi data publik Landing Page (tanpa login akun)
+                                    syncCollection('agenda', listAgenda);
+                                    syncCollection('umkm', listUMKM);
+                                    syncCollection('galeri', listGaleri);
+                                    syncSettingsToCloud();
+                                }
+                            });
+                        } catch (e) {
+                            console.error("Firebase auth error", e);
+                        }
+                    }
+                });
+
+                const getCollectionPath = (collectionName) => {
+                    // Valid path: 5 segmen (ganjil) mencegah error "Invalid collection reference" di Canvas Firebase
+                    return collection(db, 'artifacts', appId, 'public', 'data', collectionName); 
+                };
+
                 const compressImage = (file, callback) => { 
                     if (!file) return callback(null);
                     const reader = new FileReader();
@@ -1476,7 +1518,7 @@
 
                 const saveData = async (collectionName, docId, dataObj, localListRef) => {
                     dataObj.isDeleted = false;
-                    if (useFirebase) {
+                    if (useFirebase && currentUserFirebase.value) {
                         const colRef = getCollectionPath(collectionName);
                         await setDoc(doc(colRef, docId.toString()), dataObj);
                     } else {
@@ -1485,16 +1527,15 @@
                 };
                 
                 const updateField = async (collectionName, docId, dataObj) => {
-                    if (useFirebase) {
+                    if (useFirebase && currentUserFirebase.value) {
                         const colRef = getCollectionPath(collectionName);
                         await setDoc(doc(colRef, docId.toString()), dataObj, { merge: true });
                     }
-                    showToast('Data berhasil diperbarui!');
                 };
                 
                 const softDeleteItem = async (collectionName, docId, localListRef) => {
                     if (confirm("Hapus data ini? (Data akan disembunyikan dan dihapus permanen oleh sistem pada tgl 1 jam 23:00)")) {
-                        if (useFirebase) {
+                        if (useFirebase && currentUserFirebase.value) {
                             const colRef = getCollectionPath(collectionName);
                             await setDoc(doc(colRef, docId.toString()), { isDeleted: true }, { merge: true });
                         } else {
@@ -1550,17 +1591,29 @@
                     return true;
                 };
 
-                const jobCategories = { "PEMERINTAH & KEAMANAN": ["PNS", "PPPK", "TNI AD", "POLRI"], "KARYAWAN": ["Swasta", "BUMN"], "LAINNYA": ["Buruh", "Tidak Bekerja"] };
-                const businessCategories = { "PERDAGANGAN": ["Toko Kelontong", "Warung Makan"], "JASA": ["Bengkel", "Cukur Rambut"] };
+                const jobCategories = {
+                    "PEMERINTAH & KEAMANAN": ["PNS", "PPPK", "TNI AD/AL/AU", "POLRI", "Pejabat Negara", "Honorer"],
+                    "PROFESIONAL & KARYAWAN": ["Karyawan Swasta", "Karyawan BUMN/BUMD", "Dokter", "Bidan / Perawat", "Guru / Dosen", "Pengacara / Hukum", "Seniman / Artis"],
+                    "WIRASWASTA & USAHA": ["Wiraswasta", "Pedagang", "Pengusaha", "Petani", "Peternak", "Nelayan"],
+                    "PEKERJA HARIAN & JASA": ["Buruh Harian Lepas", "Sopir", "Tukang Jahit", "Tukang Kayu / Batu", "Pembantu Rumah Tangga"],
+                    "LAINNYA": ["Belum / Tidak Bekerja", "Mengurus Rumah Tangga", "Pelajar / Mahasiswa", "Pensiunan"]
+                };
+                
+                const businessCategories = {
+                    "PERDAGANGAN": ["Toko Kelontong", "Warung Makan / Restoran", "Jualan Online (Olshop)", "Pedagang Keliling", "Distributor / Agen"],
+                    "JASA & LAYANAN": ["Bengkel", "Cukur Rambut / Salon", "Laundry", "Jasa Fotografi/Video", "Jahit / Tailor"],
+                    "PROPERTI & PENGINAPAN": ["Kos-kosan", "Penginapan / Homestay", "Kontrakan", "Sewa Ruko", "Asrama"],
+                    "PERTANIAN & PETERNAKAN": ["Budidaya Tanaman", "Ternak Unggas", "Ternak Ikan", "Agribisnis"]
+                };
 
                 const globalLoading = ref(false);
                 const sidebarOpen = ref(false);
                 const currentMenu = ref('dashboard');
-                const appSettings = ref({ portalName: 'Kelurahan Digital', logoUrl: '' });
                 const notification = ref({ show: false, message: '', type: 'success' });
                 
                 const showToast = (message, type = 'success') => { notification.value = { show: true, message, type }; setTimeout(() => notification.value.show = false, 3000); };
 
+                const appSettings = ref({ portalName: 'Kelurahan Digital', logoUrl: '' });
                 const landingSettings = ref({
                     headerBg: '#ffffff', footerBg: '#1f2937', headerText: 'Pemerintah Daerah', footerText: 'Sistem Layanan Mandiri Terpadu',
                     portalTitle: 'Portal Digital Layanan Terpadu', portalDesc: 'Sistem pelayanan digital terpadu kelurahan mandiri dan transparan.',
@@ -1623,8 +1676,8 @@
                     isRegistering.value = false;
                 };
 
-                // PULL DATA REAL-TIME
                 const syncCollection = (collectionName, localListRef) => {
+                    if (!currentUserFirebase.value) return; // Guard agar tidak error permission
                     const colRef = getCollectionPath(collectionName);
                     onSnapshot(colRef, (snapshot) => {
                         const data = [];
@@ -1638,9 +1691,37 @@
                     });
                 };
 
+                const syncSettingsToCloud = () => {
+                    if (useFirebase && currentUserFirebase.value) {
+                        const colRef = getCollectionPath('app_settings_global');
+                        onSnapshot(doc(colRef, 'landing_config'), (docSnap) => {
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                if (data.appSettings) appSettings.value = data.appSettings;
+                                if (data.landingSettings) landingSettings.value = data.landingSettings;
+                            }
+                        });
+                    }
+                };
+
+                const saveSettings = async () => {
+                    if (useFirebase && currentUserFirebase.value) {
+                        const colRef = getCollectionPath('app_settings_global');
+                        await setDoc(doc(colRef, 'landing_config'), {
+                            appSettings: appSettings.value,
+                            landingSettings: landingSettings.value
+                        }, { merge: true });
+                        showToast('Pengaturan berhasil disimpan dan disinkronisasikan ke seluruh perangkat (Cloud)!');
+                    } else {
+                        localStorage.setItem('appSettings', JSON.stringify(appSettings.value));
+                        localStorage.setItem('landingSettings', JSON.stringify(landingSettings.value));
+                        showToast('Pengaturan berhasil disimpan (Lokal)');
+                    }
+                };
+
                 let privateSyncDone = false;
                 const initPrivateSync = () => {
-                    if (useFirebase && !privateSyncDone) {
+                    if (useFirebase && currentUserFirebase.value && !privateSyncDone) {
                         syncCollection('warga', listWargaLengkap);
                         syncCollection('anggaran', listAnggaran);
                         syncCollection('surat', listSurat);
@@ -1664,28 +1745,37 @@
                         let username = loginForm.value.email.toLowerCase();
                         let userRt = '01'; 
                         let userRw = '05';
+                        let displayRoleName = username;
 
-                        if(username.includes('admin')) { role = 'admin_kelurahan'; }
+                        if(username.includes('admin') || username.includes('lurah') || username.includes('staff')) { 
+                            role = 'admin_kelurahan'; 
+                            displayRoleName = 'Bpk. Lurah / Admin';
+                        }
                         else if(username.includes('rt')) { 
                             role = 'rt'; 
                             const match = username.match(/rt(\d+)/);
                             if(match) userRt = match[1].padStart(2, '0');
+                            displayRoleName = 'Ketua RT ' + userRt;
                         }
                         else if(username.includes('rw')) { 
                             role = 'rw'; 
                             const match = username.match(/rw(\d+)/);
                             if(match) userRw = match[1].padStart(2, '0');
+                            displayRoleName = 'Ketua RW ' + userRw;
                         }
-                        else if(username.includes('babinsa')) { role = 'babinsa'; }
+                        else if(username.includes('babinsa')) { 
+                            role = 'babinsa'; 
+                            displayRoleName = 'Sersan Babinsa';
+                        }
                         
                         const matchedWarga = listWargaLengkap.value.find(w => w.nik === loginForm.value.email || w.username === loginForm.value.email || w.email === loginForm.value.email);
                         if (matchedWarga && role === 'warga') {
                             userRt = matchedWarga.rt;
                             userRw = matchedWarga.rw;
-                            username = matchedWarga.nama;
+                            displayRoleName = matchedWarga.nama;
                         }
 
-                        currentUser.value = { name: username, username: loginForm.value.email, role: role, rt: userRt, rw: userRw };
+                        currentUser.value = { name: displayRoleName, username: loginForm.value.email, role: role, rt: userRt, rw: userRw };
                         
                         initPrivateSync(); 
 
@@ -1696,9 +1786,6 @@
                 const handleLogout = () => { isLoggedIn.value = false; currentMenu.value = 'dashboard'; };
                 const switchMenu = (m) => { currentMenu.value = m; sidebarOpen.value = false; };
 
-                // ===============================================
-                // NOTIFIKASI DINAMIS (ADMIN MENDAPATKAN DOT MERAH)
-                // ===============================================
                 const unreadNotif = computed(() => {
                     if (!['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.value.role)) {
                         return { laporan: 0, fasilitas: 0, 'bursa-kerja': 0, surat: 0 };
@@ -1757,19 +1844,51 @@
                     showToast('Usulan bansos berhasil disimpan!'); formBansos.value = { nik: '', nama: '', jenis: 'PKH', alasan: '' };
                 };
 
+                // FITUR PENGADUAN & CHAT DUA ARAH (DIPERBARUI)
                 const formLaporan = ref({ judul: '', deskripsi: '', fotoBukti: null });
                 const listLaporan = ref([]);
+                
                 const submitLaporan = async () => {
                     if(!formLaporan.value.judul) return showToast('Judul keluhan wajib diisi', 'danger');
                     const docId = Date.now().toString();
-                    const newLap = { id: docId, pelapor: currentUser.value.name, rt: currentUser.value.rt, rw: currentUser.value.rw, tanggal: new Date().toLocaleDateString('id-ID'), status: 'Menunggu', balasanAdmin: '', draftBalasan: '', ...formLaporan.value };
+                    const newLap = { 
+                        id: docId, 
+                        pelapor: currentUser.value.name, 
+                        rt: currentUser.value.rt, 
+                        rw: currentUser.value.rw, 
+                        tanggal: new Date().toLocaleDateString('id-ID'), 
+                        status: 'Menunggu', 
+                        draftBalasan: '', 
+                        diskusi: [], // Inisialisasi array chat
+                        ...formLaporan.value 
+                    };
                     await saveData('laporan', docId, newLap, listLaporan);
                     showToast('Pengaduan berhasil dikirim!'); formLaporan.value = { judul: '', deskripsi: '', fotoBukti: null };
                 };
-                const submitResponLaporan = async (lap) => {
-                    if(!lap.draftBalasan) return;
-                    await updateField('laporan', lap.id, { balasanAdmin: lap.draftBalasan, status: 'Selesai' });
-                    lap.balasanAdmin = lap.draftBalasan; lap.status = 'Selesai';
+
+                const kirimPesanDiskusi = async (l) => {
+                    if(!l.draftBalasan || l.draftBalasan.trim() === '') return;
+                    const newMessage = {
+                        sender: currentUser.value.name,
+                        senderId: currentUser.value.username,
+                        role: currentUser.value.role,
+                        message: l.draftBalasan,
+                        timestamp: new Date().toISOString()
+                    };
+                    const updatedDiskusi = l.diskusi ? [...l.diskusi, newMessage] : [newMessage];
+                    await updateField('laporan', l.id, { diskusi: updatedDiskusi });
+                    
+                    if(!useFirebase) l.diskusi = updatedDiskusi; // fallback UI
+                    l.draftBalasan = ''; 
+                    showToast('Pesan terkirim!');
+                };
+
+                const updateStatusLaporan = async (l, newStatus) => {
+                    if(confirm(`Yakin ingin mengubah status laporan menjadi: ${newStatus}?`)) {
+                        await updateField('laporan', l.id, { status: newStatus });
+                        if(!useFirebase) l.status = newStatus; // fallback UI
+                        showToast(`Status laporan diperbarui menjadi: ${newStatus}`);
+                    }
                 };
 
                 const formTamu = ref({ namaTamu: '', lamaMenginap: '', tujuan: '', fotoTamu: null });
@@ -1842,17 +1961,17 @@
                 const formGaleri = ref({ judul: '', foto: null });
                 const listGaleri = ref([]);
                 const submitGaleri = async () => {
-                    if(!formGaleri.value.foto) return showToast('Foto wajib diupload', 'danger');
+                    if(!formGaleri.value.judul) return showToast('Judul wajib diisi', 'danger');
                     const docId = Date.now().toString();
-                    const newGal = { id: docId, pengunggah: currentUser.value.name, rt: currentUser.value.rt, rw: currentUser.value.rw, tanggal: new Date().toLocaleDateString('id-ID'), ...formGaleri.value };
+                    const newGal = { id: docId, pengunggah: currentUser.value.name, rt: currentUser.value.rt, rw: currentUser.value.rw, tanggal: new Date().toLocaleString('id-ID'), ...formGaleri.value };
                     await saveData('galeri', docId, newGal, listGaleri);
-                    showToast('Foto berhasil diupload ke galeri!'); formGaleri.value = { judul: '', foto: null };
+                    showToast('Foto berhasil diunggah!'); formGaleri.value = { judul: '', foto: null };
                 };
 
                 const formKas = ref({ nama: '', jenis: 'Debit (Masuk)', jumlah: '', keterangan: '' });
                 const listKas = ref([]);
                 const submitKas = async () => {
-                    if(!formKas.value.nama || !formKas.value.jumlah) return showToast('Nama dan Jumlah wajib diisi', 'danger');
+                    if(!formKas.value.nama || !formKas.value.jumlah) return showToast('Nama & Jumlah wajib diisi', 'danger');
                     const docId = Date.now().toString();
                     const newKas = { id: docId, rt: currentUser.value.rt, rw: currentUser.value.rw, tanggal: new Date().toLocaleDateString('id-ID'), ...formKas.value };
                     await saveData('kas', docId, newKas, listKas);
@@ -1861,124 +1980,59 @@
 
                 const tabArsip = ref('dashboard');
                 const searchArsip = ref('');
-                const showFormMasuk = ref(false);
-                const showFormKeluar = ref(false);
-
+                
                 const formArsipMasuk = ref({ noAgenda: '', noSurat: '', kategori: 'Undangan', tglSurat: '', tglTerima: '', sifat: 'Biasa', pengirim: '', instansi: '', perihal: '', ringkasan: '', tujuanDisposisi: '', penerimaDisposisi: '', status: 'Diproses' });
                 const listArsipMasuk = ref([]);
+                const showFormMasuk = ref(false);
+                const filteredArsipMasuk = computed(() => {
+                    return listArsipMasuk.value.filter(s => !s.isDeleted && (s.noSurat.toLowerCase().includes(searchArsip.value.toLowerCase()) || s.pengirim.toLowerCase().includes(searchArsip.value.toLowerCase()) || s.perihal.toLowerCase().includes(searchArsip.value.toLowerCase())));
+                });
                 const submitArsipMasuk = async () => {
-                    if(!formArsipMasuk.value.noSurat) return showToast('Nomor surat wajib diisi', 'danger');
+                    if(!formArsipMasuk.value.noSurat) return showToast('Nomor Surat wajib diisi', 'danger');
                     const docId = Date.now().toString();
                     await saveData('arsipMasuk', docId, { id: docId, ...formArsipMasuk.value }, listArsipMasuk);
-                    showToast('Arsip surat masuk disimpan!'); showFormMasuk.value = false;
+                    showToast('Surat Masuk Berhasil Diregister!'); showFormMasuk.value = false;
                     formArsipMasuk.value = { noAgenda: '', noSurat: '', kategori: 'Undangan', tglSurat: '', tglTerima: '', sifat: 'Biasa', pengirim: '', instansi: '', perihal: '', ringkasan: '', tujuanDisposisi: '', penerimaDisposisi: '', status: 'Diproses' };
                 };
 
-                const formArsipKeluar = ref({ noAgenda: '', noSurat: '', tglSurat: '', tujuan: '', instansiPenerima: '', alamat: '', perihal: '', isi: '', penandatangan: '', jabatan: '', jenisSurat: 'Surat edaran', statusPengiriman: 'Draft', mediaPengiriman: 'Email' });
+                const formArsipKeluar = ref({ noAgenda: '', noSurat: '', tglSurat: '', tujuan: '', instansiPenerima: '', alamat: '', perihal: '', isi: '', penandatangan: '', jabatan: '', jenisSurat: 'Surat undangan', statusPengiriman: 'Draft', mediaPengiriman: 'Email' });
                 const listArsipKeluar = ref([]);
+                const showFormKeluar = ref(false);
+                const filteredArsipKeluar = computed(() => {
+                    return listArsipKeluar.value.filter(s => !s.isDeleted && (s.noSurat.toLowerCase().includes(searchArsip.value.toLowerCase()) || s.tujuan.toLowerCase().includes(searchArsip.value.toLowerCase()) || s.perihal.toLowerCase().includes(searchArsip.value.toLowerCase())));
+                });
                 const submitArsipKeluar = async () => {
-                    if(!formArsipKeluar.value.noSurat) return showToast('Nomor surat wajib diisi', 'danger');
+                    if(!formArsipKeluar.value.noSurat) return showToast('Nomor Surat wajib diisi', 'danger');
                     const docId = Date.now().toString();
                     await saveData('arsipKeluar', docId, { id: docId, ...formArsipKeluar.value }, listArsipKeluar);
-                    showToast('Arsip surat keluar disimpan!'); showFormKeluar.value = false;
-                    formArsipKeluar.value = { noAgenda: '', noSurat: '', tglSurat: '', tujuan: '', instansiPenerima: '', alamat: '', perihal: '', isi: '', penandatangan: '', jabatan: '', jenisSurat: 'Surat edaran', statusPengiriman: 'Draft', mediaPengiriman: 'Email' };
+                    showToast('Surat Keluar Berhasil Diregister!'); showFormKeluar.value = false;
+                    formArsipKeluar.value = { noAgenda: '', noSurat: '', tglSurat: '', tujuan: '', instansiPenerima: '', alamat: '', perihal: '', isi: '', penandatangan: '', jabatan: '', jenisSurat: 'Surat undangan', statusPengiriman: 'Draft', mediaPengiriman: 'Email' };
                 };
-
-                const filteredArsipMasuk = computed(() => {
-                    let res = listArsipMasuk.value.filter(x => !x.isDeleted);
-                    if(searchArsip.value) {
-                        const s = searchArsip.value.toLowerCase();
-                        res = res.filter(x => (x.noSurat && x.noSurat.toLowerCase().includes(s)) || (x.pengirim && x.pengirim.toLowerCase().includes(s)) || (x.perihal && x.perihal.toLowerCase().includes(s)));
-                    }
-                    return res;
-                });
-                const filteredArsipKeluar = computed(() => {
-                    let res = listArsipKeluar.value.filter(x => !x.isDeleted);
-                    if(searchArsip.value) {
-                        const s = searchArsip.value.toLowerCase();
-                        res = res.filter(x => (x.noSurat && x.noSurat.toLowerCase().includes(s)) || (x.tujuan && x.tujuan.toLowerCase().includes(s)) || (x.perihal && x.perihal.toLowerCase().includes(s)));
-                    }
-                    return res;
-                });
-
-                const loadSettings = () => {
-                    const savedSettings = localStorage.getItem('appSettings');
-                    if(savedSettings) appSettings.value = JSON.parse(savedSettings);
-                    const savedLanding = localStorage.getItem('landingSettings');
-                    if(savedLanding) landingSettings.value = JSON.parse(savedLanding);
-                };
-                
-                const saveSettings = () => {
-                    localStorage.setItem('appSettings', JSON.stringify(appSettings.value));
-                    localStorage.setItem('landingSettings', JSON.stringify(landingSettings.value));
-                    showToast('Pengaturan berhasil disimpan!');
-                };
-
-                // BACKUP LOKAL (Jika API Key Firebase masih kosong)
-                if (!useFirebase) {
-                    const collections = {
-                        'warga': listWargaLengkap, 'anggaran': listAnggaran, 'surat': listSurat,
-                        'bansos': listBansos, 'laporan': listLaporan, 'tamu': listTamu,
-                        'umkm': listUMKM, 'fasilitas': listFasilitas, 'bursa': listBursa,
-                        'sampah': listSampah, 'galeri': listGaleri, 'kas': listKas,
-                        'arsipMasuk': listArsipMasuk, 'arsipKeluar': listArsipKeluar,
-                        'agenda': listAgenda
-                    };
-                    for (const [key, refObj] of Object.entries(collections)) {
-                        const saved = localStorage.getItem('db_lokal_' + key);
-                        if (saved) refObj.value = JSON.parse(saved);
-                    }
-                    for (const [key, refObj] of Object.entries(collections)) {
-                        watch(refObj, (newVal) => { localStorage.setItem('db_lokal_' + key, JSON.stringify(newVal)); }, { deep: true });
-                    }
-                }
-
-                onMounted(async () => {
-                    loadSettings();
-                    webTraffic.value = Math.floor(Math.random() * 5000) + 1000;
-                    
-                    // STOP LOADING BUG (VATIVON / SPINNER)
-                    setTimeout(() => { window.stop(); }, 4000);
-
-                    if (useFirebase) {
-                        try {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !isCustomFirebase) {
-                                await signInWithCustomToken(auth, __initial_auth_token);
-                            } else {
-                                await signInAnonymously(auth);
-                            }
-                            syncCollection('agenda', listAgenda);
-                            syncCollection('umkm', listUMKM);
-                            syncCollection('galeri', listGaleri);
-                        } catch (error) {
-                            console.error("Firebase auth error:", error);
-                        }
-                    }
-                });
 
                 return {
-                    unreadNotif,
-                    globalLoading, sidebarOpen, currentMenu, notification, showToast,
-                    appSettings, landingSettings, saveSettings,
-                    isLoggedIn, isRegistering, regStep, showLoginPassword, showRegPassword, showRegRepeatPassword, currentAuthView,
-                    adminDropdown, currentUser, loginForm, formUbahAkun, submitUbahAkun, formPetugas, buatAkunPetugas,
-                    reg, listWargaLengkap, handleRegister, handleLogin, handleLogout, switchMenu, formatRupiah,
-                    jobCategories, businessCategories,
-                    statsGender, statsUsia, statsSuku, statsKerja, statsUsaha, ultahBulanIni, kalkulasiKamar,
+                    globalLoading, isLoggedIn, isRegistering, regStep, currentAuthView, adminDropdown, currentMenu, sidebarOpen, appSettings, landingSettings, notification, showToast,
+                    loginForm, handleLogin, handleLogout, handleRegister, reg, switchMenu, showLoginPassword, showRegPassword, showRegRepeatPassword, currentUser, unreadNotif,
+                    formPetugas, buatAkunPetugas, webTraffic, saveSettings, isMyArea, listWargaLengkap, statsGender, statsUsia, statsSuku, statsKerja, statsUsaha, ultahBulanIni, formatRupiah,
+                    formUbahAkun, submitUbahAkun, handleFileUpload, softDeleteItem, downloadExcelData, jobCategories, businessCategories, kalkulasiKamar,
+                    
                     formAnggaran, listAnggaran, submitAnggaran,
-                    formAgenda, listAgenda, submitAgenda, webTraffic,
+                    formAgenda, listAgenda, submitAgenda,
                     listJenisSurat, statusSuratArr, formSurat, listSurat, submitSurat,
                     formBansos, listBansos, submitBansos,
-                    formLaporan, listLaporan, submitLaporan, submitResponLaporan,
+                    
+                    formLaporan, listLaporan, submitLaporan, kirimPesanDiskusi, updateStatusLaporan,
+                    
                     formTamu, listTamu, submitTamu,
-                    formUMKM, listUMKM, groupedUMKMLanding, showFormUMKM, selectedWilayahUMKM, submitLapakUMKM,
+                    formUMKM, listUMKM, submitLapakUMKM, groupedUMKMLanding, showFormUMKM, selectedWilayahUMKM,
                     formFasilitas, listFasilitas, submitFasilitas,
                     formBursa, listBursa, submitBursa,
-                    formSampah, listSampah, totalPoinSampah, submitSampah,
+                    formSampah, listSampah, submitSampah, totalPoinSampah,
                     formGaleri, listGaleri, submitGaleri,
                     formKas, listKas, submitKas,
-                    tabArsip, searchArsip, showFormMasuk, showFormKeluar, formArsipMasuk, listArsipMasuk, submitArsipMasuk, formArsipKeluar, listArsipKeluar, submitArsipKeluar, filteredArsipMasuk, filteredArsipKeluar,
-                    handleFileUpload, downloadExcelData, softDeleteItem, isMyArea, updateField
+                    
+                    tabArsip, searchArsip, 
+                    formArsipMasuk, listArsipMasuk, showFormMasuk, filteredArsipMasuk, submitArsipMasuk,
+                    formArsipKeluar, listArsipKeluar, showFormKeluar, filteredArsipKeluar, submitArsipKeluar
                 };
             }
         }).mount('#app');
