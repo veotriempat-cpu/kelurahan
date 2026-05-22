@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sistem Informasi Kelurahan Digital</title>
     
+    <!-- FIX BUG VATIVON/FAVICON -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
     
     <!-- Pustaka Eksternal -->
@@ -228,7 +229,7 @@
         </div>
 
         <!-- ==============================================
-             LOGIN & REGISTER (DIPERTAHANKAN 100%)
+             LOGIN & REGISTER
              ============================================== -->
         <div v-if="!isLoggedIn && currentAuthView === 'auth'" class="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 fixed inset-0 z-[100] overflow-y-auto">
             <!-- Background Ornamen -->
@@ -272,7 +273,7 @@
                     <p class="text-center text-sm text-gray-600 mt-6">Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; regStep = 1" class="text-primary font-black hover:underline">Daftar Akun Warga</a></p>
                 </form>
 
-                <!-- FORM PENDAFTARAN WARGA (DIPERTAHANKAN 100% SESUAI INSTRUKSI) -->
+                <!-- FORM PENDAFTARAN WARGA -->
                 <form v-if="isRegistering" @submit.prevent="handleRegister" class="space-y-5 form-section">
                     <div class="flex items-center justify-between mb-6 md:mb-8 border-b pb-2 md:pb-4 gap-1 md:gap-2">
                         <div v-for="step in 5" :key="step" :class="['flex-1 text-center py-2 border-b-4 transition-colors', regStep >= step ? 'border-primary text-primary' : 'border-gray-200 text-gray-400']">
@@ -354,7 +355,7 @@
         </div>
 
         <!-- ==============================================
-             DASHBOARD UTAMA (SETELAH LOGIN) (MENU DIPERTAHANKAN 100%)
+             DASHBOARD UTAMA (SETELAH LOGIN) (18+ MENU)
              ============================================== -->
         <div v-if="isLoggedIn" class="flex h-screen overflow-hidden">
             <aside :class="['bg-primary text-white w-64 flex-shrink-0 transition-transform duration-300 ease-in-out fixed md:relative z-40 h-full', sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']">
@@ -385,15 +386,15 @@
                             <a href="#" @click.prevent="switchMenu('statistik-pekerjaan')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'statistik-pekerjaan' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">4. Statistik Pekerjaan</a>
                             <a href="#" @click.prevent="switchMenu('status-usaha')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'status-usaha' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">5. Status Usaha</a>
                             <a href="#" @click.prevent="switchMenu('arsip-surat')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'arsip-surat' ? 'bg-amber-100 text-amber-800' : 'text-amber-300 hover:bg-blue-800']"><i class="fas fa-folder-open mr-1"></i> 6. Arsip Surat Masuk/Keluar</a>
-                            <a href="#" @click.prevent="switchMenu('surat')" :class="['flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'surat' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><span>7. E-Surat Warga</span><span v-if="notif['surat'] > 0" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">{{ notif['surat'] }} Baru</span></a>
+                            <a href="#" @click.prevent="switchMenu('surat')" :class="['flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'surat' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><span>7. E-Surat Warga</span><span v-if="unreadNotif['surat'] > 0" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">{{ unreadNotif['surat'] }} Baru</span></a>
                             <a href="#" @click.prevent="switchMenu('bansos')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'bansos' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">8. Usulan Bansos</a>
                             <a href="#" @click.prevent="switchMenu('tamu')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'tamu' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">9. Lapor Tamu</a>
-                            <a href="#" @click.prevent="switchMenu('laporan')" :class="['flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'laporan' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><span>10. Monitoring Pengaduan</span><span v-if="notif['laporan'] > 0" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">{{ notif['laporan'] }} Baru</span></a>
+                            <a href="#" @click.prevent="switchMenu('laporan')" :class="['flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'laporan' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><span>10. Monitoring Pengaduan</span><span v-if="unreadNotif['laporan'] > 0" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">{{ unreadNotif['laporan'] }} Baru</span></a>
                             <a href="#" @click.prevent="switchMenu('kas')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'kas' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">11. Kas Lingkungan</a>
                             <a href="#" @click.prevent="switchMenu('administrasi')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'administrasi' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">12. Realisasi Anggaran</a>
                             <a href="#" @click.prevent="switchMenu('umkm')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'umkm' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">13. Lapak UMKM Warga</a>
-                            <a href="#" @click.prevent="switchMenu('fasilitas')" :class="['flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'fasilitas' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><span>14. Lapor Fasilitas</span><span v-if="notif['fasilitas'] > 0" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">{{ notif['fasilitas'] }} Baru</span></a>
-                            <a href="#" @click.prevent="switchMenu('bursa-kerja')" :class="['flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'bursa-kerja' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><span>15. Bursa Kerja</span><span v-if="notif['bursa-kerja'] > 0" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">{{ notif['bursa-kerja'] }} Baru</span></a>
+                            <a href="#" @click.prevent="switchMenu('fasilitas')" :class="['flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'fasilitas' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><span>14. Lapor Fasilitas</span><span v-if="unreadNotif['fasilitas'] > 0" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">{{ unreadNotif['fasilitas'] }} Baru</span></a>
+                            <a href="#" @click.prevent="switchMenu('bursa-kerja')" :class="['flex justify-between items-center px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'bursa-kerja' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']"><span>15. Bursa Kerja</span><span v-if="unreadNotif['bursa-kerja'] > 0" class="bg-red-500 text-white text-[9px] px-1.5 py-0.5 rounded-full animate-pulse shadow-md">{{ unreadNotif['bursa-kerja'] }} Baru</span></a>
                             <a href="#" @click.prevent="switchMenu('bank-sampah')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'bank-sampah' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">16. Bank Sampah</a>
                             <a href="#" @click.prevent="switchMenu('galeri')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition', currentMenu === 'galeri' ? 'bg-amber-100 text-amber-800' : 'text-blue-100 hover:bg-blue-800']">17. Galeri Lingkungan</a>
                             <a href="#" @click.prevent="switchMenu('agenda')" :class="['block px-3 py-2 rounded-lg text-xs font-semibold transition border border-amber-500 border-dashed', currentMenu === 'agenda' ? 'bg-amber-100 text-amber-800' : 'text-amber-300 hover:bg-blue-800']"><i class="fas fa-bullhorn mr-1"></i> 18. Agenda & Berita</a>
@@ -406,14 +407,14 @@
                         <p class="text-[10px] text-blue-300 uppercase tracking-wider mb-2 mt-2 font-bold px-2">Menu Utama {{ ['rt','rw'].includes(currentUser.role) ? 'Pengurus Wilayah' : 'Warga' }}</p>
                         <a href="#" @click.prevent="switchMenu('dashboard')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'dashboard' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><i class="fas fa-home w-5 text-center"></i> Dashboard Layanan</a>
                         <a href="#" @click.prevent="switchMenu('surat')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'surat' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><i class="fas fa-envelope-open-text w-5 text-center"></i> E-Surat Layanan</a>
-                        <a href="#" @click.prevent="switchMenu('laporan')" :class="['flex justify-between items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'laporan' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><div class="flex items-center gap-3"><i class="fas fa-exclamation-triangle w-5 text-center"></i> Keluhan & Pengaduan</div><span v-if="notif['laporan'] > 0" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">{{ notif['laporan'] }}</span></a>
-                        <a href="#" @click.prevent="switchMenu('fasilitas')" :class="['flex justify-between items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'fasilitas' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><div class="flex items-center gap-3"><i class="fas fa-tools w-5 text-center"></i> Lapor Fasilitas Rusak</div><span v-if="notif['fasilitas'] > 0" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">{{ notif['fasilitas'] }}</span></a>
+                        <a href="#" @click.prevent="switchMenu('laporan')" :class="['flex justify-between items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'laporan' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><div class="flex items-center gap-3"><i class="fas fa-exclamation-triangle w-5 text-center"></i> Keluhan & Pengaduan</div><span v-if="unreadNotif['laporan'] > 0" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">{{ unreadNotif['laporan'] }}</span></a>
+                        <a href="#" @click.prevent="switchMenu('fasilitas')" :class="['flex justify-between items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'fasilitas' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><div class="flex items-center gap-3"><i class="fas fa-tools w-5 text-center"></i> Lapor Fasilitas Rusak</div><span v-if="unreadNotif['fasilitas'] > 0" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">{{ unreadNotif['fasilitas'] }}</span></a>
                         <a href="#" @click.prevent="switchMenu('tamu')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'tamu' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><i class="fas fa-door-open w-5 text-center"></i> Lapor Tamu 1x24 Jam</a>
                         <a href="#" @click.prevent="switchMenu('bansos')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'bansos' ? 'bg-blue-800 text-white shadow' : 'text-blue-100 hover:bg-blue-800']"><i class="fas fa-hand-holding-heart w-5 text-center"></i> Pengajuan Bansos</a>
 
                         <p class="text-[10px] text-amber-300 uppercase tracking-wider mb-2 mt-6 font-bold px-2">Ekonomi & Komunitas</p>
                         <a href="#" @click.prevent="switchMenu('umkm')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'umkm' ? 'bg-emerald-600 text-white shadow' : 'text-emerald-300 hover:bg-blue-800']"><i class="fas fa-store w-5 text-center"></i> Lapak UMKM Warga</a>
-                        <a href="#" @click.prevent="switchMenu('bursa-kerja')" :class="['flex justify-between items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'bursa-kerja' ? 'bg-amber-600 text-white shadow' : 'text-amber-300 hover:bg-blue-800']"><div class="flex items-center gap-3"><i class="fas fa-handshake w-5 text-center"></i> Bursa Kerja & Jasa</div><span v-if="notif['bursa-kerja'] > 0" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">{{ notif['bursa-kerja'] }}</span></a>
+                        <a href="#" @click.prevent="switchMenu('bursa-kerja')" :class="['flex justify-between items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'bursa-kerja' ? 'bg-amber-600 text-white shadow' : 'text-amber-300 hover:bg-blue-800']"><div class="flex items-center gap-3"><i class="fas fa-handshake w-5 text-center"></i> Bursa Kerja & Jasa</div><span v-if="unreadNotif['bursa-kerja'] > 0" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">{{ unreadNotif['bursa-kerja'] }}</span></a>
                         <a href="#" @click.prevent="switchMenu('bank-sampah')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'bank-sampah' ? 'bg-green-600 text-white shadow' : 'text-green-300 hover:bg-blue-800']"><i class="fas fa-recycle w-5 text-center"></i> Bank Sampah Digital</a>
                         <a href="#" @click.prevent="switchMenu('galeri')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'galeri' ? 'bg-purple-600 text-white shadow' : 'text-purple-300 hover:bg-blue-800']"><i class="fas fa-images w-5 text-center"></i> Galeri Lingkungan</a>
                         
@@ -433,7 +434,7 @@
                     <div v-if="currentUser.role === 'babinsa'">
                         <p class="text-[10px] text-red-300 uppercase tracking-wider mb-2 mt-2 font-bold px-2">Menu Keamanan</p>
                         <a href="#" @click.prevent="switchMenu('dashboard')" :class="['flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'dashboard' ? 'bg-red-800 text-white shadow' : 'text-red-100 hover:bg-red-800']"><i class="fas fa-shield-alt w-5 text-center"></i> Dashboard Babinsa</a>
-                        <a href="#" @click.prevent="switchMenu('laporan')" :class="['flex justify-between items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'laporan' ? 'bg-red-800 text-white shadow' : 'text-red-100 hover:bg-red-800']"><div class="flex items-center gap-3"><i class="fas fa-exclamation-triangle w-5 text-center"></i> Monitoring Laporan Warga</div><span v-if="notif['laporan'] > 0" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">{{ notif['laporan'] }}</span></a>
+                        <a href="#" @click.prevent="switchMenu('laporan')" :class="['flex justify-between items-center px-3 py-2.5 rounded-lg transition-colors text-sm font-semibold', currentMenu === 'laporan' ? 'bg-red-800 text-white shadow' : 'text-red-100 hover:bg-red-800']"><div class="flex items-center gap-3"><i class="fas fa-exclamation-triangle w-5 text-center"></i> Monitoring Laporan Warga</div><span v-if="unreadNotif['laporan'] > 0" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">{{ unreadNotif['laporan'] }}</span></a>
                     </div>
 
                     <div class="mt-8 pt-4 border-t border-blue-800">
@@ -1244,7 +1245,7 @@
                         </div>
                     </div>
 
-                    <!-- FASILITAS & BURSA KERJA & BANK SAMPAH & GALERI (DIPERTAHANKAN 100%) -->
+                    <!-- FASILITAS & BURSA KERJA & BANK SAMPAH & GALERI -->
                     <div v-if="currentMenu === 'fasilitas'" class="space-y-6 form-section">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                             <h2 class="text-xl font-bold text-gray-800 border-b pb-3 mb-4"><i class="fas fa-tools text-blue-500 mr-2"></i>Lapor Fasilitas Publik Rusak</h2>
@@ -1398,7 +1399,7 @@
         import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================================
-        // KUNCI PERMANEN FIREBASE ANDA (API KEY TELAH DIMASUKKAN)
+        // KUNCI PERMANEN FIREBASE
         // =========================================================================================
         let myFirebaseConfig = {
             apiKey: "AIzaSyD4gCPeeA_uID1wYwHN0YCifaZPO6NyVkk", // SUDAH OTOMATIS TERISI
@@ -1413,37 +1414,31 @@
         let isCustomFirebase = false;
         let appFb, auth, db;
 
-        // SISTEM ROUTER DATABASE: Cek apakah user sudah mengisi API key miliknya sendiri
         if (myFirebaseConfig.apiKey && myFirebaseConfig.apiKey !== "") {
             useFirebase = true;
-            isCustomFirebase = true; // Mode Hosting Asli Warga
+            isCustomFirebase = true;
             appFb = initializeApp(myFirebaseConfig);
             auth = getAuth(appFb);
             db = getFirestore(appFb);
-        } 
-        // Jika belum, gunakan database sementara dari Layar Chat Preview ini
-        else if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+        } else if (typeof __firebase_config !== 'undefined' && __firebase_config) {
             useFirebase = true;
             appFb = initializeApp(JSON.parse(__firebase_config));
             auth = getAuth(appFb);
             db = getFirestore(appFb);
         }
 
-        // FUNGSI PENGUNCI JALUR DATA: Memastikan data Anda tersimpan permanen di folder root Firebase Anda
+        // FUNGSI PENGUNCI JALUR DATA - Memperbaiki BUG (Format 5 Segmen)
         const getCollectionPath = (collectionName) => {
             if (isCustomFirebase) {
-                // Jalur permanen untuk Firebase milik pengguna (Tidak akan terpengaruh deploy)
                 return collection(db, collectionName);
             } else {
-                // Jalur sementara untuk keperluan preview di chat
-                const appIdEnv = typeof __app_id !== 'undefined' ? __app_id : 'default-app';
+                const appIdEnv = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 return collection(db, 'artifacts', appIdEnv, 'public', 'data', collectionName);
             }
         };
 
         createApp({
             setup() {
-                // UTILITY UPLOAD FOTO KOMPRESI
                 const compressImage = (file, callback) => { 
                     if (!file) return callback(null);
                     const reader = new FileReader();
@@ -1479,7 +1474,6 @@
                     });
                 };
 
-                // FUNGSI FIREBASE (MENGGUNAKAN JALUR PENGUNCI BARU)
                 const saveData = async (collectionName, docId, dataObj, localListRef) => {
                     dataObj.isDeleted = false;
                     if (useFirebase) {
@@ -1489,6 +1483,7 @@
                         localListRef.value.unshift(dataObj);
                     }
                 };
+                
                 const updateField = async (collectionName, docId, dataObj) => {
                     if (useFirebase) {
                         const colRef = getCollectionPath(collectionName);
@@ -1510,7 +1505,6 @@
                     }
                 };
 
-                // FITUR EXCEL DOWNLOAD
                 const downloadExcelData = (menuKey) => {
                     let list = []; let filename = "";
                     if(menuKey === 'surat') { list = listSurat.value; filename = "Data_Surat"; }
@@ -1544,20 +1538,18 @@
                     document.body.removeChild(link);
                 };
 
-                // FILTER WILAYAH RT/RW
+                const currentUser = ref({ name: '', role: 'warga', username: '', rt: '01', rw: '05' });
+
                 const isMyArea = (item) => {
                     if (!item) return false;
                     if (currentUser.value.role === 'admin_kelurahan' || currentUser.value.role === 'babinsa') return true;
-                    
                     const itemRt = item.rt || '00';
                     const itemRw = item.rw || '00';
-                    
                     if (currentUser.value.role === 'rw') return itemRw === currentUser.value.rw;
                     if (currentUser.value.role === 'rt') return itemRt === currentUser.value.rt && itemRw === currentUser.value.rw;
                     return true;
                 };
 
-                // STATE UTAMA
                 const jobCategories = { "PEMERINTAH & KEAMANAN": ["PNS", "PPPK", "TNI AD", "POLRI"], "KARYAWAN": ["Swasta", "BUMN"], "LAINNYA": ["Buruh", "Tidak Bekerja"] };
                 const businessCategories = { "PERDAGANGAN": ["Toko Kelontong", "Warung Makan"], "JASA": ["Bengkel", "Cukur Rambut"] };
 
@@ -1585,7 +1577,6 @@
                 const showRegRepeatPassword = ref(false);
                 const currentAuthView = ref('landing'); 
                 const adminDropdown = ref(true);
-                const currentUser = ref({ name: '', role: 'warga', username: '', rt: '01', rw: '05' });
                 const loginForm = ref({ email: '', password: '' });
                 
                 const formUbahAkun = ref({ usernameBaru: '', passwordLama: '', passwordBaru: '' });
@@ -1630,6 +1621,21 @@
                     await saveData('warga', docId, newWarga, listWargaLengkap);
                     showToast('Pendaftaran berhasil! Silakan masuk sistem.');
                     isRegistering.value = false;
+                };
+
+                // PULL DATA REAL-TIME
+                const syncCollection = (collectionName, localListRef) => {
+                    const colRef = getCollectionPath(collectionName);
+                    onSnapshot(colRef, (snapshot) => {
+                        const data = [];
+                        snapshot.forEach((doc) => {
+                            data.push({ id: doc.id, ...doc.data() });
+                        });
+                        data.sort((a, b) => b.id - a.id);
+                        localListRef.value = data;
+                    }, (error) => {
+                        console.error("Error fetching " + collectionName + ": ", error);
+                    });
                 };
 
                 let privateSyncDone = false;
@@ -1686,11 +1692,27 @@
                         isLoggedIn.value = true; globalLoading.value = false; currentMenu.value = 'dashboard';
                     }, 800);
                 };
+
                 const handleLogout = () => { isLoggedIn.value = false; currentMenu.value = 'dashboard'; };
-                const notif = ref({ 'laporan': 0, 'fasilitas': 0, 'bursa-kerja': 0, 'surat': 0 });
-                const switchMenu = (m) => { currentMenu.value = m; sidebarOpen.value = false; if (notif.value[m] !== undefined) notif.value[m] = 0; };
+                const switchMenu = (m) => { currentMenu.value = m; sidebarOpen.value = false; };
+
+                // ===============================================
+                // NOTIFIKASI DINAMIS (ADMIN MENDAPATKAN DOT MERAH)
+                // ===============================================
+                const unreadNotif = computed(() => {
+                    if (!['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(currentUser.value.role)) {
+                        return { laporan: 0, fasilitas: 0, 'bursa-kerja': 0, surat: 0 };
+                    }
+                    return {
+                        'laporan': listLaporan.value.filter(x => !x.isDeleted && isMyArea(x) && x.status === 'Menunggu').length,
+                        'surat': listSurat.value.filter(x => !x.isDeleted && isMyArea(x) && x.status === 'Menunggu Verifikasi').length,
+                        'fasilitas': listFasilitas.value.filter(x => !x.isDeleted && isMyArea(x) && (!x.status || x.status === 'Dilaporkan')).length,
+                        'bursa-kerja': 0
+                    };
+                });
 
                 const formatRupiah = (angka) => { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka); };
+                
                 const formAnggaran = ref({ tahun: new Date().getFullYear().toString(), bidang: 'Infrastruktur', pagu: '', realisasi: '', keterangan: '' });
                 const listAnggaran = ref([]);
                 const submitAnggaran = async () => {
@@ -1796,7 +1818,7 @@
                 const submitBursa = async () => {
                     if(!formBursa.value.judul) return showToast('Judul wajib diisi', 'danger');
                     const docId = Date.now().toString();
-                    const newBursa = { id: docId, pengiklan: currentUser.value.name, rt: currentUser.value.rt, rw: currentUser.value.rw, ...formBursa.value };
+                    const newBursa = { id: docId, pengiklan: currentUser.value.name, rt: currentUser.value.rt, rw: currentUser.value.rw, status: 'Baru', ...formBursa.value };
                     await saveData('bursa', docId, newBursa, listBursa);
                     showToast('Info bursa kerja diposting!'); formBursa.value = { tipe: 'Mencari Kerja', judul: '', deskripsi: '', kontak: '' };
                 };
@@ -1879,21 +1901,6 @@
                     return res;
                 });
 
-                // MENGAMBIL DATA FIREBASE DENGAN JALUR PENGUNCI
-                const syncCollection = (collectionName, localListRef) => {
-                    const colRef = getCollectionPath(collectionName);
-                    onSnapshot(colRef, (snapshot) => {
-                        const data = [];
-                        snapshot.forEach((doc) => {
-                            data.push({ id: doc.id, ...doc.data() });
-                        });
-                        data.sort((a, b) => b.id - a.id);
-                        localListRef.value = data;
-                    }, (error) => {
-                        console.error("Error fetching " + collectionName + ": ", error);
-                    });
-                };
-
                 const loadSettings = () => {
                     const savedSettings = localStorage.getItem('appSettings');
                     if(savedSettings) appSettings.value = JSON.parse(savedSettings);
@@ -1930,6 +1937,9 @@
                     loadSettings();
                     webTraffic.value = Math.floor(Math.random() * 5000) + 1000;
                     
+                    // STOP LOADING BUG (VATIVON / SPINNER)
+                    setTimeout(() => { window.stop(); }, 4000);
+
                     if (useFirebase) {
                         try {
                             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token && !isCustomFirebase) {
@@ -1947,7 +1957,7 @@
                 });
 
                 return {
-                    notif,
+                    unreadNotif,
                     globalLoading, sidebarOpen, currentMenu, notification, showToast,
                     appSettings, landingSettings, saveSettings,
                     isLoggedIn, isRegistering, regStep, showLoginPassword, showRegPassword, showRegRepeatPassword, currentAuthView,
