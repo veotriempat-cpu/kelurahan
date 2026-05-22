@@ -11,7 +11,7 @@
 
     <title>Sistem Informasi Kelurahan Digital</title>
     
-    <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🏛️</text></svg>'>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🏛️%3C/text%3E%3C/svg%3E">
     
     <!-- Pustaka Eksternal -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -531,6 +531,25 @@
                                         </div>
                                         <div><label class="block text-xs font-bold mb-1">Password</label><input type="password" v-model="formPetugas.password" class="w-full border p-2 rounded text-sm outline-none"></div>
                                         <button @click="buatAkunPetugas" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2 rounded shadow text-sm mt-2">Buat Akun Petugas</button>
+
+                                        <!-- Daftar Petugas Aktif -->
+                                        <div class="mt-6 border-t pt-4">
+                                            <h4 class="font-bold text-sm text-gray-700 mb-2">Daftar Akun Petugas</h4>
+                                            <div class="max-h-40 overflow-y-auto border rounded-lg bg-gray-50">
+                                                <table class="w-full text-left text-xs whitespace-nowrap">
+                                                    <thead class="bg-gray-200 text-gray-600 sticky top-0"><tr><th class="p-2">Nama & Role</th><th class="p-2">Username</th><th class="p-2">Wilayah</th><th class="p-2 text-center">Aksi</th></tr></thead>
+                                                    <tbody>
+                                                        <tr v-for="p in listPetugas.filter(x => !x.isDeleted)" :key="p.id" class="border-b">
+                                                            <td class="p-2"><span class="font-bold">{{ p.nama }}</span><br><span class="text-[9px] uppercase bg-amber-100 text-amber-700 px-1 rounded">{{ p.role }}</span></td>
+                                                            <td class="p-2">{{ p.username }}</td>
+                                                            <td class="p-2">{{ p.rt ? 'RT '+p.rt : '-' }} / {{ p.rw ? 'RW '+p.rw : '-' }}</td>
+                                                            <td class="p-2 text-center"><button @click="softDeleteItem('petugas', p.id, listPetugas)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button></td>
+                                                        </tr>
+                                                        <tr v-if="listPetugas.filter(x => !x.isDeleted).length === 0"><td colspan="4" class="text-center p-2 text-gray-500 italic">Belum ada akun petugas</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1655,8 +1674,16 @@
                 const formUbahAkun = ref({ usernameBaru: '', passwordLama: '', passwordBaru: '' });
                 const submitUbahAkun = () => { if(formUbahAkun.value.passwordLama && !formUbahAkun.value.passwordBaru) return showToast('Password baru wajib diisi!', 'danger'); showToast('Data akun berhasil diperbarui! Mohon login kembali pada sesi berikutnya.'); if(formUbahAkun.value.usernameBaru) currentUser.value.username = formUbahAkun.value.usernameBaru; formUbahAkun.value = { usernameBaru: '', passwordLama: '', passwordBaru: '' }; };
                 
+                const listPetugas = ref([]);
                 const formPetugas = ref({ role: 'rt', nama: '', username: '', password: '', rt: '', rw: '' });
-                const buatAkunPetugas = () => { if(!formPetugas.value.username) return showToast('Username wajib diisi!', 'danger'); showToast(`Akun ${formPetugas.value.role.toUpperCase()} berhasil dibuat!`); formPetugas.value = { role: 'rt', nama: '', username: '', password: '', rt: '', rw: '' }; };
+                const buatAkunPetugas = async () => { 
+                    if(!formPetugas.value.username || !formPetugas.value.password) return showToast('Username dan password wajib diisi!', 'danger'); 
+                    const docId = Date.now().toString();
+                    const newPetugas = { id: docId, ...formPetugas.value };
+                    await saveData('petugas', docId, newPetugas, listPetugas);
+                    showToast(`Akun ${formPetugas.value.role.toUpperCase()} berhasil dibuat!`); 
+                    formPetugas.value = { role: 'rt', nama: '', username: '', password: '', rt: '', rw: '' }; 
+                };
 
                 const reg = ref({
                     nik:'', nokk:'', nama:'', tempat_lahir:'', tgl_lahir:'', kelamin:'Laki-laki', suku:'', alamat:'', rt:'', rw:'', hp1:'', hp2:'',
@@ -1742,6 +1769,7 @@
                 let privateSyncDone = false;
                 const initPrivateSync = () => {
                     if (useFirebase && currentUserFirebase.value && !privateSyncDone) {
+                        syncCollection('petugas', listPetugas);
                         syncCollection('warga', listWargaLengkap);
                         syncCollection('anggaran', listAnggaran);
                         syncCollection('surat', listSurat);
@@ -1763,36 +1791,57 @@
                     setTimeout(() => {
                         let role = 'warga'; 
                         let username = loginForm.value.email.toLowerCase();
+                        let password = loginForm.value.password;
                         let userRt = '01'; 
                         let userRw = '05';
                         let displayRoleName = username;
 
-                        if(username.includes('admin') || username.includes('lurah') || username.includes('staff')) { 
+                        // 1. Cek Admin Kelurahan (Bypass)
+                        if(username === 'admin' || username === 'lurah' || username === 'admin123' || username === 'staff') { 
                             role = 'admin_kelurahan'; 
                             displayRoleName = 'Bpk. Lurah / Admin';
                         }
-                        else if(username.includes('rt')) { 
-                            role = 'rt'; 
-                            const match = username.match(/rt(\d+)/);
-                            if(match) userRt = match[1].padStart(2, '0');
-                            displayRoleName = 'Ketua RT ' + userRt;
-                        }
-                        else if(username.includes('rw')) { 
-                            role = 'rw'; 
-                            const match = username.match(/rw(\d+)/);
-                            if(match) userRw = match[1].padStart(2, '0');
-                            displayRoleName = 'Ketua RW ' + userRw;
-                        }
-                        else if(username.includes('babinsa')) { 
-                            role = 'babinsa'; 
-                            displayRoleName = 'Sersan Babinsa';
-                        }
-                        
-                        const matchedWarga = listWargaLengkap.value.find(w => w.nik === loginForm.value.email || w.username === loginForm.value.email || w.email === loginForm.value.email);
-                        if (matchedWarga && role === 'warga') {
-                            userRt = matchedWarga.rt;
-                            userRw = matchedWarga.rw;
-                            displayRoleName = matchedWarga.nama;
+                        else {
+                            // 2. Cek Akun Petugas (RT/RW/Babinsa) yang dibuat Admin
+                            const matchedPetugas = listPetugas.value.find(p => p.username.toLowerCase() === username && p.password === password && !p.isDeleted);
+                            if (matchedPetugas) {
+                                role = matchedPetugas.role;
+                                userRt = matchedPetugas.rt || '00';
+                                userRw = matchedPetugas.rw || '00';
+                                displayRoleName = matchedPetugas.nama;
+                            }
+                            else {
+                                // 3. Cek Akun Warga Terdaftar
+                                const matchedWarga = listWargaLengkap.value.find(w => 
+                                    (w.nik === loginForm.value.email || w.username.toLowerCase() === username || w.email.toLowerCase() === username) && 
+                                    !w.isDeleted
+                                );
+                                
+                                if (matchedWarga) {
+                                    role = 'warga';
+                                    userRt = matchedWarga.rt;
+                                    userRw = matchedWarga.rw;
+                                    displayRoleName = matchedWarga.nama;
+                                } else {
+                                    // Fallback lama (Jika belum ada di database, baca string username sbg backup sementara)
+                                    if(username.includes('rt')) { 
+                                        role = 'rt'; 
+                                        const match = username.match(/rt(\d+)/);
+                                        if(match) userRt = match[1].padStart(2, '0');
+                                        displayRoleName = 'Ketua RT ' + userRt;
+                                    }
+                                    else if(username.includes('rw')) { 
+                                        role = 'rw'; 
+                                        const match = username.match(/rw(\d+)/);
+                                        if(match) userRw = match[1].padStart(2, '0');
+                                        displayRoleName = 'Ketua RW ' + userRw;
+                                    }
+                                    else if(username.includes('babinsa')) { 
+                                        role = 'babinsa'; 
+                                        displayRoleName = 'Sersan Babinsa';
+                                    }
+                                }
+                            }
                         }
 
                         currentUser.value = { name: displayRoleName, username: loginForm.value.email, role: role, rt: userRt, rw: userRw };
@@ -2032,7 +2081,7 @@
                 return {
                     globalLoading, isLoggedIn, isRegistering, regStep, currentAuthView, adminDropdown, currentMenu, sidebarOpen, appSettings, landingSettings, notification, showToast,
                     loginForm, handleLogin, handleLogout, handleRegister, reg, switchMenu, showLoginPassword, showRegPassword, showRegRepeatPassword, currentUser, unreadNotif,
-                    formPetugas, buatAkunPetugas, webTraffic, saveSettings, isMyArea, listWargaLengkap, statsGender, statsUsia, statsSuku, statsKerja, statsUsaha, ultahBulanIni, formatRupiah,
+                    formPetugas, buatAkunPetugas, listPetugas, webTraffic, saveSettings, isMyArea, listWargaLengkap, statsGender, statsUsia, statsSuku, statsKerja, statsUsaha, ultahBulanIni, formatRupiah,
                     formUbahAkun, submitUbahAkun, handleFileUpload, softDeleteItem, downloadExcelData, jobCategories, businessCategories, kalkulasiKamar, renderAman,
                     
                     formAnggaran, listAnggaran, submitAnggaran,
