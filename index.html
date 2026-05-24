@@ -26,6 +26,7 @@
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
     </style>
 </head>
 
@@ -113,13 +114,30 @@
                     </div>
                 </div>
 
-                <div :style="{ backgroundColor: webSettings.warnaUtama }" class="rounded-[2.5rem] p-10 shadow-2xl text-white flex flex-col md:flex-row items-center gap-8 mb-16 relative overflow-hidden">
+                <div :style="{ backgroundColor: webSettings.warnaUtama }" class="rounded-[2.5rem] p-10 shadow-2xl text-white flex flex-col md:flex-row items-center gap-8 mb-10 relative overflow-hidden">
                     <div class="absolute -top-24 -right-24 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl"></div>
                     <img :src="webSettings.lurah.foto" class="w-48 h-48 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.lurah.foto">
                     <div class="text-center md:text-left z-10">
                         <h3 class="font-black text-3xl mb-1">{{ webSettings.lurah.nama }}</h3>
                         <p class="text-white/70 font-bold mb-4 uppercase tracking-widest text-sm">{{ webSettings.lurah.jabatan }}</p>
                         <p class="text-gray-100 text-lg italic leading-relaxed font-medium">"{{ webSettings.lurah.pesan }}"</p>
+                    </div>
+                </div>
+
+                <!-- WIDGET ULANG TAHUN WARGA BULAN INI -->
+                <div v-if="wargaUlangTahun.length > 0" class="bg-gradient-to-r from-pink-500 to-rose-500 rounded-[2rem] p-6 shadow-xl mb-12 text-white flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
+                    <div class="absolute -bottom-10 -right-10 text-9xl text-white/10"><i class="fas fa-birthday-cake"></i></div>
+                    <div class="flex-shrink-0 bg-white/20 p-5 rounded-full z-10">
+                        <i class="fas fa-gift text-4xl animate-bounce"></i>
+                    </div>
+                    <div class="flex-1 z-10 w-full">
+                        <h3 class="text-xl font-black mb-1">Warga Berulang Tahun Bulan Ini! 🎉</h3>
+                        <p class="text-sm text-pink-100 mb-3">Selamat bertambah usia untuk warga yang merayakan di bulan {{ getNamaBulan() }}.</p>
+                        <div class="flex gap-3 overflow-x-auto pb-2 hide-scroll">
+                            <div v-for="w in wargaUlangTahun" :key="w.nik" class="bg-white text-rose-600 px-4 py-2 rounded-xl font-black text-xs shadow-md flex items-center gap-2 flex-shrink-0 whitespace-nowrap border border-pink-200">
+                                <i class="fas fa-user-circle text-lg"></i> {{ w.nama }} ({{ formatTgl(w.tgl_lahir) }})
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -144,7 +162,7 @@
                             <h4 class="font-black text-xl text-gray-800 mb-2">{{ agenda.judul }}</h4>
                             <p class="text-sm text-gray-600">{{ agenda.isi }}</p>
                         </div>
-                        <div v-if="listAgenda.length===0" class="col-span-3 text-center p-8 text-gray-400 italic">Belum ada agenda/berita diterbitkan.</div>
+                        <div v-if="listAgenda.length===0" class="col-span-3 text-center p-8 text-gray-400 italic font-bold">Belum ada agenda/berita diterbitkan.</div>
                     </div>
 
                     <div v-if="publicTab==='umkm'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -165,7 +183,7 @@
                             </div>
                             <a :href="'https://wa.me/'+u.wa" target="_blank" class="mt-4 block text-center bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-sm transition"><i class="fab fa-whatsapp text-lg mr-1"></i> Chat Penjual Sekarang</a>
                         </div>
-                        <div v-if="listUmkm.length===0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada lapak UMKM terdaftar.</div>
+                        <div v-if="listUmkm.length===0" class="col-span-2 text-center p-8 text-gray-400 italic font-bold">Belum ada lapak UMKM terdaftar.</div>
                     </div>
 
                     <div v-if="publicTab==='bursa'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -174,7 +192,7 @@
                             <p class="text-sm text-gray-600 mt-2 mb-4">{{ b.deskripsi }}</p>
                             <p class="text-xs text-gray-500 font-bold bg-gray-100 inline-block px-3 py-1 rounded-lg"><i class="fas fa-user-circle text-amber-500 mr-1"></i> {{ b.pengiklan }} | WA: {{ b.wa }}</p>
                         </div>
-                        <div v-if="listBursa.length===0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada Iklan / Jasa terdaftar.</div>
+                        <div v-if="listBursa.length===0" class="col-span-2 text-center p-8 text-gray-400 italic font-bold">Belum ada Iklan / Jasa terdaftar.</div>
                     </div>
 
                     <div v-if="publicTab==='fasilitas'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -186,7 +204,7 @@
                                 <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">{{ f.status }}</span>
                             </div>
                         </div>
-                        <div v-if="listFasilitas.length===0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada laporan fasilitas.</div>
+                        <div v-if="listFasilitas.length===0" class="col-span-2 text-center p-8 text-gray-400 italic font-bold">Belum ada laporan fasilitas.</div>
                     </div>
 
                     <div v-if="publicTab==='galeri'" class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -194,7 +212,7 @@
                             <img :src="g.foto" @click="zoomedImage=g.foto" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                             <div class="absolute bottom-0 w-full bg-black/60 p-3 text-white text-xs font-bold"><p class="truncate">{{ g.judul }}</p></div>
                         </div>
-                        <div v-if="listGaleri.length===0" class="col-span-4 text-center p-8 text-gray-400 italic">Belum ada foto galeri diunggah.</div>
+                        <div v-if="listGaleri.length===0" class="col-span-4 text-center p-8 text-gray-400 italic font-bold">Belum ada foto galeri diunggah.</div>
                     </div>
                 </div>
             </div>
@@ -211,7 +229,7 @@
                         <div v-else :style="{ backgroundColor: webSettings.warnaUtama }" class="w-20 h-20 text-white rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg"><i class="fas fa-shield-alt"></i></div>
                         
                         <h2 class="text-3xl font-black text-gray-800">Sistem Kelurahan</h2>
-                        <p class="text-gray-500 text-sm mt-1">Layanan Terpadu Terproteksi</p>
+                        <p class="text-gray-500 text-sm mt-1">Layanan Terpadu Terproteksi (Cloud)</p>
                     </div>
                     
                     <form v-if="!isRegistering && !isRegisteringLuar" @submit.prevent="handleLogin" class="space-y-5">
@@ -427,9 +445,9 @@
                     <!-- 1. DASHBOARD INDUK -->
                     <div v-if="menu==='dashboard'" class="space-y-6">
                         <div :style="{ backgroundColor: webSettings.warnaUtama }" class="rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
-                            <i class="fas fa-city absolute -right-10 -top-10 text-9xl text-white/10"></i>
+                            <i class="fas fa-cloud absolute -right-10 -top-10 text-9xl text-white/10"></i>
                             <h2 class="text-3xl font-black mb-2 relative z-10">Selamat Datang, {{ user.nama }}!</h2>
-                            <p class="text-sm text-blue-100 relative z-10 max-w-xl">Semua fitur desain asli Anda telah dipertahankan. Sistem keamanan dan penyimpanan lokal aktif berjalan.</p>
+                            <p class="text-sm text-blue-100 relative z-10 max-w-xl">Sistem Cloud Database (Firebase) aktif berjalan. Semua data Anda kini tersimpan permanen dan aman dari risiko hilang.</p>
                         </div>
                         
                         <div v-if="user.role==='admin_kelurahan'" class="bg-white p-6 rounded-2xl shadow-sm border">
@@ -524,7 +542,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button @click="simpanWebSettings" class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-md transition w-full md:w-auto"><i class="fas fa-save mr-1"></i> Simpan Konfigurasi Tampilan Website</button>
+                            <button @click="simpanWebSettings" class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-md transition w-full md:w-auto"><i class="fas fa-save mr-1"></i> Simpan Ke Database</button>
                         </div>
 
                         <!-- PENGATURAN ADMIN & PEJABAT -->
@@ -804,7 +822,7 @@
                                         <div><label class="block text-xs font-bold mb-1">Kolom URL Stempel (Online)</label><input v-model="getPejabatSetting().stempel" type="text" placeholder="https://..." class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
                                         <div class="mt-2"><label class="block text-xs font-bold mb-1">Atau Upload Gambar Stempel</label><input type="file" @change="e => uploadFile(e, 'pejabatStempel')" class="w-full border p-2 rounded-lg text-sm bg-white cursor-pointer"></div>
                                     </div>
-                                    <button @click="showToast('Pengaturan Digital Tersimpan!')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-md transition"><i class="fas fa-save mr-1"></i> Simpan Pengaturan</button>
+                                    <button @click="simpanPengaturanPejabat" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-xl shadow-md transition"><i class="fas fa-save mr-1"></i> Simpan Ke Database</button>
                                 </div>
                                 <div class="bg-gray-50 p-6 rounded-xl border border-dashed border-gray-300 flex flex-col items-center justify-center text-center relative overflow-hidden h-64">
                                     <h4 class="absolute top-4 left-4 font-black text-gray-400 text-xs tracking-widest uppercase">Preview Otomatis</h4>
@@ -830,11 +848,14 @@
                             <table class="w-full text-left text-sm whitespace-nowrap">
                                 <thead class="bg-gray-50 border-b text-gray-600"><tr><th class="p-4">Nama & NIK</th><th class="p-4">Alamat</th><th class="p-4">Pekerjaan Utama</th><th class="p-4 text-center">Aksi</th></tr></thead>
                                 <tbody>
-                                    <tr v-for="w in listWarga" :key="w.nik" class="border-b hover:bg-gray-50">
+                                    <tr v-for="w in listWarga" :key="w.id" class="border-b hover:bg-gray-50">
                                         <td class="p-4"><p class="font-bold text-gray-800">{{ w.nama }}</p><p class="text-[10px] text-gray-500">NIK: {{ w.nik }}</p></td>
                                         <td class="p-4 text-xs text-gray-600">{{ w.alamat }} (RT {{w.rt}}/RW {{w.rw}})</td>
                                         <td class="p-4 text-xs font-semibold">{{ w.pekerjaan }}</td>
-                                        <td class="p-4 text-center"><button @click="selectedWarga = w" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-1.5 rounded-lg text-xs font-bold transition">Lihat Detail</button></td>
+                                        <td class="p-4 text-center">
+                                            <button @click="selectedWarga = w" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-1.5 rounded-lg text-xs font-bold transition mr-1">Detail</button>
+                                            <button v-if="user.role==='admin_kelurahan'" @click="hapus('warga', w.id)" class="text-red-500 hover:bg-red-50 p-1.5 rounded"><i class="fas fa-trash"></i></button>
+                                        </td>
                                     </tr>
                                     <tr v-if="listWarga.length === 0"><td colspan="4" class="p-6 text-center text-gray-400 italic">Belum ada data warga terdaftar.</td></tr>
                                 </tbody>
@@ -1185,158 +1206,6 @@
                         </div>
                     </div>
 
-                    <!-- 22. ARISAN WARGA RT/RW -->
-                    <div v-if="menu==='arisan'" class="space-y-6">
-                        <div class="bg-gradient-to-r from-pink-600 to-pink-800 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden">
-                            <i class="fas fa-sync-alt absolute -right-10 -top-10 text-9xl text-white/10"></i>
-                            <h2 class="text-3xl font-black mb-2 relative z-10">Arisan Warga RT {{ user.rt || 'Semua' }} / RW {{ user.rw || 'Semua' }}</h2>
-                            <p class="text-sm text-pink-100 relative z-10 max-w-xl">Transparansi penuh! Kelola anggota, kocok undian arisan otomatis, rekap kas, dan cetak kartu anggota digital.</p>
-                            
-                            <div class="relative z-10 mt-6 flex gap-4 flex-wrap">
-                                <div class="bg-white/20 backdrop-blur border border-white/30 px-6 py-3 rounded-xl">
-                                    <p class="text-xs font-bold uppercase tracking-widest text-pink-100 mb-1">Total Kas Arisan</p>
-                                    <p class="text-2xl font-black">Rp {{ hitungKasArisan(user.rt, user.rw).toLocaleString('id-ID') }}</p>
-                                </div>
-                                <div class="bg-white/20 backdrop-blur border border-white/30 px-6 py-3 rounded-xl">
-                                    <p class="text-xs font-bold uppercase tracking-widest text-pink-100 mb-1">Total Anggota</p>
-                                    <p class="text-2xl font-black">{{ listArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length }} Orang</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-3 mb-2 overflow-x-auto pb-2">
-                            <button @click="tabArisan = 'anggota'" :class="tabArisan === 'anggota' ? 'bg-pink-600 text-white shadow-md' : 'bg-white text-gray-600 border'" class="px-6 py-2.5 rounded-full font-bold transition text-sm whitespace-nowrap"><i class="fas fa-users mr-2"></i>Data Anggota & Iuran</button>
-                            <button @click="tabArisan = 'kocok'" :class="tabArisan === 'kocok' ? 'bg-pink-600 text-white shadow-md' : 'bg-white text-gray-600 border'" class="px-6 py-2.5 rounded-full font-bold transition text-sm whitespace-nowrap"><i class="fas fa-random mr-2"></i>Kocok Arisan & Riwayat</button>
-                        </div>
-
-                        <div v-if="tabArisan === 'anggota'" class="space-y-6">
-                            <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="bg-white p-6 rounded-2xl shadow-sm border">
-                                <h3 class="font-bold mb-4 border-b pb-2 text-lg"><i class="fas fa-user-plus text-pink-500 mr-2"></i>Tambah Anggota & Bayar Iuran</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-bold mb-1">Nama Anggota Warga</label><input v-model="formArisan.nama" type="text" class="w-full border p-2.5 rounded-lg text-sm outline-none bg-gray-50 focus:border-pink-400"></div>
-                                    <div><label class="block text-xs font-bold mb-1">Nominal Setor Iuran (Rp)</label><input v-model="formArisan.iuran" type="number" class="w-full border p-2.5 rounded-lg text-sm outline-none bg-gray-50 focus:border-pink-400"></div>
-                                    <div class="md:col-span-2"><button @click="simpanArisan" class="bg-pink-600 hover:bg-pink-700 text-white font-bold px-6 py-2.5 rounded-xl shadow transition w-full md:w-auto"><i class="fas fa-save mr-1"></i> Daftarkan & Simpan Iuran</button></div>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
-                                <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">No. Anggota / Undian</th><th class="p-4">Nama Anggota</th><th class="p-4">Total Iuran Terkumpul</th><th class="p-4 text-center">Status Undian</th><th class="p-4 text-center">Aksi / Cetak Kartu</th></tr></thead>
-                                    <tbody>
-                                        <tr v-for="a in listArisan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="a.id" class="border-b hover:bg-gray-50">
-                                            <td class="p-4"><span class="font-bold text-gray-800 bg-gray-200 px-2 py-1 rounded text-xs">{{ a.noAnggota }}</span> <span class="text-xs font-black text-pink-600 ml-2">#{{ a.noUndian }}</span></td>
-                                            <td class="p-4 font-bold">{{ a.nama }}</td>
-                                            <td class="p-4 text-emerald-600 font-black">Rp {{ a.totalIuran.toLocaleString('id-ID') }}</td>
-                                            <td class="p-4 text-center">
-                                                <span v-if="a.statusMenang" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Sudah Menang</span>
-                                                <span v-else class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Belum Menang</span>
-                                            </td>
-                                            <td class="p-4 text-center">
-                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="tambahIuranManual(a.id)" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg font-bold transition mr-2"><i class="fas fa-plus"></i> Iuran</button>
-                                                <button @click="cetakKartuArisan(a)" class="text-[10px] bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg font-bold transition shadow-sm"><i class="fas fa-print mr-1"></i> PDF Kartu</button>
-                                            </td>
-                                        </tr>
-                                        <tr v-if="listArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0"><td colspan="5" class="p-6 text-center text-gray-400 italic">Belum ada data anggota arisan di wilayah ini.</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div v-if="tabArisan === 'kocok'" class="space-y-6">
-                            <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="bg-white p-8 rounded-2xl shadow-sm border text-center">
-                                <i class="fas fa-gem text-5xl text-pink-400 mb-4 animate-bounce"></i>
-                                <h3 class="text-2xl font-black text-gray-800 mb-2">Waktunya Undian Arisan!</h3>
-                                <p class="text-sm text-gray-500 mb-6">Sistem akan mengacak dan memilih satu pemenang dari anggota yang belum menang.</p>
-                                <button @click="kocokArisan" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-black text-lg px-10 py-4 rounded-full shadow-xl transition transform hover:scale-105"><i class="fas fa-dice mr-2"></i> Kocok Arisan Sekarang</button>
-                            </div>
-                            
-                            <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                                <h3 class="font-bold text-lg mb-4 border-b pb-2"><i class="fas fa-trophy text-amber-500 mr-2"></i>Riwayat Pemenang Arisan</h3>
-                                <ul class="space-y-3">
-                                    <li v-for="(p, idx) in riwayatArisan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="idx" class="flex justify-between items-center bg-amber-50 border border-amber-200 p-4 rounded-xl">
-                                        <div>
-                                            <p class="text-[10px] text-amber-600 font-bold uppercase">{{ p.tanggal }}</p>
-                                            <p class="font-black text-gray-800 text-lg">{{ p.nama }} <span class="text-xs text-gray-500 font-normal ml-2">Nomor Undian: #{{ p.noUndian }}</span></p>
-                                        </div>
-                                        <div class="text-right">
-                                            <p class="text-[10px] text-gray-500 font-bold uppercase">Menerima Tarikan</p>
-                                            <p class="font-black text-emerald-600 text-lg">Rp {{ p.nominal.toLocaleString('id-ID') }}</p>
-                                        </div>
-                                    </li>
-                                    <li v-if="riwayatArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0" class="text-center text-gray-400 italic p-4">Belum ada riwayat pemenang ditarik.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 23. SUMBANGAN WARGA RT/RW -->
-                    <div v-if="menu==='sumbangan'" class="space-y-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center flex-wrap gap-4">
-                            <div>
-                                <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-donate text-emerald-500 mr-2"></i>Sumbangan Warga RT {{ user.rt || 'Semua' }} / RW {{ user.rw || 'Semua' }}</h2>
-                                <p class="text-xs text-gray-500 mt-1">Total Terkumpul: <strong class="text-emerald-600 text-sm">Rp {{ hitungKasSumbangan(user.rt, user.rw).toLocaleString('id-ID') }}</strong></p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="showFormSumbangan=!showFormSumbangan" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-plus mr-1"></i> Input Sumbangan</button>
-                                <button @click="downloadSumbanganPDF" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-file-pdf"></i> PDF</button>
-                                <button @click="downloadExcelData('sumbangan')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-file-excel"></i> Excel</button>
-                            </div>
-                        </div>
-
-                        <div v-if="showFormSumbangan" class="bg-emerald-50 p-6 rounded-2xl border border-emerald-200 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-inner">
-                            <div><label class="block text-xs font-bold mb-1">Nama Penyumbang</label><input v-model="formSumbangan.nama" type="text" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none focus:border-emerald-400"></div>
-                            <div><label class="block text-xs font-bold mb-1">Nominal (Rp)</label><input v-model="formSumbangan.nominal" type="number" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none focus:border-emerald-400"></div>
-                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Jenis / Tujuan Sumbangan</label><input v-model="formSumbangan.jenis" type="text" placeholder="Cth: Dana Kematian, 17 Agustusan, Pembangunan Masjid..." class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none focus:border-emerald-400"></div>
-                            <div class="md:col-span-2 text-right"><button @click="simpanSumbangan" class="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition">Posting Sumbangan</button></div>
-                        </div>
-
-                        <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
-                            <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tanggal Posting</th><th class="p-4">Nama Penyumbang</th><th class="p-4">Tujuan Sumbangan</th><th class="p-4 text-right">Nominal (Rp)</th></tr></thead>
-                                <tbody>
-                                    <tr v-for="s in listSumbangan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="s.id" class="border-b hover:bg-gray-50">
-                                        <td class="p-4 text-gray-500 text-xs font-bold">{{ s.tanggal }}</td>
-                                        <td class="p-4 font-black text-gray-800">{{ s.nama }}</td>
-                                        <td class="p-4 text-xs">{{ s.jenis }}</td>
-                                        <td class="p-4 text-right font-black text-emerald-600">Rp {{ s.nominal.toLocaleString('id-ID') }}</td>
-                                    </tr>
-                                    <tr v-if="listSumbangan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0"><td colspan="4" class="p-6 text-center text-gray-400 italic">Belum ada data sumbangan warga.</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- 18. AGENDA & BERITA -->
-                    <div v-if="menu==='agenda'" class="space-y-6">
-                        <div class="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border">
-                            <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-bullhorn text-blue-600 mr-2"></i>Manajemen Agenda & Berita</h2>
-                        </div>
-                        <div v-if="user.role==='admin_kelurahan'" class="bg-blue-50 p-6 rounded-2xl border border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-inner">
-                            <div><label class="block text-xs font-bold mb-1">Judul Agenda / Berita</label><input v-model="formAgenda.judul" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="block text-xs font-bold mb-1">Kategori</label><select v-model="formAgenda.kategori" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"><option>Pengumuman</option><option>Berita</option><option>Kegiatan</option></select></div>
-                                <div><label class="block text-xs font-bold mb-1">Tanggal Acara (Jika Ada)</label><input type="date" v-model="formAgenda.tanggal" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                            </div>
-                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Isi Berita / Keterangan</label><textarea v-model="formAgenda.isi" rows="3" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></textarea></div>
-                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Upload Poster / Foto</label><input type="file" @change="e=>uploadFile(e,'agenda')" class="w-full border p-2.5 rounded-lg text-sm bg-white cursor-pointer"></div>
-                            <div class="md:col-span-2 text-right"><button @click="simpanAgenda" class="bg-blue-700 hover:bg-blue-800 text-white px-8 py-3 rounded-xl font-bold shadow-md transition">Publikasikan Ke Halaman Utama</button></div>
-                        </div>
-                        <div class="grid grid-cols-1 gap-4">
-                            <div v-for="a in listAgenda" :key="a.id" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex gap-4 relative items-center">
-                                <img v-if="a.foto" :src="a.foto" @click="zoomedImage=a.foto" class="w-24 h-24 object-cover rounded-xl border cursor-pointer">
-                                <div class="w-24 h-24 bg-gray-100 flex items-center justify-center rounded-xl border text-gray-400" v-else><i class="fas fa-image text-3xl"></i></div>
-                                
-                                <div class="flex-1">
-                                    <span class="px-2 py-1 rounded bg-blue-100 text-blue-700 text-[10px] font-black uppercase mb-1 inline-block">{{ a.kategori }}</span>
-                                    <h4 class="font-black text-gray-800 text-lg mb-1">{{ a.judul }}</h4>
-                                    <p class="text-xs text-gray-600 line-clamp-2">{{ a.isi }}</p>
-                                </div>
-                                <button v-if="user.role==='admin_kelurahan'" @click="hapus('agenda', a.id)" class="absolute top-4 right-4 text-red-500 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition"><i class="fas fa-trash"></i></button>
-                            </div>
-                            <div v-if="listAgenda.length === 0" class="text-center p-8 text-gray-400 italic">Belum ada agenda terdaftar.</div>
-                        </div>
-                    </div>
-
                     <div v-if="['statistik-pekerjaan', 'status-usaha', 'arsip-surat', 'surat', 'bansos'].includes(menu)" class="bg-white p-10 rounded-3xl shadow-sm border text-center">
                         <i class="fas fa-cogs text-6xl text-gray-300 mb-4"></i>
                         <h2 class="text-2xl font-black text-gray-800 capitalize">Modul {{ menu.replace('-', ' ') }}</h2>
@@ -1348,15 +1217,23 @@
         </div>
     </div>
 
+    <!-- FIREBASE MODULES (PERSISTENCE) -->
     <script type="module">
-        import { createApp, ref, computed, watch, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+        import { createApp, ref, computed, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // FIREBASE SETUP
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         createApp({
             setup() {
-                // --- FUNGSI LOCAL STORAGE (DATA TIDAK HILANG SAAT REFRESH/DEPLOY) ---
-                const loadState = (key, defaultVal) => { const saved = localStorage.getItem('kelurahan_app_' + key); return saved ? JSON.parse(saved) : defaultVal; };
-                const saveState = (key, val) => { localStorage.setItem('kelurahan_app_' + key, JSON.stringify(val)); };
-
+                const fbUser = ref(null);
                 const notification = ref({ show: false, message: '', type: 'success' });
                 const showToast = (msg, type='success') => { notification.value={show:true, message:msg, type}; setTimeout(()=>notification.value.show=false, 3000); };
                 
@@ -1387,57 +1264,51 @@
                 const showFormBursa = ref(false);
                 const showFormFasilitas = ref(false);
 
-                // --- STATE YANG DISIMPAN DI LOCAL STORAGE (CLEAN SLATE) ---
-                const webSettings = ref(loadState('webSettings', {
+                // DATA REFS
+                const webSettings = ref({
                     warnaUtama: '#1e3a8a', logo: '', namaWebsite: 'Portal Kelurahan Digital', headerText: 'Layanan Digital Terpadu', footerText: '© 2026 Sistem Informasi Kelurahan Digital. Semua Hak Dilindungi.',
                     walikota: { nama: 'Bapak Walikota', jabatan: 'Walikota', foto: 'https://via.placeholder.com/150', pesan: 'Wujudkan kota cerdas dengan pelayanan publik digital yang cepat dan transparan.' },
                     wakil: { nama: 'Bapak Wakil Walikota', jabatan: 'Wakil Walikota', foto: 'https://via.placeholder.com/150', pesan: 'Kolaborasi bersama membangun daerah melalui pemanfaatan teknologi informasi.' },
                     lurah: { nama: 'Bapak Lurah', jabatan: 'Kepala Kelurahan', foto: 'https://via.placeholder.com/200', pesan: 'Selamat datang di portal resmi kelurahan digital. Gunakan layanan mandiri ini untuk mempermudah segala urusan Anda.' },
                     ttd: { lurah: '', sekretaris: '', stempel: '', aktif: true }
-                }));
+                });
 
                 const formWargaTtd = ref({ url: '' });
                 const formAdmin = ref({ username: 'admin123', password: 'admin123' });
-                const adminAccount = ref(loadState('adminAccount', { username: 'admin123', password: 'admin123' })); 
+                const adminAccount = ref({ username: 'admin123', password: 'admin123' }); 
                 
                 const formPejabat = ref({ nama: '', role: 'rt', wilayah: '', rt: '', rw: '', username: '', password: '', ttd: '', stempel: '' });
-                const listPejabat = ref(loadState('listPejabat', []));
-                const listBendahara = ref(loadState('listBendahara', []));
+                const listPejabat = ref([]);
+                const listBendahara = ref([]);
                 const formBendahara = ref({ nama: '', username: '', password: '' });
                 
                 const showFormTamu = ref(false);
                 const formTamu = ref({ nama:'', nik:'', asal:'', lama:'', tujuan:'', foto:null });
-                const listTamu = ref(loadState('listTamu', []));
+                const listTamu = ref([]);
 
                 const showFormSumbangan = ref(false);
                 const formSumbangan = ref({ nama:'', nominal:'', jenis:'' });
-                const listSumbangan = ref(loadState('listSumbangan', []));
+                const listSumbangan = ref([]);
                 
                 const formArisan = ref({ nama:'', iuran:'' });
-                const listArisan = ref(loadState('listArisan', [])); 
-                const riwayatArisan = ref(loadState('riwayatArisan', []));
-                const logAktivitas = ref(loadState('logAktivitas', [])); 
-
-                const catatLog = (aksiStr) => {
-                    const now = new Date().toLocaleString('id-ID');
-                    logAktivitas.value.unshift({ rt: user.value.rt, rw: user.value.rw, waktu: now, user: user.value.nama, aksi: aksiStr });
-                    if(logAktivitas.value.length > 100) logAktivitas.value.pop(); 
-                };
+                const listArisan = ref([]); 
+                const riwayatArisan = ref([]);
+                const logAktivitas = ref([]); 
 
                 const loginForm = ref({ email: '', password: '' });
                 const reg = ref({ nik:'', nokk:'', nama:'', rt:'', rw:'', alamat:'', tempat_lahir:'', tgl_lahir:'', kelamin:'Laki-laki', pendidikan:'SMA/SMK', pekerjaan:'', usaha:'', username:'', password:'', repeatPassword:'', status_keluarga:'Kepala Keluarga', status_nikah:'Belum Menikah', jml_kk:1, status_rumah:'Milik Sendiri', sehat_status:'Sehat', gol_darah:'-', penghasilan:'< 1 juta', hp1:'', hp2:'', suku:'', ttd:'' }); 
                 const regLuar = ref({ nama: '', nik: '', alamat: '', hp: '', username: '', password: '', ttd:'' });
                 
-                const listWarga = ref(loadState('listWarga', []));
-                const listWargaLuar = ref(loadState('listWargaLuar', []));
+                const listWarga = ref([]);
+                const listWargaLuar = ref([]);
                 
                 const formUsahaLuar = ref({ fotoKtp: null, jenisUsaha: '', namaUsaha: '', lokasiUsaha: '', rt: '', rw: '', keperluan: '', alasan: '', fotoUsaha: null });
-                const listPengajuanUsaha = ref(loadState('listPengajuanUsaha', [])); 
+                const listPengajuanUsaha = ref([]); 
                 
                 const formSurat = ref({ jenis:'', keperluan:'', fotoKtpKk:null, fotoPengantar:null }); 
                 const formSuratPengantar = ref({ nama: '', nik: '', hp: '', alamat: '', rt: '', rw: '', keperluan: '', fotoKtp: null, fotoKk: null, fotoDok: null, catatan: '' });
-                const listSuratPengantar = ref(loadState('listSuratPengantar', [])); 
-                const listSurat = ref(loadState('listSurat', []));
+                const listSuratPengantar = ref([]); 
+                const listSurat = ref([]);
 
                 const formUmkm = ref({ nama:'', wa:'', jamBuka:'08:00', jamTutup:'21:00', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null });
                 const formGaleri = ref({ judul:'', foto:null });
@@ -1448,38 +1319,95 @@
                 const formSampah = ref({ nama:'', jenis:'', berat:'' }); 
                 const formAgenda = ref({ judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null }); 
 
-                const listAgenda = ref(loadState('listAgenda', []));
-                const listUmkm = ref(loadState('listUmkm', []));
-                const listGaleri = ref(loadState('listGaleri', []));
-                const listBursa = ref(loadState('listBursa', []));
-                const listFasilitas = ref(loadState('listFasilitas', []));
-                const listBansos = ref(loadState('listBansos', []));
-                const listAnggaran = ref(loadState('listAnggaran', []));
-                const listSampah = ref(loadState('listSampah', []));
-                const listLaporan = ref(loadState('listLaporan', []));
+                const listAgenda = ref([]);
+                const listUmkm = ref([]);
+                const listGaleri = ref([]);
+                const listBursa = ref([]);
+                const listFasilitas = ref([]);
+                const listBansos = ref([]);
+                const listAnggaran = ref([]);
+                const listSampah = ref([]);
+                const listLaporan = ref([]);
 
-                // --- AUTOSAVE WATCHERS ---
-                watch(webSettings, (val) => saveState('webSettings', val), { deep: true });
-                watch(adminAccount, (val) => saveState('adminAccount', val), { deep: true });
-                watch(listWarga, (val) => saveState('listWarga', val), { deep: true });
-                watch(listWargaLuar, (val) => saveState('listWargaLuar', val), { deep: true });
-                watch(listPejabat, (val) => saveState('listPejabat', val), { deep: true });
-                watch(listBendahara, (val) => saveState('listBendahara', val), { deep: true });
-                watch(listSumbangan, (val) => saveState('listSumbangan', val), { deep: true });
-                watch(listTamu, (val) => saveState('listTamu', val), { deep: true });
-                watch(listArisan, (val) => saveState('listArisan', val), { deep: true });
-                watch(riwayatArisan, (val) => saveState('riwayatArisan', val), { deep: true });
-                watch(logAktivitas, (val) => saveState('logAktivitas', val), { deep: true });
-                watch(listAgenda, (val) => saveState('listAgenda', val), { deep: true });
-                watch(listUmkm, (val) => saveState('listUmkm', val), { deep: true });
-                watch(listGaleri, (val) => saveState('listGaleri', val), { deep: true });
-                watch(listBursa, (val) => saveState('listBursa', val), { deep: true });
-                watch(listFasilitas, (val) => saveState('listFasilitas', val), { deep: true });
-                watch(listSampah, (val) => saveState('listSampah', val), { deep: true });
-                watch(listLaporan, (val) => saveState('listLaporan', val), { deep: true });
-                watch(listPengajuanUsaha, (val) => saveState('listPengajuanUsaha', val), { deep: true });
-                watch(listSuratPengantar, (val) => saveState('listSuratPengantar', val), { deep: true });
-                watch(listAnggaran, (val) => saveState('listAnggaran', val), { deep: true });
+                // INIT FIREBASE
+                onMounted(() => {
+                    const initAuth = async () => {
+                        try {
+                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                                await signInWithCustomToken(auth, __initial_auth_token);
+                            } else {
+                                await signInAnonymously(auth);
+                            }
+                        } catch (e) { console.error("Auth error", e); }
+                    };
+                    initAuth();
+                    
+                    onAuthStateChanged(auth, (u) => {
+                        fbUser.value = u;
+                        if(u) { setupListeners(); }
+                    });
+                });
+
+                const getColRef = (cName) => collection(db, 'artifacts', appId, 'public', 'data', cName);
+                const getDocRef = (cName, dId) => doc(db, 'artifacts', appId, 'public', 'data', cName, dId);
+
+                const setupListeners = () => {
+                    if(!fbUser.value) return;
+                    const sync = (cName, refVar) => {
+                        onSnapshot(getColRef(cName), (snap) => {
+                            refVar.value = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                        }, (err) => console.error(err));
+                    };
+
+                    sync('warga', listWarga);
+                    sync('wargaLuar', listWargaLuar);
+                    sync('pejabat', listPejabat);
+                    sync('bendahara', listBendahara);
+                    sync('tamu', listTamu);
+                    sync('sumbangan', listSumbangan);
+                    sync('arisan', listArisan);
+                    sync('riwayatArisan', riwayatArisan);
+                    sync('logAktivitas', logAktivitas);
+                    sync('pengajuanUsaha', listPengajuanUsaha);
+                    sync('suratPengantar', listSuratPengantar);
+                    sync('umkm', listUmkm);
+                    sync('galeri', listGaleri);
+                    sync('bursa', listBursa);
+                    sync('fasilitas', listFasilitas);
+                    sync('anggaran', listAnggaran);
+                    sync('sampah', listSampah);
+                    sync('agenda', listAgenda);
+                    sync('laporan', listLaporan);
+
+                    onSnapshot(getDocRef('settings', 'webSettings'), (d) => {
+                        if(d.exists()) webSettings.value = d.data();
+                    }, (err) => console.error(err));
+
+                    onSnapshot(getDocRef('settings', 'adminAccount'), (d) => {
+                        if(d.exists()) adminAccount.value = d.data();
+                    }, (err) => console.error(err));
+                };
+
+                const saveData = async (colName, data) => {
+                    if(!fbUser.value) return;
+                    const id = data.id || Date.now().toString();
+                    await setDoc(getDocRef(colName, id.toString()), { ...data, id: id.toString() });
+                };
+
+                const updateData = async (colName, data) => {
+                    if(!fbUser.value || !data.id) return;
+                    await setDoc(getDocRef(colName, data.id.toString()), data, { merge: true });
+                };
+
+                const deleteData = async (colName, id) => {
+                    if(!fbUser.value) return;
+                    await deleteDoc(getDocRef(colName, id.toString()));
+                };
+
+                const catatLog = async (aksiStr) => {
+                    const now = new Date().toLocaleString('id-ID');
+                    await saveData('logAktivitas', { rt: user.value.rt, rw: user.value.rw, waktu: now, user: user.value.nama, aksi: aksiStr });
+                };
 
                 const uploadFile = (e, target) => {
                     const f = e.target.files[0]; if(!f) return;
@@ -1528,15 +1456,15 @@
                     showToast('Username/NIK atau Password SALAH! Akses ditolak.', 'danger');
                 };
 
-                const handleRegister = () => {
+                const handleRegister = async () => {
                     if(reg.value.password !== reg.value.repeatPassword) return showToast('Password tidak sama!', 'danger');
-                    listWarga.value.unshift({ ...reg.value, id: Date.now() });
+                    await saveData('warga', { ...reg.value });
                     isRegistering.value = false; showToast('Pendaftaran Berhasil! Silakan Login.');
                 };
 
-                const handleRegisterLuar = () => {
+                const handleRegisterLuar = async () => {
                     if(!regLuar.value.username || !regLuar.value.password || !regLuar.value.nama) return showToast('Mohon lengkapi data!', 'danger');
-                    listWargaLuar.value.unshift({ ...regLuar.value, id: Date.now() });
+                    await saveData('wargaLuar', { ...regLuar.value });
                     isRegisteringLuar.value = false; showToast('Pendaftaran Warga Luar Berhasil! Silakan Login.');
                     regLuar.value = { nama: '', nik: '', alamat: '', hp: '', username: '', password: '', ttd:'' };
                 };
@@ -1545,25 +1473,45 @@
 
                 const getPejabatSetting = () => { return listPejabat.value.find(x => x.username === user.value.username) || { ttd:'', stempel:'' }; };
                 
-                const simpanWebSettings = () => { showToast('Pengaturan Website & TTD Berhasil Disimpan!'); };
+                const simpanPengaturanPejabat = async () => {
+                    const p = getPejabatSetting();
+                    if(p && p.id) {
+                        await updateData('pejabat', p);
+                        showToast('Pengaturan Digital Pejabat Tersimpan!');
+                    }
+                };
 
-                const simpanTtdWarga = () => {
+                const simpanWebSettings = async () => { 
+                    if(!fbUser.value) return;
+                    await setDoc(getDocRef('settings', 'webSettings'), webSettings.value);
+                    showToast('Pengaturan Website & TTD Berhasil Disimpan!'); 
+                };
+
+                const updateAdmin = async () => { 
+                    if(!formAdmin.value.username || !formAdmin.value.password) return showToast('Tidak Boleh Kosong', 'danger'); 
+                    if(!fbUser.value) return;
+                    adminAccount.value = { ...formAdmin.value }; 
+                    await setDoc(getDocRef('settings', 'adminAccount'), adminAccount.value);
+                    showToast('Akses Admin Utama Berhasil Diubah!'); 
+                };
+
+                const simpanTtdWarga = async () => {
                     if(user.value.role === 'warga'){
-                        const wIdx = listWarga.value.findIndex(x => x.username === user.value.username);
-                        if(wIdx > -1) listWarga.value[wIdx].ttd = formWargaTtd.value.url;
+                        const w = listWarga.value.find(x => x.username === user.value.username);
+                        if(w) { w.ttd = formWargaTtd.value.url; await updateData('warga', w); }
                     } else if(user.value.role === 'warga_luar'){
-                        const wLuarIdx = listWargaLuar.value.findIndex(x => x.username === user.value.username);
-                        if(wLuarIdx > -1) listWargaLuar.value[wLuarIdx].ttd = formWargaTtd.value.url;
+                        const wLuar = listWargaLuar.value.find(x => x.username === user.value.username);
+                        if(wLuar) { wLuar.ttd = formWargaTtd.value.url; await updateData('wargaLuar', wLuar); }
                     }
                     user.value.ttd = formWargaTtd.value.url;
                     showToast('Pengaturan TTD Anda Berhasil Disimpan!');
                 };
                 
-                const simpanSuratPengantar = () => {
+                const simpanSuratPengantar = async () => {
                     if(!formSuratPengantar.value.rt || !formSuratPengantar.value.rw || !formSuratPengantar.value.fotoKtp) return showToast('Harap lengkapi RT, RW dan KTP!', 'danger');
                     const tglNow = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    listSuratPengantar.value.unshift({
-                        ...formSuratPengantar.value, id: Date.now(),
+                    await saveData('suratPengantar', {
+                        ...formSuratPengantar.value,
                         username: user.value.username, tanggal: tglNow,
                         statusRT: 'Menunggu', statusRW: 'Menunggu'
                     });
@@ -1571,34 +1519,35 @@
                     formSuratPengantar.value = { nama: '', nik: '', hp: '', alamat: '', rt: '', rw: '', keperluan: '', fotoKtp: null, fotoKk: null, fotoDok: null, catatan: '' };
                 };
 
-                const setujuiPengantar = (u, role, isApprove) => {
+                const setujuiPengantar = async (u, role, isApprove) => {
                     const statusText = isApprove ? 'Disetujui' : 'Ditolak';
                     if (role === 'rt') u.statusRT = statusText;
                     if (role === 'rw') u.statusRW = statusText;
+                    await updateData('suratPengantar', u);
                     showToast(`Pengantar Warga ${statusText}!`);
                 };
 
-                const simpanTamu = () => {
+                const simpanTamu = async () => {
                     if(!formTamu.value.nama || !formTamu.value.nik) return showToast('Lengkapi Data Tamu', 'danger');
-                    listTamu.value.unshift({...formTamu.value, id:Date.now(), pelapor:user.value.nama, rt: user.value.rt, rw: user.value.rw});
-                    catatLog(`Melaporkan kedatangan tamu atas nama ${formTamu.value.nama}`);
+                    await saveData('tamu', {...formTamu.value, pelapor:user.value.nama, rt: user.value.rt, rw: user.value.rw});
+                    await catatLog(`Melaporkan kedatangan tamu atas nama ${formTamu.value.nama}`);
                     showToast('Laporan Tamu Disimpan'); showFormTamu.value=false; 
                     formTamu.value={nama:'', nik:'', asal:'', lama:'', tujuan:'', foto:null};
                 };
 
-                const simpanBendahara = () => {
+                const simpanBendahara = async () => {
                     if(!formBendahara.value.nama || !formBendahara.value.username) return showToast('Lengkapi Data', 'danger');
-                    listBendahara.value.unshift({...formBendahara.value, id: Date.now(), rt: user.value.rt, rw: user.value.rw});
-                    catatLog(`Mendaftarkan akun Bendahara baru: ${formBendahara.value.nama}`);
+                    await saveData('bendahara', {...formBendahara.value, rt: user.value.rt, rw: user.value.rw});
+                    await catatLog(`Mendaftarkan akun Bendahara baru: ${formBendahara.value.nama}`);
                     showToast('Akun Bendahara Berhasil Dibuat');
                     formBendahara.value = {nama:'', username:'', password:''};
                 };
 
-                const simpanSumbangan = () => {
+                const simpanSumbangan = async () => {
                     if(!formSumbangan.value.nama || !formSumbangan.value.nominal) return showToast('Isi nama dan nominal', 'danger');
                     const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    listSumbangan.value.unshift({...formSumbangan.value, id:Date.now(), rt: user.value.rt, rw: user.value.rw, tanggal: tgl});
-                    catatLog(`Menerima sumbangan dari ${formSumbangan.value.nama} sebesar Rp ${formSumbangan.value.nominal}`);
+                    await saveData('sumbangan', {...formSumbangan.value, rt: user.value.rt, rw: user.value.rw, tanggal: tgl});
+                    await catatLog(`Menerima sumbangan dari ${formSumbangan.value.nama} sebesar Rp ${formSumbangan.value.nominal}`);
                     showToast('Sumbangan Berhasil Diposting'); showFormSumbangan.value=false;
                     formSumbangan.value = {nama:'', nominal:'', jenis:''};
                 };
@@ -1645,30 +1594,50 @@
                     return cat;
                 });
 
-                const simpanArisan = () => {
+                // ULANG TAHUN WARGA BULAN INI
+                const getNamaBulan = () => {
+                    const ms = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                    return ms[new Date().getMonth()];
+                };
+                const formatTgl = (tgl) => {
+                    if(!tgl) return '';
+                    const d = new Date(tgl);
+                    return `${d.getDate()} ${getNamaBulan()}`;
+                };
+                const wargaUlangTahun = computed(() => {
+                    const currentMonth = new Date().getMonth();
+                    return listWarga.value.filter(w => {
+                        if(!w.tgl_lahir) return false;
+                        const dob = new Date(w.tgl_lahir);
+                        return dob.getMonth() === currentMonth;
+                    });
+                });
+
+                const simpanArisan = async () => {
                     if(!formArisan.value.nama) return showToast('Isi nama anggota', 'danger');
                     const cRt = user.value.rt; const cRw = user.value.rw;
                     const membersInRT = listArisan.value.filter(x => x.rt === cRt && x.rw === cRw);
                     const noUrut = membersInRT.length + 1;
                     const noAnggota = `ARS-${("00" + noUrut).slice(-3)}`;
                     
-                    listArisan.value.unshift({
-                        id: Date.now(), rt: cRt, rw: cRw, nama: formArisan.value.nama,
+                    await saveData('arisan', {
+                        rt: cRt, rw: cRw, nama: formArisan.value.nama,
                         noAnggota: noAnggota, noUndian: noUrut,
                         totalIuran: Number(formArisan.value.iuran || 0), statusMenang: false
                     });
-                    catatLog(`Mendaftarkan anggota arisan baru: ${formArisan.value.nama}`);
+                    await catatLog(`Mendaftarkan anggota arisan baru: ${formArisan.value.nama}`);
                     showToast('Anggota Arisan Ditambahkan');
                     formArisan.value = {nama:'', iuran:''};
                 };
 
-                const tambahIuranManual = (id) => {
+                const tambahIuranManual = async (id) => {
                     const nom = prompt('Masukkan nominal setoran iuran (Rp):', '50000');
                     if(nom && !isNaN(nom)) {
-                        const idx = listArisan.value.findIndex(x => x.id === id);
-                        if(idx > -1) {
-                            listArisan.value[idx].totalIuran += Number(nom);
-                            catatLog(`Menerima iuran arisan Rp ${nom} dari ${listArisan.value[idx].nama}`);
+                        const a = listArisan.value.find(x => x.id === id);
+                        if(a) {
+                            a.totalIuran += Number(nom);
+                            await updateData('arisan', a);
+                            await catatLog(`Menerima iuran arisan Rp ${nom} dari ${a.nama}`);
                             showToast('Iuran berhasil ditambahkan');
                         }
                     }
@@ -1680,7 +1649,7 @@
                     return totalPemasukan - totalPengeluaran;
                 };
 
-                const kocokArisan = () => {
+                const kocokArisan = async () => {
                     const eligible = listArisan.value.filter(x => x.rt === user.value.rt && x.rw === user.value.rw && !x.statusMenang);
                     if(eligible.length === 0) return showToast('Tidak ada anggota yang memenuhi syarat untuk diundi (Semua sudah menang/kosong)', 'danger');
                     
@@ -1688,14 +1657,13 @@
                     if(kasSkrg <= 0) return showToast('Kas Arisan Kosong! Tidak bisa melakukan tarikan.', 'danger');
 
                     let winner = eligible[Math.floor(Math.random() * eligible.length)];
-                    
-                    const idx = listArisan.value.findIndex(x => x.id === winner.id);
-                    listArisan.value[idx].statusMenang = true;
+                    winner.statusMenang = true;
+                    await updateData('arisan', winner);
                     
                     const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    riwayatArisan.value.unshift({ id: Date.now(), rt: user.value.rt, rw: user.value.rw, nama: winner.nama, noUndian: winner.noUndian, tanggal: tgl, nominal: kasSkrg });
+                    await saveData('riwayatArisan', { rt: user.value.rt, rw: user.value.rw, nama: winner.nama, noUndian: winner.noUndian, tanggal: tgl, nominal: kasSkrg });
                     
-                    catatLog(`MENGUNDI ARISAN: Pemenang ${winner.nama} (Nominal Tarikan: Rp ${kasSkrg})`);
+                    await catatLog(`MENGUNDI ARISAN: Pemenang ${winner.nama} (Nominal Tarikan: Rp ${kasSkrg})`);
                     showToast(`SELAMAT! ${winner.nama} (Undian #${winner.noUndian}) memenangkan arisan senilai Rp ${kasSkrg.toLocaleString('id-ID')}`);
                 };
 
@@ -1740,24 +1708,23 @@
                     printWindow.document.close();
                 };
 
-                const simpanUmkm = () => { listUmkm.value.unshift({...formUmkm.value, id:Date.now(), pemilik:user.value.nama}); showToast('Lapak diterbitkan'); showFormUmkm.value=false; formUmkm.value={nama:'', wa:'', jamBuka:'', jamTutup:'', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null}; };
-                const simpanGaleri = () => { listGaleri.value.unshift({...formGaleri.value, id:Date.now()}); showToast('Foto diupload'); showFormGaleri.value=false; };
-                const simpanBursa = () => { listBursa.value.unshift({...formBursa.value, id:Date.now(), pengiklan:user.value.nama}); showToast('Iklan diposting'); showFormBursa.value=false; };
-                const simpanFasilitas = () => { listFasilitas.value.unshift({...formFasilitas.value, id:Date.now(), pelapor:user.value.nama, status:'Menunggu Perbaikan'}); showToast('Laporan Terkirim'); showFormFasilitas.value=false; formFasilitas.value={judul:'', lokasi:'', deskripsi:'', foto:null}; };
-                const simpanAnggaran = () => { listAnggaran.value.unshift({...formAnggaran.value, id:Date.now()}); showToast('Data Anggaran disimpan'); };
-                const simpanSampah = () => { const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); listSampah.value.unshift({...formSampah.value, id:Date.now(), tanggal: tgl}); showToast('Data Setoran Sampah Disimpan'); formSampah.value = { nama:'', jenis:'', berat:'' }; };
-                const simpanAgenda = () => { if(!formAgenda.value.judul || !formAgenda.value.isi) return showToast('Judul dan Isi harus diisi', 'danger'); listAgenda.value.unshift({...formAgenda.value, id:Date.now(), tanggal: formAgenda.value.tanggal || new Date().toLocaleDateString('id-ID') }); showToast('Agenda/Berita Diterbitkan'); formAgenda.value = { judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null }; };
-                const updateAdmin = () => { if(!formAdmin.value.username || !formAdmin.value.password) return showToast('Tidak Boleh Kosong', 'danger'); adminAccount.value = { ...formAdmin.value }; showToast('Akses Admin Utama Berhasil Diubah!'); };
-                const simpanPejabat = () => { if(!formPejabat.value.username || !formPejabat.value.nama) return showToast('Lengkapi Data Pejabat', 'danger'); listPejabat.value.unshift({...formPejabat.value, id: Date.now()}); showToast(`Akun ${formPejabat.value.role.toUpperCase()} Berhasil Didaftarkan`); formPejabat.value = { nama: '', role: 'rt', wilayah: '', rt: '', rw: '', username: '', password: '', ttd: '', stempel: '' }; };
-                const balasKomentar = (laporan) => { if (!laporan.inputBalasan.trim()) return showToast('Komentar tidak boleh kosong', 'danger'); laporan.komentar.push({ nama: user.value.nama, isi: laporan.inputBalasan }); laporan.inputBalasan = ''; showToast('Tanggapan dikirim!'); };
+                const simpanUmkm = async () => { await saveData('umkm', {...formUmkm.value, pemilik:user.value.nama}); showToast('Lapak diterbitkan'); showFormUmkm.value=false; formUmkm.value={nama:'', wa:'', jamBuka:'', jamTutup:'', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null}; };
+                const simpanGaleri = async () => { await saveData('galeri', {...formGaleri.value}); showToast('Foto diupload'); showFormGaleri.value=false; };
+                const simpanBursa = async () => { await saveData('bursa', {...formBursa.value, pengiklan:user.value.nama}); showToast('Iklan diposting'); showFormBursa.value=false; };
+                const simpanFasilitas = async () => { await saveData('fasilitas', {...formFasilitas.value, pelapor:user.value.nama, status:'Menunggu Perbaikan'}); showToast('Laporan Terkirim'); showFormFasilitas.value=false; formFasilitas.value={judul:'', lokasi:'', deskripsi:'', foto:null}; };
+                const simpanAnggaran = async () => { await saveData('anggaran', {...formAnggaran.value}); showToast('Data Anggaran disimpan'); };
+                const simpanSampah = async () => { const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); await saveData('sampah', {...formSampah.value, tanggal: tgl}); showToast('Data Setoran Sampah Disimpan'); formSampah.value = { nama:'', jenis:'', berat:'' }; };
+                const simpanAgenda = async () => { if(!formAgenda.value.judul || !formAgenda.value.isi) return showToast('Judul dan Isi harus diisi', 'danger'); await saveData('agenda', {...formAgenda.value, tanggal: formAgenda.value.tanggal || new Date().toLocaleDateString('id-ID') }); showToast('Agenda/Berita Diterbitkan'); formAgenda.value = { judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null }; };
+                const simpanPejabat = async () => { if(!formPejabat.value.username || !formPejabat.value.nama) return showToast('Lengkapi Data Pejabat', 'danger'); await saveData('pejabat', {...formPejabat.value}); showToast(`Akun ${formPejabat.value.role.toUpperCase()} Berhasil Didaftarkan`); formPejabat.value = { nama: '', role: 'rt', wilayah: '', rt: '', rw: '', username: '', password: '', ttd: '', stempel: '' }; };
+                const balasKomentar = async (laporan) => { if (!laporan.inputBalasan.trim()) return showToast('Komentar tidak boleh kosong', 'danger'); if(!laporan.komentar) laporan.komentar = []; laporan.komentar.push({ nama: user.value.nama, isi: laporan.inputBalasan }); laporan.inputBalasan = ''; await updateData('laporan', laporan); showToast('Tanggapan dikirim!'); };
 
-                const simpanPengajuanUsaha = () => {
+                const simpanPengajuanUsaha = async () => {
                     if(!formUsahaLuar.value.nama || !formUsahaLuar.value.rt || !formUsahaLuar.value.rw || !formUsahaLuar.value.fotoKtp) return showToast('Harap lengkapi semua data wajib & foto!', 'danger');
                     const noSurat = 'PMK-' + Date.now().toString().slice(-6);
                     const tglNow = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
                     
-                    listPengajuanUsaha.value.unshift({
-                        ...formUsahaLuar.value, id: Date.now(),
+                    await saveData('pengajuanUsaha', {
+                        ...formUsahaLuar.value,
                         username: user.value.username, nomorPengajuan: noSurat, tanggal: tglNow,
                         statusRT: 'Menunggu', statusRW: 'Menunggu', statusAdmin: 'Menunggu', status: 'Diproses'
                     });
@@ -1773,7 +1740,7 @@
                     return [];
                 });
 
-                const setujuiUsaha = (u, role, isApprove) => {
+                const setujuiUsaha = async (u, role, isApprove) => {
                     const statusText = isApprove ? 'Disetujui' : 'Ditolak';
                     if (role === 'rt') u.statusRT = statusText;
                     if (role === 'rw') u.statusRW = statusText;
@@ -1786,6 +1753,7 @@
                     } else {
                         u.status = 'Diproses';
                     }
+                    await updateData('pengajuanUsaha', u);
                     showToast(`Pengajuan ${statusText}!`);
                 };
 
@@ -1879,20 +1847,10 @@
                     printWindow.document.close();
                 };
 
-                const hapus = (tipe, id) => {
+                const hapus = async (tipe, id) => {
                     if(!confirm('Hapus data secara permanen?')) return;
-                    if(tipe==='umkm') listUmkm.value = listUmkm.value.filter(x=>x.id!==id);
-                    if(tipe==='bursa') listBursa.value = listBursa.value.filter(x=>x.id!==id);
-                    if(tipe==='anggaran') listAnggaran.value = listAnggaran.value.filter(x=>x.id!==id);
-                    if(tipe==='galeri') listGaleri.value = listGaleri.value.filter(x=>x.id!==id); 
-                    if(tipe==='laporan') listLaporan.value = listLaporan.value.filter(x=>x.id!==id); 
-                    if(tipe==='agenda') listAgenda.value = listAgenda.value.filter(x=>x.id!==id); 
-                    if(tipe==='sampah') listSampah.value = listSampah.value.filter(x=>x.id!==id); 
-                    if(tipe==='pejabat') listPejabat.value = listPejabat.value.filter(x=>x.id!==id); 
-                    if(tipe==='fasilitas') listFasilitas.value = listFasilitas.value.filter(x=>x.id!==id); 
-                    if(tipe==='bendahara') listBendahara.value = listBendahara.value.filter(x=>x.id!==id); 
-                    if(tipe==='tamu') listTamu.value = listTamu.value.filter(x=>x.id!==id); 
-                    showToast('Data berhasil dihapus dari sistem');
+                    await deleteData(tipe, id);
+                    showToast('Data berhasil dihapus dari sistem database');
                 };
 
                 const downloadExcelData = (tipe) => {
@@ -1915,9 +1873,9 @@
                     formSampah, formAgenda, formAdmin, formPejabat, adminAccount, listPejabat, formUsahaLuar, formBendahara, formTamu, formSumbangan, formArisan, showFormTamu, showFormSumbangan,
                     listWarga, listWargaLuar, listAgenda, listSurat, listSuratPengantar, listUmkm, listGaleri, listBursa, listFasilitas, listBansos, listAnggaran, listLaporan, listSampah, listPengajuanUsaha, filteredPengajuanUsaha, getPejabatSetting,
                     listBendahara, listTamu, listSumbangan, listArisan, riwayatArisan, logAktivitas,
-                    rekapKasAdmin, statistikGender, statistikUsia,
+                    rekapKasAdmin, statistikGender, statistikUsia, wargaUlangTahun, getNamaBulan, formatTgl,
                     handleLogin, handleRegister, handleRegisterLuar, logout, uploadFile, simpanSuratPengantar, setujuiPengantar, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanAnggaran, simpanSampah, simpanAgenda, simpanPejabat, updateAdmin,
-                    hapus, downloadExcelData, balasKomentar, simpanPengajuanUsaha, setujuiUsaha, cetakSuratUsaha,
+                    hapus, downloadExcelData, balasKomentar, simpanPengajuanUsaha, setujuiUsaha, cetakSuratUsaha, simpanPengaturanPejabat,
                     simpanBendahara, simpanTamu, simpanSumbangan, hitungKasSumbangan, simpanArisan, tambahIuranManual, hitungKasArisan, kocokArisan, cetakKartuArisan, downloadSumbanganPDF, simpanTtdWarga, simpanWebSettings
                 };
             }
