@@ -47,8 +47,8 @@
     <div id="app" v-cloak>
         
         <!-- TOAST NOTIFICATION -->
-        <div v-if="notification.show" :class="['fixed top-5 right-5 z-[9999] px-6 py-3 rounded-lg shadow-lg text-white font-bold flex items-center gap-3 transition-opacity', notification.type === 'success' ? 'bg-green-500' : 'bg-red-600']">
-            <i :class="notification.type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'"></i> {{ notification.message }}
+        <div v-if="notification.show" :class="['fixed top-5 right-5 z-[9999] px-6 py-3 rounded-lg shadow-lg text-white font-bold flex items-center gap-3 transition-opacity', notification.type === 'success' ? 'bg-green-500' : (notification.type === 'warning' ? 'bg-amber-500' : 'bg-red-600')]">
+            <i :class="notification.type === 'success' ? 'fas fa-check-circle' : (notification.type === 'warning' ? 'fas fa-exclamation-triangle' : 'fas fa-exclamation-circle')"></i> {{ notification.message }}
         </div>
 
         <!-- CUSTOM DIALOG (PENGGANTI CONFIRM & PROMPT BAWAAN BROWSER YANG ERROR) -->
@@ -489,7 +489,7 @@
                         <div :style="{ backgroundColor: webSettings.warnaUtama }" class="rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
                             <i class="fas fa-cloud absolute -right-10 -top-10 text-9xl text-white/10"></i>
                             <h2 class="text-3xl font-black mb-2 relative z-10">Selamat Datang, {{ user.nama }}!</h2>
-                            <p class="text-sm text-blue-100 relative z-10 max-w-xl">Sistem Cloud Database (Firebase) aktif berjalan. Semua data Anda kini tersimpan permanen dan aman dari risiko hilang.</p>
+                            <p class="text-sm text-blue-100 relative z-10 max-w-xl">Sistem Informasi Kelurahan Anda Siap Digunakan. Kami mengutamakan keamanan dan transparansi data.</p>
                         </div>
                         
                         <div v-if="user.role==='admin_kelurahan'" class="bg-white p-6 rounded-2xl shadow-sm border">
@@ -1424,34 +1424,35 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
         import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
-        // ==========================================
-        // PERBAIKAN: FIREBASE SETUP UNTUK VERCEL & CANVAS
-        // ==========================================
-        // Sistem otomatis menggunakan config Canvas jika ada, atau config manual untuk Vercel
-        const firebaseConfig = typeof __firebase_config !== 'undefined' 
-            ? JSON.parse(__firebase_config) 
-            : {
-                // GANTI BAGIAN INI SAAT DEPLOY KE VERCEL NANTI
-                apiKey: "ISI_DENGAN_API_KEY_ANDA",
-                authDomain: "kelurahan-xxx.firebaseapp.com",
-                projectId: "kelurahan-xxx",
-                storageBucket: "kelurahan-xxx.appspot.com",
-                messagingSenderId: "123456789",
-                appId: "1:123456789:web:abcdef"
-            };
+        // PENGATURAN API KEY FIREBASE DENGAN FALLBACK AMAN
+        let firebaseConfig = { apiKey: "" };
+        try {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                firebaseConfig = JSON.parse(__firebase_config);
+            } else {
+                firebaseConfig = {
+                    apiKey: "ISI_DENGAN_API_KEY_ANDA",
+                    authDomain: "kelurahan-xxx.firebaseapp.com",
+                    projectId: "kelurahan-xxx",
+                    storageBucket: "kelurahan-xxx.appspot.com",
+                    messagingSenderId: "123456789",
+                    appId: "1:123456789:web:abcdef"
+                };
+            }
+        } catch (e) {
+            console.error("Firebase config parsing error, applying fallback:", e);
+        }
         
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        
-        // Tetapkan appId statis untuk Vercel agar database terbaca
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'kelurahan-digital-v1';
 
         createApp({
             setup() {
                 const fbUser = ref(null);
                 const notification = ref({ show: false, message: '', type: 'success' });
-                const showToast = (msg, type='success') => { notification.value={show:true, message:msg, type}; setTimeout(()=>notification.value.show=false, 3000); };
+                const showToast = (msg, type='success') => { notification.value={show:true, message:msg, type}; setTimeout(()=>notification.value.show=false, 4000); };
                 
                 // CUSTOM DIALOG LOGIC
                 const dialog = ref({ show: false, type: 'confirm', title: '', message: '', inputValue: '', onConfirm: null });
@@ -1565,7 +1566,10 @@
                             } else {
                                 await signInAnonymously(auth);
                             }
-                        } catch (e) { console.error("Auth error", e); }
+                        } catch (e) { 
+                            console.error("Auth error", e); 
+                            showToast("Database Firebase belum terhubung! Berjalan dalam Mode Lokal (Data akan hilang saat direfresh).", "warning");
+                        }
                     };
                     initAuth();
                     
@@ -1577,6 +1581,15 @@
 
                 const getColRef = (cName) => collection(db, 'artifacts', appId, 'public', 'data', cName);
                 const getDocRef = (cName, dId) => doc(db, 'artifacts', appId, 'public', 'data', cName, dId);
+
+                // MEMORY MAP UNTUK FALLBACK MODE LOKAL
+                const getListMap = () => ({
+                    'pejabat': listPejabat, 'warga': listWarga, 'wargaLuar': listWargaLuar, 'bendahara': listBendahara, 
+                    'tamu': listTamu, 'laporan': listLaporan, 'sumbangan': listSumbangan, 'arisan': listArisan, 
+                    'riwayatArisan': riwayatArisan, 'logAktivitas': logAktivitas, 'pengajuanUsaha': listPengajuanUsaha,
+                    'suratPengantar': listSuratPengantar, 'umkm': listUmkm, 'galeri': listGaleri, 'bursa': listBursa, 
+                    'fasilitas': listFasilitas, 'bansos': listBansos, 'anggaran': listAnggaran, 'sampah': listSampah, 'agenda': listAgenda
+                });
 
                 const setupListeners = () => {
                     if(!fbUser.value) return;
@@ -1620,20 +1633,56 @@
                     }, (err) => console.error(err));
                 };
 
+                // PERBAIKAN 2: AUTO FALLBACK IN-MEMORY (Jika Firebase Error, aplikasi tetap bisa diuji / login)
                 const saveData = async (colName, data) => {
-                    if(!fbUser.value) return;
                     const id = data.id || Date.now().toString();
-                    await setDoc(getDocRef(colName, id.toString()), { ...data, id: id.toString() });
+                    const payload = { ...data, id: id.toString() };
+                    
+                    if(fbUser.value) {
+                        try {
+                            await setDoc(getDocRef(colName, id.toString()), payload);
+                            return; // Jika berhasil, listener onSnapshot akan mengupdate array
+                        } catch (e) {
+                            console.error("Firebase Save Error:", e);
+                        }
+                    }
+                    
+                    // FALLBACK: Simpan ke Memori Sementara jika offline / belum dikonfigurasi
+                    const map = getListMap();
+                    if(map[colName]) {
+                        const list = map[colName].value;
+                        const idx = list.findIndex(x => x.id === payload.id);
+                        if(idx >= 0) list[idx] = payload;
+                        else list.push(payload);
+                    }
                 };
 
                 const updateData = async (colName, data) => {
-                    if(!fbUser.value || !data.id) return;
-                    await setDoc(getDocRef(colName, data.id.toString()), data, { merge: true });
+                    if(fbUser.value) {
+                        try {
+                            await setDoc(getDocRef(colName, data.id.toString()), data, { merge: true });
+                            return;
+                        } catch (e) { console.error(e); }
+                    }
+                    const map = getListMap();
+                    if(map[colName]) {
+                        const list = map[colName].value;
+                        const idx = list.findIndex(x => x.id === data.id);
+                        if(idx >= 0) list[idx] = { ...list[idx], ...data };
+                    }
                 };
 
                 const deleteData = async (colName, id) => {
-                    if(!fbUser.value) return;
-                    await deleteDoc(getDocRef(colName, id.toString()));
+                    if(fbUser.value) {
+                        try {
+                            await deleteDoc(getDocRef(colName, id.toString()));
+                            return;
+                        } catch (e) { console.error(e); }
+                    }
+                    const map = getListMap();
+                    if(map[colName]) {
+                        map[colName].value = map[colName].value.filter(x => x.id !== id);
+                    }
                 };
 
                 const catatLog = async (aksiStr) => {
@@ -1663,26 +1712,35 @@
                     };
                 };
 
+                // PERBAIKAN 1: String Casting (Mencegah error NIK angka vs form huruf)
                 const handleLogin = () => {
-                    if (loginForm.value.email.trim() === '' || loginForm.value.password.trim() === '') return showToast('Harap ketik Username dan Password Anda!', 'danger');
-                    if (loginForm.value.email === adminAccount.value.username && loginForm.value.password === adminAccount.value.password) {
-                        user.value = { nama:'Administrator', role:'admin_kelurahan', rt:'', rw:'', username: adminAccount.value.username, ttd:'' }; isLoggedIn.value = true; return showToast('Login Admin Utama Sukses');
+                    const emailInput = String(loginForm.value.email).trim();
+                    const passInput = String(loginForm.value.password).trim();
+                    if (!emailInput || !passInput) return showToast('Harap ketik Username dan Password Anda!', 'danger');
+                    
+                    if (emailInput === String(adminAccount.value.username) && passInput === String(adminAccount.value.password)) {
+                        user.value = { nama:'Administrator', role:'admin_kelurahan', rt:'', rw:'', username: adminAccount.value.username, ttd:'' }; 
+                        isLoggedIn.value = true; return showToast('Login Admin Utama Sukses');
                     }
-                    const p = listPejabat.value.find(x => x.username === loginForm.value.email && x.password === loginForm.value.password);
+                    const p = listPejabat.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
                     if (p) {
-                        user.value = { nama: p.nama, role: p.role, rt: p.rt, rw: p.rw, username: p.username, ttd: p.ttd }; isLoggedIn.value = true; return showToast(`Berhasil masuk sebagai ${p.role.toUpperCase()}`);
+                        user.value = { nama: p.nama, role: p.role, rt: p.rt, rw: p.rw, username: p.username, ttd: p.ttd }; 
+                        isLoggedIn.value = true; return showToast(`Berhasil masuk sebagai ${p.role.toUpperCase()}`);
                     }
-                    const b = listBendahara.value.find(x => x.username === loginForm.value.email && x.password === loginForm.value.password);
+                    const b = listBendahara.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
                     if (b) {
-                        user.value = { nama: b.nama, role: 'bendahara', rt: b.rt, rw: b.rw, username: b.username, ttd:'' }; isLoggedIn.value = true; return showToast(`Berhasil masuk sebagai BENDAHARA RT ${b.rt} / RW ${b.rw}`);
+                        user.value = { nama: b.nama, role: 'bendahara', rt: b.rt, rw: b.rw, username: b.username, ttd:'' }; 
+                        isLoggedIn.value = true; return showToast(`Berhasil masuk sebagai BENDAHARA RT ${b.rt} / RW ${b.rw}`);
                     }
-                    const w = listWarga.value.find(x => (x.username === loginForm.value.email || x.nik === loginForm.value.email) && x.password === loginForm.value.password);
+                    const w = listWarga.value.find(x => (String(x.username) === emailInput || String(x.nik) === emailInput) && String(x.password) === passInput);
                     if (w) { 
-                        user.value = { nama: w.nama, role: 'warga', rt: w.rt, rw: w.rw, username: w.username, ttd: w.ttd }; formWargaTtd.value.url = w.ttd || ''; isLoggedIn.value = true; return showToast('Login Warga Sukses'); 
+                        user.value = { nama: w.nama, role: 'warga', rt: w.rt, rw: w.rw, username: w.username, ttd: w.ttd }; 
+                        formWargaTtd.value.url = w.ttd || ''; isLoggedIn.value = true; return showToast('Login Warga Sukses'); 
                     }
-                    const wLuar = listWargaLuar.value.find(x => x.username === loginForm.value.email && x.password === loginForm.value.password);
+                    const wLuar = listWargaLuar.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
                     if (wLuar) {
-                        user.value = { nama: wLuar.nama, role: 'warga_luar', rt: '', rw: '', username: wLuar.username, ttd: wLuar.ttd }; formWargaTtd.value.url = wLuar.ttd || ''; isLoggedIn.value = true; menu.value = 'pengajuan-usaha'; return showToast('Login Warga Luar Sukses');
+                        user.value = { nama: wLuar.nama, role: 'warga_luar', rt: '', rw: '', username: wLuar.username, ttd: wLuar.ttd }; 
+                        formWargaTtd.value.url = wLuar.ttd || ''; isLoggedIn.value = true; menu.value = 'pengajuan-usaha'; return showToast('Login Warga Luar Sukses');
                     }
                     showToast('Username/NIK atau Password SALAH! Akses ditolak.', 'danger');
                 };
@@ -1710,17 +1768,23 @@
                 };
 
                 const simpanWebSettings = async () => { 
-                    if(!fbUser.value) return;
-                    await setDoc(getDocRef('settings', 'webSettings'), webSettings.value);
-                    showToast('Pengaturan Website & TTD Berhasil Disimpan!'); 
+                    if(fbUser.value) {
+                        await setDoc(getDocRef('settings', 'webSettings'), webSettings.value);
+                        showToast('Pengaturan Website & TTD Berhasil Disimpan!');
+                    } else {
+                        showToast('Mode Offline: Pengaturan hanya tersimpan sementara.', 'warning');
+                    } 
                 };
 
                 const updateAdmin = async () => { 
                     if(!formAdmin.value.username || !formAdmin.value.password) return showToast('Tidak Boleh Kosong', 'danger'); 
-                    if(!fbUser.value) return;
                     adminAccount.value = { ...formAdmin.value }; 
-                    await setDoc(getDocRef('settings', 'adminAccount'), adminAccount.value);
-                    showToast('Akses Admin Utama Berhasil Diubah!'); 
+                    if(fbUser.value) {
+                        await setDoc(getDocRef('settings', 'adminAccount'), adminAccount.value);
+                        showToast('Akses Admin Utama Berhasil Diubah!'); 
+                    } else {
+                        showToast('Akses Admin Diubah (Mode Lokal Sementara).', 'warning');
+                    }
                 };
 
                 const simpanTtdWarga = async () => {
@@ -1776,192 +1840,192 @@
                 };
 
                 const simpanTamu = async () => {
-                    if(!formTamu.value.nama || !formTamu.value.nik) return showToast('Lengkapi Data Tamu', 'danger');
-                    await saveData('tamu', {...formTamu.value, pelapor:user.value.nama, rt: user.value.rt, rw: user.value.rw});
-                    await catatLog(`Melaporkan kedatangan tamu atas nama ${formTamu.value.nama}`);
-                    showToast('Laporan Tamu Disimpan'); showFormTamu.value=false; formTamu.value={nama:'', nik:'', asal:'', lama:'', tujuan:'', foto:null};
+                    if(!formTamu.value.nama || !formTamu.value.nik) return showToast('Lengkapi data tamu dengan benar', 'danger');
+                    await saveData('tamu', { ...formTamu.value, pelapor: user.value.nama, rt: user.value.rt, rw: user.value.rw, tanggal: new Date().toLocaleDateString('id-ID') });
+                    showToast('Laporan Tamu Berhasil Disimpan');
+                    formTamu.value = { nama:'', nik:'', asal:'', lama:'', tujuan:'', foto:null };
+                    showFormTamu.value = false;
                 };
 
                 const simpanBendahara = async () => {
-                    if(!formBendahara.value.nama || !formBendahara.value.username) return showToast('Lengkapi Data', 'danger');
-                    await saveData('bendahara', {...formBendahara.value, rt: user.value.rt, rw: user.value.rw});
-                    await catatLog(`Mendaftarkan akun Bendahara baru: ${formBendahara.value.nama}`);
-                    showToast('Akun Bendahara Berhasil Dibuat'); formBendahara.value = {nama:'', username:'', password:''};
+                    if(!formBendahara.value.username || !formBendahara.value.password) return showToast('Lengkapi data bendahara', 'danger');
+                    await saveData('bendahara', { ...formBendahara.value, rt: user.value.rt, rw: user.value.rw });
+                    showToast('Bendahara berhasil ditambahkan');
+                    formBendahara.value = { nama: '', username: '', password: '' };
                 };
 
                 const simpanSumbangan = async () => {
-                    if(!formSumbangan.value.nama || !formSumbangan.value.nominal) return showToast('Isi nama dan nominal', 'danger');
-                    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    await saveData('sumbangan', {...formSumbangan.value, rt: user.value.rt, rw: user.value.rw, tanggal: tgl});
-                    await catatLog(`Menerima sumbangan dari ${formSumbangan.value.nama} sebesar Rp ${formSumbangan.value.nominal}`);
-                    showToast('Sumbangan Berhasil Diposting'); showFormSumbangan.value=false; formSumbangan.value = {nama:'', nominal:'', jenis:''};
+                    if(!formSumbangan.value.nama || !formSumbangan.value.nominal) return showToast('Harap melengkapi data', 'danger');
+                    await saveData('sumbangan', { ...formSumbangan.value, rt: user.value.rt, rw: user.value.rw, tanggal: new Date().toLocaleDateString('id-ID') });
+                    showToast('Data sumbangan disimpan');
+                    formSumbangan.value = { nama:'', nominal:'', jenis:'' };
                 };
 
                 const simpanBansos = async () => {
-                    if(!formBansos.value.nama || !formBansos.value.jenis) return showToast('Lengkapi usulan bansos!', 'danger');
-                    await saveData('bansos', {...formBansos.value});
-                    showToast('Usulan Bansos Terkirim!'); showFormBansos.value=false; formBansos.value={nama:'', jenis:'', rt:'', rw:'', foto:null};
+                    if(!formBansos.value.nama) return showToast('Lengkapi usulan bansos', 'danger');
+                    await saveData('bansos', formBansos.value);
+                    showToast('Usulan Bansos terkirim');
+                    showFormBansos.value = false;
+                    formBansos.value = { nama:'', jenis:'', rt:'', rw:'', foto:null };
                 };
 
-                const hitungKasSumbangan = (rt, rw) => { return listSumbangan.value.filter(x => x.rt === rt && x.rw === rw).reduce((sum, item) => sum + Number(item.nominal), 0); };
+                const hitungKasSumbangan = () => {
+                    return listSumbangan.value.filter(x => x.rt === user.value.rt && x.rw === user.value.rw).reduce((acc, curr) => acc + Number(curr.nominal || 0), 0);
+                };
 
-                // KARTU KAS ADMIN UTAMA (GABUNGAN DARI PEJABAT + DATA SUMBANGAN)
                 const rekapKasAdmin = computed(() => {
-                    const map = {};
-                    listPejabat.value.forEach(p => {
-                        if(p.role === 'rt' || p.role === 'rw') { const key = `RT ${p.rt} / RW ${p.rw}`; if(!map[key]) map[key] = { wilayah: key, total: 0 }; }
+                    const rekap = {};
+                    listSumbangan.value.forEach(s => {
+                        const key = `RT ${s.rt} / RW ${s.rw}`;
+                        if(!rekap[key]) rekap[key] = 0;
+                        rekap[key] += Number(s.nominal || 0);
                     });
-                    listSumbangan.value.forEach(s => { const key = `RT ${s.rt} / RW ${s.rw}`; if(!map[key]) map[key] = { wilayah: key, total: 0 }; map[key].total += Number(s.nominal); });
-                    return Object.values(map);
+                    return Object.keys(rekap).map(k => ({ wilayah: k, total: rekap[k] }));
                 });
 
-                // STATISTIK WARGA COMPUTE
-                const statistikGender = computed(() => { let l = 0, p = 0; listWarga.value.forEach(w => { if(w.kelamin === 'Laki-laki') l++; else p++; }); return { l, p }; });
+                const statistikGender = computed(() => {
+                    let l = 0, p = 0;
+                    listWarga.value.forEach(w => { if(w.kelamin === 'Laki-laki') l++; else p++; });
+                    return { l, p };
+                });
+
                 const statistikUsia = computed(() => {
-                    let cat = { balita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0 };
+                    const res = { balita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0 };
                     listWarga.value.forEach(w => {
                         if(!w.tgl_lahir) return;
                         const age = new Date().getFullYear() - new Date(w.tgl_lahir).getFullYear();
-                        if(age <= 5) cat.balita++; else if(age <= 12) cat.anak++; else if(age <= 25) cat.remaja++; else if(age <= 59) cat.dewasa++; else cat.lansia++;
-                    }); return cat;
-                });
-                
-                // STATISTIK PEKERJAAN COMPUTE
-                const rekapPekerjaan = computed(() => {
-                    const map = {};
-                    listWarga.value.forEach(w => {
-                        if(w.pekerjaan && w.pekerjaan.trim() !== '') {
-                            const p = w.pekerjaan.toLowerCase().trim();
-                            map[p] = (map[p] || 0) + 1;
-                        }
+                        if(age <= 5) res.balita++;
+                        else if(age <= 12) res.anak++;
+                        else if(age <= 25) res.remaja++;
+                        else if(age <= 59) res.dewasa++;
+                        else res.lansia++;
                     });
-                    return map;
+                    return res;
                 });
 
-                const getNamaBulan = () => { const ms = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember']; return ms[new Date().getMonth()]; };
-                const formatTgl = (tgl) => { if(!tgl) return ''; const d = new Date(tgl); return `${d.getDate()} ${getNamaBulan()}`; };
+                const rekapPekerjaan = computed(() => {
+                    const rekap = {};
+                    listWarga.value.forEach(w => {
+                        if(w.pekerjaan) {
+                            rekap[w.pekerjaan] = (rekap[w.pekerjaan] || 0) + 1;
+                        }
+                    });
+                    return rekap;
+                });
+
+                const getNamaBulan = () => {
+                    const b = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                    return b[new Date().getMonth()];
+                };
+
+                const formatTgl = (tgl) => {
+                    if(!tgl) return '-';
+                    const d = new Date(tgl);
+                    return `${d.getDate()} ${getNamaBulan()}`;
+                };
+
                 const wargaUlangTahun = computed(() => {
-                    const currentMonth = new Date().getMonth();
-                    return listWarga.value.filter(w => { if(!w.tgl_lahir) return false; const dob = new Date(w.tgl_lahir); return dob.getMonth() === currentMonth; });
+                    const m = new Date().getMonth() + 1;
+                    return listWarga.value.filter(w => {
+                        if(!w.tgl_lahir) return false;
+                        return parseInt(w.tgl_lahir.split('-')[1]) === m;
+                    });
                 });
 
                 const simpanArisan = async () => {
-                    if(!formArisan.value.nama) return showToast('Isi nama anggota', 'danger');
-                    const cRt = user.value.rt; const cRw = user.value.rw;
-                    const membersInRT = listArisan.value.filter(x => x.rt === cRt && x.rw === cRw);
-                    const noUrut = membersInRT.length + 1;
-                    const noAnggota = `ARS-${("00" + noUrut).slice(-3)}`;
-                    await saveData('arisan', { rt: cRt, rw: cRw, nama: formArisan.value.nama, noAnggota: noAnggota, noUndian: noUrut, totalIuran: Number(formArisan.value.iuran || 0), statusMenang: false });
-                    await catatLog(`Mendaftarkan anggota arisan baru: ${formArisan.value.nama}`);
-                    showToast('Anggota Arisan Ditambahkan'); formArisan.value = {nama:'', iuran:''};
+                    if(!formArisan.value.nama) return;
+                    await saveData('arisan', { ...formArisan.value, rt: user.value.rt, rw: user.value.rw, totalIuran: 0, noAnggota: `ARS-${Date.now().toString().slice(-4)}` });
+                    showToast('Anggota Arisan Ditambahkan');
+                    formArisan.value = { nama:'', iuran:'' };
                 };
 
-                const tambahIuranManual = (id) => {
-                    customPrompt('Iuran Manual', 'Masukkan nominal setoran iuran (Rp):', '50000', async (nom) => {
-                        if(nom && !isNaN(nom)) {
-                            const a = listArisan.value.find(x => x.id === id);
-                            if(a) { a.totalIuran += Number(nom); await updateData('arisan', a); await catatLog(`Menerima iuran arisan Rp ${nom} dari ${a.nama}`); showToast('Iuran berhasil ditambahkan'); }
-                        }
-                    });
+                const tambahIuranManual = async (a, nominal) => {
+                    a.totalIuran = Number(a.totalIuran || 0) + Number(nominal);
+                    await updateData('arisan', a);
+                    showToast('Iuran berhasil ditambahkan');
                 };
 
                 const hitungKasArisan = (rt, rw) => {
-                    const totalPemasukan = listArisan.value.filter(x => x.rt === rt && x.rw === rw).reduce((sum, item) => sum + item.totalIuran, 0);
-                    const totalPengeluaran = riwayatArisan.value.filter(x => x.rt === rt && x.rw === rw).reduce((sum, item) => sum + item.nominal, 0);
-                    return totalPemasukan - totalPengeluaran;
+                    return listArisan.value.filter(x => x.rt === rt && x.rw === rw).reduce((a, b) => a + Number(b.totalIuran || 0), 0);
                 };
 
                 const kocokArisan = async () => {
                     const eligible = listArisan.value.filter(x => x.rt === user.value.rt && x.rw === user.value.rw && !x.statusMenang);
-                    if(eligible.length === 0) return showToast('Tidak ada anggota yang belum ditarik (Semua sudah menang/kosong)', 'danger');
+                    if(eligible.length === 0) return showToast('Semua anggota sudah menang / Data Kosong', 'danger');
                     const kasSkrg = hitungKasArisan(user.value.rt, user.value.rw);
-                    if(kasSkrg <= 0) return showToast('Kas Arisan Kosong! Tidak bisa melakukan tarikan.', 'danger');
-
-                    let winner = eligible[Math.floor(Math.random() * eligible.length)];
-                    winner.statusMenang = true; await updateData('arisan', winner);
-                    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    await saveData('riwayatArisan', { rt: user.value.rt, rw: user.value.rw, nama: winner.nama, noUndian: winner.noUndian, tanggal: tgl, nominal: kasSkrg });
-                    await catatLog(`MENGUNDI ARISAN: Pemenang ${winner.nama} (Tarikan: Rp ${kasSkrg})`);
-                    showToast(`SELAMAT! ${winner.nama} memenangkan Rp ${kasSkrg.toLocaleString('id-ID')}`);
+                    const winner = eligible[Math.floor(Math.random() * eligible.length)];
+                    winner.statusMenang = true; 
+                    await updateData('arisan', winner);
+                    await saveData('riwayatArisan', { rt: user.value.rt, rw: user.value.rw, nama: winner.nama, nominal: kasSkrg, tanggal: new Date().toLocaleDateString('id-ID') });
+                    showToast(`SELAMAT! Pemenang: ${winner.nama} (Menarik Rp ${kasSkrg})`);
                 };
 
                 const cetakKartuArisan = (a) => {
                     const printWindow = window.open('', '_blank');
-                    printWindow.document.write(`<html><head><title>Kartu Arisan</title></head><body style="font-family:sans-serif; text-align:center; padding:20px;">
-                        <h2>KARTU ANGGOTA ARISAN</h2>
-                        <p><strong>Nama:</strong> ${a.nama}</p>
-                        <p><strong>No Anggota:</strong> ${a.noAnggota}</p>
-                        <p><strong>Total Iuran:</strong> Rp ${Number(a.totalIuran).toLocaleString('id-ID')}</p>
-                        <script>window.print();<\/script></body></html>`);
+                    printWindow.document.write(`<html><body style="font-family:sans-serif; text-align:center; padding:20px;"><h2>KARTU ARISAN</h2><p>Nama: ${a.nama}</p><p>No Anggota: ${a.noAnggota}</p><script>window.print();<\/script></body></html>`);
                     printWindow.document.close();
                 };
 
                 const simpanAnggaran = async () => {
-                    if(!formAnggaran.value.pagu || !formAnggaran.value.realisasi) return showToast('Lengkapi Data Anggaran', 'danger');
+                    if(!formAnggaran.value.pagu) return showToast('Lengkapi Data', 'danger');
                     await saveData('anggaran', formAnggaran.value);
-                    showToast('Data Anggaran Tersimpan');
-                    formAnggaran.value = {bidang:'Infrastruktur', bidangLainnya:'', pagu:'', realisasi:''};
+                    showToast('Anggaran disimpan');
+                    formAnggaran.value = { bidang:'Infrastruktur', bidangLainnya:'', pagu:'', realisasi:'' };
                     showFormAdministrasi.value = false;
                 };
 
                 const simpanUmkm = async () => {
-                    if(!formUmkm.value.nama || !formUmkm.value.foto1) return showToast('Nama & Foto Utama wajib diisi', 'danger');
-                    await saveData('umkm', {...formUmkm.value, pemilik: user.value.nama});
-                    showToast('Lapak UMKM Berhasil Dipublikasikan');
+                    if(!formUmkm.value.nama) return showToast('Lengkapi Data UMKM', 'danger');
+                    await saveData('umkm', { ...formUmkm.value, pemilik: user.value.nama });
+                    showToast('UMKM dipublish');
                     showFormUmkm.value = false;
                     formUmkm.value = { nama:'', wa:'', jamBuka:'08:00', jamTutup:'21:00', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null };
                 };
 
                 const simpanFasilitas = async () => {
-                    if(!formFasilitas.value.judul || !formFasilitas.value.foto) return showToast('Judul Laporan & Foto wajib diisi', 'danger');
-                    await saveData('fasilitas', {...formFasilitas.value, pelapor: user.value.nama, status: 'Menunggu Perbaikan'});
-                    showToast('Laporan Kerusakan Fasilitas Terkirim');
+                    if(!formFasilitas.value.judul) return showToast('Lengkapi Laporan Fasilitas', 'danger');
+                    await saveData('fasilitas', { ...formFasilitas.value, pelapor: user.value.nama, status: 'Menunggu' });
+                    showToast('Laporan fasilitas dikirim');
                     showFormFasilitas.value = false;
                     formFasilitas.value = { judul:'', lokasi:'', deskripsi:'', foto:null };
                 };
 
                 const simpanBursa = async () => {
-                    if(!formBursa.value.judul || !formBursa.value.wa) return showToast('Judul dan No WA wajib diisi', 'danger');
-                    await saveData('bursa', {...formBursa.value, pengiklan: user.value.nama});
-                    showToast('Bursa Kerja / Jasa Diposting');
+                    if(!formBursa.value.judul) return showToast('Lengkapi Iklan Bursa', 'danger');
+                    await saveData('bursa', { ...formBursa.value, pengiklan: user.value.nama });
+                    showToast('Iklan bursa diposting');
                     showFormBursa.value = false;
                     formBursa.value = { judul:'', deskripsi:'', wa:'' };
                 };
 
                 const simpanSampah = async () => {
-                    if(!formSampah.value.nama || !formSampah.value.berat) return showToast('Lengkapi data setoran sampah', 'danger');
-                    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    await saveData('sampah', {...formSampah.value, tanggal: tgl});
-                    showToast('Setoran Bank Sampah Disimpan');
+                    if(!formSampah.value.nama) return showToast('Lengkapi Data Setoran', 'danger');
+                    await saveData('sampah', { ...formSampah.value, tanggal: new Date().toLocaleDateString('id-ID') });
+                    showToast('Setoran sampah dicatat');
                     formSampah.value = { nama:'', jenis:'', berat:'' };
                 };
 
                 const simpanGaleri = async () => {
-                    if(!formGaleri.value.foto) return showToast('Foto wajib diunggah', 'danger');
+                    if(!formGaleri.value.foto) return showToast('Upload foto galeri!', 'danger');
                     await saveData('galeri', formGaleri.value);
-                    showToast('Foto Berhasil Diunggah ke Galeri');
+                    showToast('Foto diunggah');
                     showFormGaleri.value = false;
                     formGaleri.value = { judul:'', foto:null };
                 };
 
                 const simpanAgenda = async () => {
-                    if(!formAgenda.value.judul) return showToast('Judul agenda/berita wajib diisi', 'danger');
-                    const tglNow = formAgenda.value.tanggal || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    await saveData('agenda', {...formAgenda.value, tanggal: tglNow});
-                    showToast('Agenda / Berita Berhasil Diterbitkan');
+                    if(!formAgenda.value.judul) return showToast('Lengkapi Agenda!', 'danger');
+                    await saveData('agenda', formAgenda.value);
+                    showToast('Agenda diterbitkan');
                     showFormAgenda.value = false;
                     formAgenda.value = { judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null };
                 };
 
                 const simpanPengajuanUsaha = async () => {
-                    if(!formUsahaLuar.value.namaUsaha || !formUsahaLuar.value.fotoKtp || !formUsahaLuar.value.fotoUsaha) return showToast('Harap lengkapi form dan upload dokumen wajib!', 'danger');
-                    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    if(!formUsahaLuar.value.namaUsaha) return showToast('Lengkapi form', 'danger');
                     const no = `SKU-${Date.now().toString().slice(-6)}`;
-                    await saveData('pengajuanUsaha', {
-                        ...formUsahaLuar.value, username: user.value.username, nama: user.value.nama,
-                        tanggal: tgl, nomorPengajuan: no, statusRT: 'Menunggu', statusRW: 'Menunggu', statusAdmin: 'Menunggu'
-                    });
-                    showToast('Pengajuan Keterangan Usaha Terkirim ke RT!');
+                    await saveData('pengajuanUsaha', { ...formUsahaLuar.value, username: user.value.username, nama: user.value.nama, nomorPengajuan: no, tanggal: new Date().toLocaleDateString('id-ID'), statusRT: 'Menunggu', statusRW: 'Menunggu', statusAdmin: 'Menunggu' });
+                    showToast('Pengajuan Usaha Terkirim!');
                     showFormPengajuan.value = false;
                     formUsahaLuar.value = { fotoKtp: null, jenisUsaha: '', namaUsaha: '', lokasiUsaha: '', rt: '', rw: '', keperluan: '', alasan: '', fotoUsaha: null };
                 };
@@ -1972,49 +2036,19 @@
                     if(role === 'rw') u.statusRW = statusText;
                     if(role === 'admin') u.statusAdmin = statusText;
                     await updateData('pengajuanUsaha', u);
-                    showToast(`Pengajuan Usaha Telah ${statusText}`);
+                    showToast(`Pengajuan ${statusText}`);
                 };
 
                 const cetakSuratUsaha = (u) => {
                     const printWindow = window.open('', '_blank');
-                    printWindow.document.write(`
-                        <html><head><title>Cetak Surat Keterangan Usaha (SKU)</title></head>
-                        <body style="font-family: 'Times New Roman', serif; padding:40px; color: #000;">
-                            <div style="text-align: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px;">
-                                <h3>PEMERINTAH KOTA PUSAT</h3>
-                                <h2>KELURAHAN DIGITAL</h2>
-                            </div>
-                            <h3 style="text-align:center; text-decoration: underline; margin-bottom:0;">SURAT KETERANGAN USAHA</h3>
-                            <p style="text-align:center; margin-top:5px;">Nomor: ${u.nomorPengajuan}</p>
-                            <br><p>Yang bertanda tangan di bawah ini menerangkan dengan sesungguhnya bahwa:</p>
-                            <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
-                                <tr><td style="width:200px; padding:5px;">Nama Pemohon</td><td>: <strong>${u.nama}</strong></td></tr>
-                                <tr><td style="padding:5px;">Nama Usaha</td><td>: <strong>${u.namaUsaha}</strong></td></tr>
-                                <tr><td style="padding:5px;">Bidang Usaha</td><td>: ${u.jenisUsaha}</td></tr>
-                                <tr><td style="padding:5px;">Lokasi Usaha</td><td>: ${u.lokasiUsaha} (RT ${u.rt} / RW ${u.rw})</td></tr>
-                            </table>
-                            <br><p>Bahwa nama tersebut di atas benar-benar memiliki usaha di wilayah Kelurahan Digital. Surat keterangan ini dibuat untuk keperluan <strong>${u.keperluan}</strong>.</p>
-                            <br><br><br>
-                            <div style="text-align: right; margin-right: 50px;">
-                                <p>Dikeluarkan pada tanggal: ${u.tanggal}</p>
-                                <p><strong>Mengetahui,<br>Lurah Digital</strong></p>
-                                <br><br><br><br>
-                                <p>( .................................................... )</p>
-                            </div>
-                            <script>window.print();<\/script>
-                        </body></html>
-                    `);
+                    printWindow.document.write(`<html><body style="font-family:'Times New Roman', serif; padding:40px;"><h3 style="text-align:center;">SURAT KETERANGAN USAHA</h3><p>Nomor: ${u.nomorPengajuan}</p><p>Nama: ${u.nama}</p><p>Nama Usaha: ${u.namaUsaha}</p><p>Alamat Usaha: ${u.lokasiUsaha} (RT ${u.rt} / RW ${u.rw})</p><script>window.print();<\/script></body></html>`);
                     printWindow.document.close();
                 };
 
                 const simpanLaporan = async () => {
-                    if(!formLaporan.value.judul) return showToast('Judul pengaduan wajib diisi', 'danger');
-                    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    await saveData('laporan', {
-                        ...formLaporan.value, pelapor: user.value.nama, username: user.value.username,
-                        rt: user.value.rt, rw: user.value.rw, tanggal: tgl, status: 'Menunggu'
-                    });
-                    showToast('Pengaduan Anda Berhasil Terkirim');
+                    if(!formLaporan.value.judul) return showToast('Isi judul pengaduan', 'danger');
+                    await saveData('laporan', { ...formLaporan.value, pelapor: user.value.nama, username: user.value.username, rt: user.value.rt, rw: user.value.rw, tanggal: new Date().toLocaleDateString('id-ID'), status: 'Menunggu' });
+                    showToast('Laporan Pengaduan Terkirim');
                     showFormLaporan.value = false;
                     formLaporan.value = { judul:'', isi:'', kategori:'Infrastruktur', privasi:'Publik', foto:null };
                 };
@@ -2026,20 +2060,20 @@
                     l.status = 'Selesai';
                     l.inputBalasan = '';
                     await updateData('laporan', l);
-                    showToast('Tanggapan berhasil dikirim');
+                    showToast('Tanggapan dikirim');
                 };
 
                 const simpanPejabat = async () => {
-                    if(!formPejabat.value.username || !formPejabat.value.password) return showToast('Username & password wajib diisi', 'danger');
+                    if(!formPejabat.value.username) return showToast('Isi username', 'danger');
                     await saveData('pejabat', formPejabat.value);
-                    showToast('Akun Pejabat Berhasil Ditambahkan');
+                    showToast('Pejabat Ditambahkan');
                     formPejabat.value = { nama: '', role: 'rt', wilayah: '', rt: '', rw: '', username: '', password: '', ttd: '', stempel: '' };
                 };
 
                 const hapus = (col, id) => {
-                    customConfirm('Hapus Data Permanen', 'Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.', async () => {
+                    customConfirm('Hapus Data', 'Yakin menghapus data ini?', async () => {
                         await deleteData(col, id);
-                        showToast('Data berhasil dihapus selamanya');
+                        showToast('Data berhasil dihapus');
                     });
                 };
 
