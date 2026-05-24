@@ -67,14 +67,18 @@
             </div>
         </div>
 
-        <!-- ================= LANDING PAGE & LOGIN (DENGAN PENGATURAN WARNA & DATA DINAMIS) ================= -->
+        <!-- ================= LANDING PAGE & LOGIN (DENGAN PENGATURAN LOGO, NAMA, HEADER & FOOTER) ================= -->
         <div v-if="!isLoggedIn" class="min-h-screen bg-gray-50 flex flex-col font-sans relative overflow-y-auto">
             <nav class="bg-white/95 backdrop-blur shadow-sm px-6 py-4 flex justify-between items-center fixed w-full z-50 border-b border-gray-100">
                 <div class="flex items-center gap-4">
-                    <div :style="{ backgroundColor: webSettings.warnaUtama }" class="w-12 h-12 rounded-full flex items-center justify-center text-white font-black shadow-md border-2 border-white"><i class="fas fa-city text-xl"></i></div>
+                    <!-- FIX 1: TAMPILAN LOGO DINAMIS -->
+                    <img v-if="webSettings.logo" :src="webSettings.logo" @click="zoomedImage=webSettings.logo" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md cursor-pointer">
+                    <div v-else :style="{ backgroundColor: webSettings.warnaUtama }" class="w-12 h-12 rounded-full flex items-center justify-center text-white font-black shadow-md border-2 border-white"><i class="fas fa-city text-xl"></i></div>
+                    
                     <div>
-                        <h1 :style="{ color: webSettings.warnaUtama }" class="font-black text-xl leading-tight uppercase tracking-wide">Portal Kelurahan</h1>
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Layanan Digital Terpadu</p>
+                        <!-- FIX 1: NAMA WEB & HEADER DINAMIS -->
+                        <h1 :style="{ color: webSettings.warnaUtama }" class="font-black text-xl leading-tight uppercase tracking-wide">{{ webSettings.namaWebsite }}</h1>
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500">{{ webSettings.headerText }}</p>
                     </div>
                 </div>
                 <button v-if="currentAuthView === 'landing'" @click="currentAuthView = 'auth'" :style="{ backgroundColor: webSettings.warnaUtama }" class="text-white px-6 py-2.5 rounded-full font-bold shadow-lg transition-transform hover:-translate-y-0.5 flex items-center gap-2">
@@ -84,11 +88,11 @@
             </nav>
 
             <!-- TAMPILAN BERANDA -->
-            <div v-if="currentAuthView === 'landing'" class="mt-28 px-4 md:px-6 py-8 max-w-7xl mx-auto w-full">
+            <div v-if="currentAuthView === 'landing'" class="mt-28 px-4 md:px-6 py-8 max-w-7xl mx-auto w-full flex-1">
                 <!-- Sambutan Pejabat -->
                 <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-black text-gray-800 mb-4">Sistem Layanan Mandiri Digital</h2>
-                    <p class="text-lg text-gray-600 max-w-3xl mx-auto font-medium">Platform cerdas untuk kemudahan administrasi, e-surat, UMKM, dan pengaduan warga.</p>
+                    <h2 class="text-4xl md:text-5xl font-black text-gray-800 mb-4">{{ webSettings.namaWebsite }}</h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto font-medium">{{ webSettings.headerText }} - Kemudahan administrasi dan pengaduan warga dalam satu pintu.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
@@ -122,7 +126,7 @@
                     </div>
                 </div>
 
-                <!-- FIX 3: TABS MENU HALAMAN DEPAN (PUBLIK) -->
+                <!-- TABS MENU HALAMAN DEPAN (PUBLIK) -->
                 <div class="mb-16">
                     <div class="flex flex-wrap justify-center gap-3 mb-8">
                         <button @click="publicTab='agenda'" :class="publicTab==='agenda'?'text-white shadow-lg':'bg-white text-gray-600 hover:bg-gray-100'" :style="publicTab==='agenda' ? { backgroundColor: webSettings.warnaUtama } : {}" class="px-6 py-2.5 rounded-full font-bold transition border"><i class="fas fa-bullhorn mr-2"></i>Agenda & Berita</button>
@@ -193,29 +197,73 @@
                 </div>
             </div>
 
+            <!-- FIX 1: FOOTER WEBSITE KEMBALI MUNCUL -->
+            <footer v-if="currentAuthView === 'landing'" :style="{ backgroundColor: webSettings.warnaUtama }" class="text-white text-center py-6 shadow-inner w-full">
+                <p class="font-bold text-sm">{{ webSettings.footerText }}</p>
+            </footer>
+
             <!-- LOGIN & REGISTER FORM -->
             <div v-if="currentAuthView === 'auth'" class="pt-24 flex justify-center px-4 pb-12 w-full">
-                <div :class="['bg-white p-8 rounded-[2rem] shadow-2xl border w-full transition-all duration-300', isRegistering ? 'max-w-4xl' : 'max-w-md']">
+                <div :class="['bg-white p-8 rounded-[2rem] shadow-2xl border w-full transition-all duration-300', isRegistering || isRegisteringLuar ? 'max-w-4xl' : 'max-w-md']">
                     <div class="text-center mb-8">
-                        <div :style="{ backgroundColor: webSettings.warnaUtama }" class="w-20 h-20 text-white rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg"><i class="fas fa-shield-alt"></i></div>
+                        <!-- Logo Dinamis di Login Form -->
+                        <img v-if="webSettings.logo" :src="webSettings.logo" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover shadow-lg border">
+                        <div v-else :style="{ backgroundColor: webSettings.warnaUtama }" class="w-20 h-20 text-white rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg"><i class="fas fa-shield-alt"></i></div>
+                        
                         <h2 class="text-3xl font-black text-gray-800">Sistem Kelurahan</h2>
                         <p class="text-gray-500 text-sm mt-1">Layanan Terpadu Terproteksi</p>
                     </div>
                     
-                    <form v-if="!isRegistering" @submit.prevent="handleLogin" class="space-y-5">
+                    <form v-if="!isRegistering && !isRegisteringLuar" @submit.prevent="handleLogin" class="space-y-5">
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Username / NIK</label>
                             <input type="text" v-model="loginForm.email" required placeholder="Masukkan Username/NIK" class="w-full p-3.5 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 outline-none" :style="`--tw-ring-color: ${webSettings.warnaUtama}`">
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Password</label>
-                            <input type="password" v-model="loginForm.password" required placeholder="••••••••" class="w-full p-3.5 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 outline-none" :style="`--tw-ring-color: ${webSettings.warnaUtama}`">
+                            <div class="relative">
+                                <input :type="showPassLogin ? 'text' : 'password'" v-model="loginForm.password" required placeholder="••••••••" class="w-full p-3.5 pr-12 bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 outline-none" :style="`--tw-ring-color: ${webSettings.warnaUtama}`">
+                                <button type="button" @click="showPassLogin = !showPassLogin" class="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 focus:outline-none"><i :class="['fas', showPassLogin ? 'fa-eye-slash' : 'fa-eye']"></i></button>
+                            </div>
                         </div>
                         <button type="submit" :style="{ backgroundColor: webSettings.warnaUtama }" class="w-full text-white font-bold py-4 rounded-xl shadow-lg transition-all mt-6 text-base">Masuk Sistem Aman</button>
-                        <p class="text-center text-sm text-gray-600 mt-6">Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; regStep = 1" :style="{ color: webSettings.warnaUtama }" class="font-black hover:underline">Daftar Akun Warga</a></p>
+                        
+                        <div class="text-center text-sm text-gray-600 mt-6 flex flex-col gap-2">
+                            <p>Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; isRegisteringLuar = false; regStep = 1" :style="{ color: webSettings.warnaUtama }" class="font-black hover:underline">Daftar Akun Warga</a></p>
+                            <!-- FIX 2: TOMBOL DAFTAR WARGA LUAR -->
+                            <p>Atau <a href="#" @click.prevent="isRegisteringLuar = true; isRegistering = false;" class="text-amber-600 font-black hover:underline">Daftar Pelaku Usaha (Warga Luar)</a></p>
+                        </div>
                     </form>
 
-                    <!-- FORM PENDAFTARAN WARGA LENGKAP 100% TIDAK DIUBAH -->
+                    <!-- FIX 2: FORM PENDAFTARAN WARGA LUAR KELURAHAN (PELAKU USAHA) -->
+                    <form v-if="isRegisteringLuar" @submit.prevent="handleRegisterLuar" class="space-y-5">
+                        <div class="text-center mb-6 border-b pb-4">
+                            <h3 class="text-xl font-black text-amber-600"><i class="fas fa-briefcase mr-2"></i>Pendaftaran Akun Warga Luar (Pelaku Usaha)</h3>
+                            <p class="text-sm text-gray-500">Khusus bagi warga luar kelurahan yang memiliki usaha di wilayah ini.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-bold mb-1">Nama Lengkap Sesuai KTP</label><input type="text" v-model="regLuar.nama" required class="w-full border p-3 rounded-lg bg-gray-50"></div>
+                            <div><label class="block text-xs font-bold mb-1">NIK / Nomor KTP</label><input type="number" v-model="regLuar.nik" required class="w-full border p-3 rounded-lg bg-gray-50"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Alamat Tinggal Asal</label><textarea v-model="regLuar.alamat" rows="2" required class="w-full border p-3 rounded-lg bg-gray-50"></textarea></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Nomor HP / WhatsApp Aktif</label><input type="number" v-model="regLuar.hp" required class="w-full border p-3 rounded-lg bg-gray-50"></div>
+                            
+                            <div class="md:col-span-2 font-black text-gray-800 border-b pb-2 mt-4">Buat Akses Login Anda</div>
+                            <div><label class="block text-xs font-bold mb-1">Username Login</label><input type="text" v-model="regLuar.username" required class="w-full border p-3 rounded-lg"></div>
+                            <div>
+                                <label class="block text-xs font-bold mb-1">Password</label>
+                                <div class="relative">
+                                    <input :type="showPassRegLuar ? 'text' : 'password'" v-model="regLuar.password" required class="w-full border p-3 pr-10 rounded-lg">
+                                    <button type="button" @click="showPassRegLuar = !showPassRegLuar" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"><i :class="['fas', showPassRegLuar ? 'fa-eye-slash' : 'fa-eye']"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-8 pt-4 border-t">
+                            <button type="button" @click="isRegisteringLuar = false" class="px-6 py-2.5 bg-gray-200 font-bold rounded-xl text-gray-700">Kembali</button>
+                            <button type="submit" class="px-8 py-2.5 bg-amber-600 text-white font-bold rounded-xl shadow hover:bg-amber-700">Daftarkan Akun Warga Luar</button>
+                        </div>
+                    </form>
+
+                    <!-- FORM PENDAFTARAN WARGA TETAP LENGKAP 100% TIDAK DIUBAH -->
                     <form v-if="isRegistering" @submit.prevent="handleRegister" class="space-y-5">
                         <div class="flex items-center justify-between mb-8 border-b pb-4">
                             <div v-for="step in 5" :key="step" :class="['flex-1 text-center py-2 border-b-4 transition-colors', regStep >= step ? 'border-blue-600 text-blue-600' : 'border-gray-200 text-gray-400']">
@@ -278,8 +326,20 @@
                             <div><label class="block text-xs font-bold mb-1">Email</label><input type="email" v-model="reg.email" required class="w-full border p-3 rounded-lg bg-gray-50"></div>
                             <div><label class="block text-xs font-bold mb-1">Username Login</label><input type="text" v-model="reg.username" required class="w-full border p-3 rounded-lg bg-gray-50"></div>
                             <div class="grid grid-cols-2 gap-4">
-                                <div><label class="block text-xs font-bold mb-1">Password</label><input type="password" v-model="reg.password" required class="w-full border p-3 rounded-lg"></div>
-                                <div><label class="block text-xs font-bold mb-1">Ulangi Password</label><input type="password" v-model="reg.repeatPassword" required class="w-full border p-3 rounded-lg"></div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Password</label>
+                                    <div class="relative">
+                                        <input :type="showPassReg ? 'text' : 'password'" v-model="reg.password" required class="w-full border p-3 pr-10 rounded-lg">
+                                        <button type="button" @click="showPassReg = !showPassReg" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"><i :class="['fas', showPassReg ? 'fa-eye-slash' : 'fa-eye']"></i></button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Ulangi Password</label>
+                                    <div class="relative">
+                                        <input :type="showPassRegRep ? 'text' : 'password'" v-model="reg.repeatPassword" required class="w-full border p-3 pr-10 rounded-lg">
+                                        <button type="button" @click="showPassRegRep = !showPassRegRep" class="absolute right-3 top-3 text-gray-400 hover:text-gray-600"><i :class="['fas', showPassRegRep ? 'fa-eye-slash' : 'fa-eye']"></i></button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -288,24 +348,33 @@
                             <button type="button" v-if="regStep < 5" @click="regStep++" class="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl shadow">Selanjutnya</button>
                             <button type="submit" v-if="regStep === 5" class="px-6 py-2.5 bg-green-600 text-white font-bold rounded-xl shadow">Daftar Sekarang</button>
                         </div>
-                        <p class="text-center text-sm text-gray-500 mt-4">Sudah punya akun? <a href="#" @click.prevent="isRegistering = false" class="text-blue-600 font-black hover:underline">Masuk di sini</a></p>
+                        <p class="text-center text-sm text-gray-500 mt-4">Sudah punya akun? <a href="#" @click.prevent="isRegistering = false; isRegisteringLuar = false" class="text-blue-600 font-black hover:underline">Masuk di sini</a></p>
                     </form>
                 </div>
             </div>
         </div>
 
-        <!-- ================= DASHBOARD UTAMA (18 MENU TETAP LENGKAP 100%) ================= -->
+        <!-- ================= DASHBOARD UTAMA ================= -->
         <div v-if="isLoggedIn" class="flex h-screen overflow-hidden bg-gray-50">
             <!-- SIDEBAR -->
             <aside :class="['text-white w-64 flex-shrink-0 transition-transform h-full fixed md:relative z-40 shadow-xl overflow-y-auto', sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']" :style="{ backgroundColor: webSettings.warnaUtama }">
                 <div class="p-5 border-b border-white/20 flex justify-between items-center" :style="{ backgroundColor: webSettings.warnaUtama }">
-                    <h1 class="font-bold text-lg"><i class="fas fa-shield-alt mr-2 text-blue-200"></i>Kelurahan Digital</h1>
+                    <!-- FIX 1: SIDEBAR TAMPIL LOGO -->
+                    <img v-if="webSettings.logo" :src="webSettings.logo" class="w-8 h-8 rounded-full border border-white mr-2 object-cover">
+                    <i v-else class="fas fa-shield-alt mr-2 text-blue-200 text-xl"></i>
+                    <h1 class="font-bold text-sm tracking-wide">{{ webSettings.namaWebsite }}</h1>
                     <button @click="sidebarOpen=false" class="md:hidden"><i class="fas fa-times text-xl"></i></button>
                 </div>
                 
                 <nav class="p-4 space-y-1 text-sm pb-20">
                     <a href="#" @click.prevent="menu='dashboard'" :class="['block px-3 py-2.5 rounded-lg font-bold transition border border-transparent', menu==='dashboard'?'bg-white/20 shadow border-white/30':'hover:bg-white/10']"><i class="fas fa-home w-5 text-center mr-1"></i> 1. Dashboard Induk</a>
                     
+                    <!-- MENU WARGA LUAR -->
+                    <div v-if="user.role === 'warga_luar'" class="mt-4">
+                        <p class="text-[10px] text-amber-300 font-bold uppercase px-2 mb-2">Layanan Warga Luar</p>
+                        <a href="#" @click.prevent="menu='pengajuan-usaha'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200', menu==='pengajuan-usaha'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-file-signature w-5 text-center mr-1"></i> 2. Pengajuan Usaha</a>
+                    </div>
+
                     <div v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(user.role)" class="mt-4">
                         <p class="text-[10px] text-blue-200 font-bold uppercase px-2 mb-2">Administrasi Data</p>
                         <a href="#" @click.prevent="menu='kependudukan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='kependudukan'?'bg-white/20':'hover:bg-white/10']"><i class="fas fa-users w-5 text-center mr-1"></i> 2. Kependudukan</a>
@@ -313,22 +382,33 @@
                         <a href="#" @click.prevent="menu='statistik-pekerjaan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='statistik-pekerjaan'?'bg-white/20':'hover:bg-white/10']"><i class="fas fa-briefcase w-5 text-center mr-1"></i> 4. Statistik Pekerjaan</a>
                         <a href="#" @click.prevent="menu='status-usaha'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='status-usaha'?'bg-white/20':'hover:bg-white/10']"><i class="fas fa-store-alt w-5 text-center mr-1"></i> 5. Status Usaha</a>
                         <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='arsip-surat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='arsip-surat'?'bg-white/20':'hover:bg-white/10']"><i class="fas fa-folder-open w-5 text-center mr-1"></i> 6. Arsip Surat</a>
+                        <!-- FIX 2: MENU VERIFIKASI USAHA WARGA LUAR -->
+                        <a v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-usaha'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200 mt-2', menu==='verifikasi-usaha'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-stamp w-5 text-center mr-1"></i> 19. Verifikasi Usaha Warga Luar</a>
+                        
+                        <!-- FIX 3: MENU PENGANTAR RT/RW & PENGATURAN -->
+                        <a v-if="['rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-pengantar'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-blue-200 mt-2', menu==='verifikasi-pengantar'?'bg-blue-600 shadow border border-blue-400':'hover:bg-white/10']"><i class="fas fa-file-signature w-5 text-center mr-1"></i> 20. Verifikasi Pengantar Warga</a>
+                        <a v-if="['rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='pengaturan-pejabat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200 mt-2', menu==='pengaturan-pejabat'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-signature w-5 text-center mr-1"></i> 21. Pengaturan TTD & Stempel</a>
                     </div>
 
-                    <p class="text-[10px] text-amber-300 font-bold uppercase px-2 mt-4 mb-2">Layanan Publik</p>
-                    <a href="#" @click.prevent="menu='surat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='surat'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-envelope-open-text w-5 text-center mr-1"></i> 7. E-Surat Warga</a>
-                    <a href="#" @click.prevent="menu='bansos'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='bansos'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-hand-holding-heart w-5 text-center mr-1"></i> 8. Usulan Bansos</a>
-                    <a href="#" @click.prevent="menu='tamu'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='tamu'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-door-open w-5 text-center mr-1"></i> 9. Lapor Tamu</a>
-                    <a href="#" @click.prevent="menu='laporan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='laporan'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-exclamation-triangle w-5 text-center mr-1"></i> 10. Pengaduan Warga</a>
+                    <p v-if="user.role !== 'warga_luar'" class="text-[10px] text-amber-300 font-bold uppercase px-2 mt-4 mb-2">Layanan Publik</p>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='surat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='surat'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-envelope-open-text w-5 text-center mr-1"></i> 7. E-Surat Warga</a>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='bansos'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='bansos'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-hand-holding-heart w-5 text-center mr-1"></i> 8. Usulan Bansos</a>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='tamu'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='tamu'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-door-open w-5 text-center mr-1"></i> 9. Lapor Tamu</a>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='laporan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='laporan'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-exclamation-triangle w-5 text-center mr-1"></i> 10. Pengaduan Warga</a>
                     
-                    <p class="text-[10px] text-emerald-300 font-bold uppercase px-2 mt-4 mb-2">Transparansi & Ekonomi</p>
-                    <a href="#" @click.prevent="menu='kas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='kas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-wallet w-5 text-center mr-1"></i> 11. Kas Lingkungan</a>
-                    <a href="#" @click.prevent="menu='administrasi'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='administrasi'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-chart-line w-5 text-center mr-1"></i> 12. Realisasi Anggaran</a>
-                    <a href="#" @click.prevent="menu='umkm'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-emerald-200', menu==='umkm'?'bg-emerald-600 shadow border border-emerald-400':'hover:bg-white/10']"><i class="fas fa-store w-5 text-center mr-1"></i> 13. Lapak UMKM</a>
-                    <a href="#" @click.prevent="menu='fasilitas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='fasilitas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-tools w-5 text-center mr-1"></i> 14. Lapor Fasilitas</a>
-                    <a href="#" @click.prevent="menu='bursa'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200', menu==='bursa'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-handshake w-5 text-center mr-1"></i> 15. Bursa Kerja & Jasa</a>
-                    <a href="#" @click.prevent="menu='bank-sampah'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='bank-sampah'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-recycle w-5 text-center mr-1"></i> 16. Bank Sampah</a>
-                    <a href="#" @click.prevent="menu='galeri'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200', menu==='galeri'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-images w-5 text-center mr-1"></i> 17. Galeri Lingkungan</a>
+                    <!-- FIX: MENU ARISAN & SUMBANGAN RT/RW -->
+                    <p v-if="['rt', 'rw', 'bendahara', 'warga'].includes(user.role)" class="text-[10px] text-pink-300 font-bold uppercase px-2 mt-4 mb-2">Keuangan Warga (RT/RW)</p>
+                    <a v-if="['rt', 'rw', 'bendahara', 'warga'].includes(user.role)" href="#" @click.prevent="menu='arisan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-pink-200', menu==='arisan'?'bg-pink-600 shadow border border-pink-400':'hover:bg-white/10']"><i class="fas fa-sync-alt w-5 text-center mr-1"></i> 22. Arisan Warga</a>
+                    <a v-if="['rt', 'rw', 'bendahara', 'warga'].includes(user.role)" href="#" @click.prevent="menu='sumbangan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-pink-200 mt-1', menu==='sumbangan'?'bg-pink-600 shadow border border-pink-400':'hover:bg-white/10']"><i class="fas fa-donate w-5 text-center mr-1"></i> 23. Sumbangan Warga</a>
+
+                    <p v-if="user.role !== 'warga_luar'" class="text-[10px] text-emerald-300 font-bold uppercase px-2 mt-4 mb-2">Transparansi & Ekonomi</p>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='kas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='kas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-wallet w-5 text-center mr-1"></i> 11. Kas Lingkungan</a>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='administrasi'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='administrasi'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-chart-line w-5 text-center mr-1"></i> 12. Realisasi Anggaran</a>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='umkm'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-emerald-200', menu==='umkm'?'bg-emerald-600 shadow border border-emerald-400':'hover:bg-white/10']"><i class="fas fa-store w-5 text-center mr-1"></i> 13. Lapak UMKM</a>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='fasilitas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='fasilitas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-tools w-5 text-center mr-1"></i> 14. Lapor Fasilitas</a>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='bursa'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200', menu==='bursa'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-handshake w-5 text-center mr-1"></i> 15. Bursa Kerja & Jasa</a>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='bank-sampah'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='bank-sampah'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-recycle w-5 text-center mr-1"></i> 16. Bank Sampah</a>
+                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='galeri'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200', menu==='galeri'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-images w-5 text-center mr-1"></i> 17. Galeri Lingkungan</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='agenda'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='agenda'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-bullhorn w-5 text-center mr-1"></i> 18. Agenda & Berita</a>
 
                     <a href="#" @click.prevent="logout" class="block px-3 py-2.5 rounded-lg font-bold text-red-300 hover:bg-red-800 mt-8 border-t border-white/20 pt-4 transition"><i class="fas fa-sign-out-alt w-5 text-center mr-1"></i> Keluar Sistem</a>
@@ -355,7 +435,7 @@
                     <div v-if="menu==='dashboard'" class="space-y-6">
                         <div :style="{ backgroundColor: webSettings.warnaUtama }" class="rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
                             <i class="fas fa-city absolute -right-10 -top-10 text-9xl text-white/10"></i>
-                            <h2 class="text-3xl font-black mb-2 relative z-10">Selamat Datang di Sistem Kelurahan Digital!</h2>
+                            <h2 class="text-3xl font-black mb-2 relative z-10">Selamat Datang, {{ user.nama }}!</h2>
                             <p class="text-sm text-blue-100 relative z-10 max-w-xl">Semua fitur desain asli Anda telah dipertahankan. Sistem keamanan berjalan aktif memblokir akses ilegal.</p>
                         </div>
                         
@@ -370,34 +450,49 @@
                         <!-- FIX 1: PENGATURAN WEBSITE & TAMPILAN (KHUSUS ADMIN) -->
                         <div v-if="user.role==='admin_kelurahan'" class="bg-white p-6 rounded-2xl shadow-sm border mt-6">
                             <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-globe text-indigo-500 mr-2"></i>Pengaturan Website & Halaman Depan</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div class="md:col-span-3">
-                                    <label class="block text-xs font-bold mb-1 text-gray-600">Pilih Warna Utama Website Anda</label>
-                                    <input type="color" v-model="webSettings.warnaUtama" class="w-24 h-12 p-1 border rounded-lg cursor-pointer">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="flex-1"><label class="block text-xs font-bold mb-1">Logo Website (URL Gambar)</label><input v-model="webSettings.logo" placeholder="https://..." class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 outline-none"></div>
+                                        <img v-if="webSettings.logo" :src="webSettings.logo" class="w-12 h-12 rounded-full border shadow-sm object-cover mt-4">
+                                    </div>
+                                    <div><label class="block text-xs font-bold mb-1">Pilih Warna Utama Website</label><input type="color" v-model="webSettings.warnaUtama" class="w-full h-10 p-1 border rounded-lg cursor-pointer"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Nama Website (Muncul di Kiri Atas)</label><input v-model="webSettings.namaWebsite" class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 outline-none"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Teks Header / Slogan</label><input v-model="webSettings.headerText" class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 outline-none"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Teks Footer Paling Bawah</label><input v-model="webSettings.footerText" class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 outline-none"></div>
                                 </div>
-                                <div class="space-y-3 border p-4 rounded-xl bg-gray-50 shadow-inner">
-                                    <h4 class="font-black text-sm text-gray-800 border-b pb-1"><i class="fas fa-user-tie text-blue-500 mr-1"></i> Profil Walikota</h4>
-                                    <div><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.walikota.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
-                                    <div><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.walikota.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
-                                    <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.walikota.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
-                                    <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.walikota.pesan" rows="3" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
-                                </div>
-                                <div class="space-y-3 border p-4 rounded-xl bg-gray-50 shadow-inner">
-                                    <h4 class="font-black text-sm text-gray-800 border-b pb-1"><i class="fas fa-user-tie text-emerald-500 mr-1"></i> Profil Wakil Walikota</h4>
-                                    <div><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.wakil.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
-                                    <div><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.wakil.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
-                                    <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.wakil.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
-                                    <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.wakil.pesan" rows="3" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
-                                </div>
-                                <div class="space-y-3 border p-4 rounded-xl bg-gray-50 shadow-inner">
-                                    <h4 class="font-black text-sm text-gray-800 border-b pb-1"><i class="fas fa-user-tie text-purple-500 mr-1"></i> Profil Lurah</h4>
-                                    <div><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.lurah.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
-                                    <div><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.lurah.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
-                                    <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.lurah.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
-                                    <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.lurah.pesan" rows="3" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
+                                
+                                <div class="space-y-4">
+                                    <div class="border p-4 rounded-xl bg-gray-50 shadow-inner space-y-2">
+                                        <h4 class="font-black text-sm text-gray-800 border-b pb-1"><i class="fas fa-user-tie text-blue-500 mr-1"></i> Profil Walikota</h4>
+                                        <div class="flex gap-2">
+                                            <div class="flex-1"><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.walikota.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                            <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.walikota.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        </div>
+                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.walikota.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.walikota.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
+                                    </div>
+                                    <div class="border p-4 rounded-xl bg-gray-50 shadow-inner space-y-2">
+                                        <h4 class="font-black text-sm text-gray-800 border-b pb-1"><i class="fas fa-user-tie text-emerald-500 mr-1"></i> Profil Wakil Walikota</h4>
+                                        <div class="flex gap-2">
+                                            <div class="flex-1"><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.wakil.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                            <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.wakil.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        </div>
+                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.wakil.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.wakil.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
+                                    </div>
+                                    <div class="border p-4 rounded-xl bg-gray-50 shadow-inner space-y-2">
+                                        <h4 class="font-black text-sm text-gray-800 border-b pb-1"><i class="fas fa-user-tie text-purple-500 mr-1"></i> Profil Lurah</h4>
+                                        <div class="flex gap-2">
+                                            <div class="flex-1"><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.lurah.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                            <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.lurah.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        </div>
+                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.lurah.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.lurah.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
+                                    </div>
                                 </div>
                             </div>
-                            <button @click="showToast('Pengaturan Website Berhasil Disimpan!')" class="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-bold shadow transition"><i class="fas fa-save mr-1"></i> Simpan Tampilan Website</button>
+                            <button @click="showToast('Pengaturan Website Berhasil Disimpan!')" class="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-md transition w-full md:w-auto"><i class="fas fa-save mr-1"></i> Simpan Konfigurasi Tampilan Website</button>
                         </div>
 
                         <!-- PENGATURAN ADMIN & PEJABAT -->
@@ -406,7 +501,13 @@
                                 <h3 class="font-bold text-red-600 mb-4 border-b pb-2"><i class="fas fa-key mr-2"></i>Ubah Akses Admin</h3>
                                 <div class="space-y-3">
                                     <div><label class="block text-xs font-bold mb-1">Username Admin Baru</label><input v-model="formAdmin.username" type="text" class="w-full border p-2 rounded-lg bg-gray-50 outline-none focus:border-red-400"></div>
-                                    <div><label class="block text-xs font-bold mb-1">Password Admin Baru</label><input v-model="formAdmin.password" type="password" class="w-full border p-2 rounded-lg bg-gray-50 outline-none focus:border-red-400"></div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Password Admin Baru</label>
+                                        <div class="relative">
+                                            <input :type="showPassAdmin ? 'text' : 'password'" v-model="formAdmin.password" class="w-full border p-2 pr-10 rounded-lg bg-gray-50 outline-none focus:border-red-400">
+                                            <button type="button" @click="showPassAdmin = !showPassAdmin" class="absolute right-3 top-2 text-gray-400 hover:text-gray-600"><i :class="['fas', showPassAdmin ? 'fa-eye-slash' : 'fa-eye']"></i></button>
+                                        </div>
+                                    </div>
                                     <button @click="updateAdmin" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold w-full transition">Simpan Perubahan Admin</button>
                                 </div>
                             </div>
@@ -414,10 +515,20 @@
                                 <h3 class="font-bold text-blue-800 mb-4 border-b pb-2"><i class="fas fa-user-tie mr-2"></i>Buat Akun RT / RW / Babinsa</h3>
                                 <div class="grid grid-cols-2 gap-3 mb-3">
                                     <div class="col-span-2"><label class="block text-xs font-bold mb-1">Nama Lengkap Pejabat</label><input v-model="formPejabat.nama" type="text" class="w-full border p-2 rounded-lg bg-gray-50 outline-none"></div>
-                                    <div><label class="block text-xs font-bold mb-1">Jabatan</label><select v-model="formPejabat.role" class="w-full border p-2 rounded-lg bg-gray-50"><option value="rt">Ketua RT</option><option value="rw">Ketua RW</option><option value="babinsa">Babinsa</option></select></div>
-                                    <div><label class="block text-xs font-bold mb-1">Area Wilayah</label><input v-model="formPejabat.wilayah" type="text" placeholder="Cth: RT 01 / RW 02" class="w-full border p-2 rounded-lg bg-gray-50 outline-none"></div>
+                                    <div class="col-span-2"><label class="block text-xs font-bold mb-1">Jabatan</label><select v-model="formPejabat.role" class="w-full border p-2 rounded-lg bg-gray-50"><option value="rt">Ketua RT</option><option value="rw">Ketua RW</option><option value="babinsa">Babinsa</option></select></div>
+                                    
+                                    <!-- FIX 2: Minta input jelas RT/RW untuk Filter Verifikasi Nanti -->
+                                    <div><label class="block text-xs font-bold mb-1 text-amber-600">RT (Wajib Cth: 01)</label><input v-model="formPejabat.rt" type="text" placeholder="01" class="w-full border p-2 rounded-lg bg-amber-50 outline-none border-amber-200"></div>
+                                    <div><label class="block text-xs font-bold mb-1 text-amber-600">RW (Wajib Cth: 05)</label><input v-model="formPejabat.rw" type="text" placeholder="05" class="w-full border p-2 rounded-lg bg-amber-50 outline-none border-amber-200"></div>
+                                    
                                     <div><label class="block text-xs font-bold mb-1">Username Login</label><input v-model="formPejabat.username" type="text" class="w-full border p-2 rounded-lg bg-gray-50 outline-none"></div>
-                                    <div><label class="block text-xs font-bold mb-1">Password</label><input v-model="formPejabat.password" type="text" class="w-full border p-2 rounded-lg bg-gray-50 outline-none"></div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Password</label>
+                                        <div class="relative">
+                                            <input :type="showPassPejabat ? 'text' : 'password'" v-model="formPejabat.password" class="w-full border p-2 pr-10 rounded-lg bg-gray-50 outline-none">
+                                            <button type="button" @click="showPassPejabat = !showPassPejabat" class="absolute right-3 top-2 text-gray-400 hover:text-gray-600"><i :class="['fas', showPassPejabat ? 'fa-eye-slash' : 'fa-eye']"></i></button>
+                                        </div>
+                                    </div>
                                     <div class="col-span-2"><button @click="simpanPejabat" class="bg-blue-800 hover:bg-blue-900 text-white px-4 py-2 rounded-lg text-sm font-bold w-full transition mt-2">Daftarkan Akun Pejabat</button></div>
                                 </div>
                             </div>
@@ -425,16 +536,186 @@
                                 <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-list mr-2"></i>Daftar Akun Pejabat Aktif</h3>
                                 <div class="overflow-x-auto border rounded-xl">
                                     <table class="w-full text-left text-sm whitespace-nowrap">
-                                        <thead class="bg-gray-50 border-b"><tr><th class="p-3">Nama</th><th class="p-3">Jabatan</th><th class="p-3">Username</th><th class="p-3">Aksi</th></tr></thead>
+                                        <thead class="bg-gray-50 border-b"><tr><th class="p-3">Nama</th><th class="p-3">Jabatan</th><th class="p-3">Wilayah</th><th class="p-3">Username</th><th class="p-3">Aksi</th></tr></thead>
                                         <tbody>
                                             <tr v-for="p in listPejabat" :key="p.id" class="border-b">
                                                 <td class="p-3 font-bold">{{ p.nama }}</td>
-                                                <td class="p-3 uppercase text-xs font-black text-blue-600">{{ p.role }} {{ p.wilayah }}</td>
+                                                <td class="p-3 uppercase text-xs font-black text-blue-600">{{ p.role }}</td>
+                                                <td class="p-3 text-xs font-bold">RT {{ p.rt }} / RW {{ p.rw }}</td>
                                                 <td class="p-3">{{ p.username }}</td>
                                                 <td class="p-3"><button @click="hapus('pejabat', p.id)" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded"><i class="fas fa-trash"></i></button></td>
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FIX: PENGATURAN BENDAHARA & LOG AKTIVITAS (KHUSUS RT/RW) -->
+                        <div v-if="['rt', 'rw'].includes(user.role)" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                                <h3 class="font-bold text-pink-600 mb-4 border-b pb-2"><i class="fas fa-user-shield mr-2"></i>Buat Akun Bendahara (Arisan & Sumbangan)</h3>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div class="col-span-2"><label class="block text-xs font-bold mb-1">Nama Lengkap Bendahara</label><input v-model="formBendahara.nama" type="text" class="w-full border p-2 rounded-lg bg-gray-50 outline-none"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Username Login</label><input v-model="formBendahara.username" type="text" class="w-full border p-2 rounded-lg bg-gray-50 outline-none"></div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Password</label>
+                                        <div class="relative">
+                                            <input :type="showPassPejabat ? 'text' : 'password'" v-model="formBendahara.password" class="w-full border p-2 pr-10 rounded-lg bg-gray-50 outline-none">
+                                            <button type="button" @click="showPassPejabat = !showPassPejabat" class="absolute right-3 top-2 text-gray-400 hover:text-gray-600"><i :class="['fas', showPassPejabat ? 'fa-eye-slash' : 'fa-eye']"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="col-span-2"><button @click="simpanBendahara" class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg text-sm font-bold w-full transition mt-2">Daftarkan Akun Bendahara</button></div>
+                                </div>
+                                <div class="mt-4 border-t pt-4">
+                                    <h4 class="text-xs font-bold text-gray-500 mb-2">Daftar Bendahara Aktif:</h4>
+                                    <ul class="text-sm space-y-2">
+                                        <li v-for="b in listBendahara.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="b.id" class="flex justify-between items-center bg-gray-50 p-2 rounded border">
+                                            <span><strong>{{ b.nama }}</strong> ({{ b.username }})</span>
+                                            <button @click="hapus('bendahara', b.id)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                        </li>
+                                        <li v-if="listBendahara.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0" class="text-xs italic text-gray-400">Belum ada bendahara.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border max-h-96 overflow-y-auto">
+                                <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-clipboard-list text-blue-500 mr-2"></i>Log Aktivitas Pengurus</h3>
+                                <ul class="space-y-3">
+                                    <li v-for="(log, idx) in logAktivitas.filter(x => x.rt === user.rt && x.rw === user.rw).slice(0, 20)" :key="idx" class="text-xs border-b pb-2">
+                                        <span class="text-gray-400 block mb-1">{{ log.waktu }}</span>
+                                        <span class="font-bold text-blue-600">{{ log.user }}</span>: {{ log.aksi }}
+                                    </li>
+                                    <li v-if="logAktivitas.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0" class="text-xs italic text-gray-400">Belum ada aktivitas terekam. Sistem otomatis membersihkan log kadaluarsa.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- FIX 2: 19. PENGAJUAN USAHA WARGA LUAR (MENU KHUSUS WARGA LUAR) -->
+                    <div v-if="menu==='pengajuan-usaha'" class="space-y-6">
+                        <div class="bg-gradient-to-r from-amber-600 to-amber-800 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden">
+                            <i class="fas fa-briefcase absolute -right-10 -top-10 text-9xl text-white/10"></i>
+                            <h2 class="text-3xl font-black mb-2 relative z-10">Pengajuan Rekomendasi Usaha</h2>
+                            <p class="text-sm text-amber-100 relative z-10 max-w-xl">Layanan khusus warga luar yang memiliki usaha di kelurahan ini. Data Anda akan diverifikasi langsung oleh RT, RW, dan Admin.</p>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                            <h3 class="font-bold mb-4 border-b pb-2 text-lg"><i class="fas fa-edit text-amber-500 mr-2"></i>Formulir Pengajuan Baru</h3>
+                            <div class="bg-amber-50 p-6 rounded-xl border border-amber-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Data Otomatis di Backend tapi kita pastikan ulang -->
+                                <div class="md:col-span-2 font-black text-amber-800 border-b border-amber-200 pb-2 mb-2">A. Data Diri Sesuai KTP & Upload Identitas</div>
+                                <div><label class="block text-xs font-bold mb-1">Nama Pemohon</label><input v-model="formUsahaLuar.nama" type="text" class="w-full border p-3 rounded-lg text-sm outline-none bg-white"></div>
+                                <div><label class="block text-xs font-bold mb-1">NIK / KTP</label><input v-model="formUsahaLuar.nik" type="number" class="w-full border p-3 rounded-lg text-sm outline-none bg-white"></div>
+                                <div><label class="block text-xs font-bold mb-1">No HP / WA Aktif</label><input v-model="formUsahaLuar.hp" type="number" class="w-full border p-3 rounded-lg text-sm outline-none bg-white"></div>
+                                <div><label class="block text-xs font-bold mb-1">Upload Foto KTP (Wajib)</label><input type="file" @change="e => uploadFile(e, 'ktpLuar')" class="w-full border p-2 rounded-lg text-sm bg-white cursor-pointer"></div>
+                                
+                                <div class="md:col-span-2 font-black text-amber-800 border-b border-amber-200 pb-2 mt-4 mb-2">B. Detail Usaha di Wilayah Ini</div>
+                                <div><label class="block text-xs font-bold mb-1">Nama Usaha</label><input v-model="formUsahaLuar.namaUsaha" placeholder="Cth: Toko Sembako Jaya" type="text" class="w-full border p-3 rounded-lg text-sm outline-none bg-white"></div>
+                                <div><label class="block text-xs font-bold mb-1">Jenis Usaha</label><input v-model="formUsahaLuar.jenisUsaha" placeholder="Cth: Kuliner / Dagang / Jasa" type="text" class="w-full border p-3 rounded-lg text-sm outline-none bg-white"></div>
+                                <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Lokasi Usaha (Alamat Lengkap / Jalan)</label><textarea v-model="formUsahaLuar.lokasiUsaha" rows="2" class="w-full border p-3 rounded-lg text-sm outline-none bg-white"></textarea></div>
+                                <div><label class="block text-xs font-bold mb-1 text-red-600">Berada di RT Berapa? (Wajib 2 Digit Cth: 01)</label><input v-model="formUsahaLuar.rt" type="text" placeholder="01" class="w-full border p-3 rounded-lg text-sm outline-none bg-white border-red-200 focus:border-red-500"></div>
+                                <div><label class="block text-xs font-bold mb-1 text-red-600">Berada di RW Berapa? (Wajib 2 Digit Cth: 05)</label><input v-model="formUsahaLuar.rw" type="text" placeholder="05" class="w-full border p-3 rounded-lg text-sm outline-none bg-white border-red-200 focus:border-red-500"></div>
+                                
+                                <div class="md:col-span-2 font-black text-amber-800 border-b border-amber-200 pb-2 mt-4 mb-2">C. Tujuan & Dokumentasi</div>
+                                <div><label class="block text-xs font-bold mb-1">Keperluan Pengajuan</label><input v-model="formUsahaLuar.keperluan" placeholder="Cth: Syarat Peminjaman Bank" type="text" class="w-full border p-3 rounded-lg text-sm outline-none bg-white"></div>
+                                <div><label class="block text-xs font-bold mb-1">Upload Foto Tempat Usaha</label><input type="file" @change="e => uploadFile(e, 'fotoUsaha')" class="w-full border p-2 rounded-lg text-sm bg-white cursor-pointer"></div>
+                                <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Alasan Pengajuan Surat</label><textarea v-model="formUsahaLuar.alasan" rows="2" class="w-full border p-3 rounded-lg text-sm outline-none bg-white"></textarea></div>
+                                
+                                <div class="md:col-span-2 text-right mt-4"><button @click="simpanPengajuanUsaha" class="bg-amber-600 hover:bg-amber-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-lg w-full md:w-auto"><i class="fas fa-paper-plane mr-2"></i>Kirim Pengajuan Sekarang</button></div>
+                            </div>
+                        </div>
+
+                        <!-- Riwayat Pengajuan Sendiri -->
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mt-6">
+                            <h3 class="font-bold text-lg mb-4 border-b pb-2"><i class="fas fa-history text-amber-500 mr-2"></i>Riwayat Pengajuan Saya</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm whitespace-nowrap border rounded-xl overflow-hidden">
+                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tanggal & Nomor</th><th class="p-4">Usaha & Lokasi</th><th class="p-4 text-center">Status RT & RW</th><th class="p-4 text-center">Status Akhir (Admin)</th><th class="p-4 text-center">Aksi / Cetak</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="u in listPengajuanUsaha.filter(x => x.username === user.username)" :key="u.id" class="border-b hover:bg-gray-50">
+                                            <td class="p-4"><p class="font-bold text-gray-800">{{ u.tanggal }}</p><p class="text-[10px] text-amber-600 font-bold font-mono">{{ u.nomorPengajuan }}</p></td>
+                                            <td class="p-4"><p class="font-bold">{{ u.namaUsaha }}</p><p class="text-xs text-gray-500">RT {{ u.rt }} / RW {{ u.rw }}</p></td>
+                                            <td class="p-4 text-center">
+                                                <span :class="u.statusRT === 'Disetujui' ? 'bg-green-100 text-green-700' : (u.statusRT === 'Ditolak' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600')" class="px-2 py-1 rounded text-[10px] font-bold uppercase mr-1">RT: {{ u.statusRT }}</span>
+                                                <span :class="u.statusRW === 'Disetujui' ? 'bg-green-100 text-green-700' : (u.statusRW === 'Ditolak' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600')" class="px-2 py-1 rounded text-[10px] font-bold uppercase">RW: {{ u.statusRW }}</span>
+                                            </td>
+                                            <td class="p-4 text-center"><span :class="u.statusAdmin === 'Disetujui' ? 'bg-green-600 text-white shadow-md' : (u.statusAdmin === 'Ditolak' ? 'bg-red-600 text-white' : 'bg-amber-100 text-amber-700')" class="px-3 py-1.5 rounded-full text-xs font-black uppercase inline-block w-full max-w-[120px]">{{ u.statusAdmin === 'Disetujui' ? 'Selesai' : u.statusAdmin }}</span></td>
+                                            <td class="p-4 text-center">
+                                                <button v-if="u.statusAdmin === 'Disetujui'" @click="cetakSuratUsaha(u)" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-bold shadow transition"><i class="fas fa-print mr-1"></i> Cetak Surat PDF</button>
+                                                <span v-else class="text-xs text-gray-400 italic">Belum dapat dicetak</span>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="listPengajuanUsaha.filter(x => x.username === user.username).length === 0"><td colspan="5" class="p-6 text-center text-gray-400 italic">Belum ada riwayat pengajuan.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FIX 2: 19. VERIFIKASI USAHA WARGA LUAR (UNTUK RT, RW, ADMIN) -->
+                    <div v-if="menu==='verifikasi-usaha'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-stamp text-amber-500 mr-2"></i>Verifikasi Pengajuan Usaha Warga Luar</h2>
+                                    <p class="text-xs text-gray-500 mt-1">Hanya menampilkan data di wilayah wewenang Anda (RT {{ user.rt || 'Semua' }} / RW {{ user.rw || 'Semua' }}).</p>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-6">
+                                <div v-for="u in filteredPengajuanUsaha" :key="u.id" class="border border-gray-200 p-5 rounded-xl bg-gray-50 shadow-sm relative group">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="md:col-span-2">
+                                            <div class="flex items-start justify-between mb-2">
+                                                <h4 class="font-black text-lg text-gray-800">{{ u.namaUsaha }} <span class="bg-gray-200 text-gray-700 text-[10px] px-2 py-1 rounded ml-2 align-middle">{{ u.jenisUsaha }}</span></h4>
+                                                <span class="text-[10px] text-amber-600 font-bold bg-amber-100 px-2 py-1 rounded border border-amber-200">{{ u.nomorPengajuan }}</span>
+                                            </div>
+                                            <p class="text-sm text-gray-700"><i class="fas fa-user text-blue-500 w-5"></i> Pemilik: <strong>{{ u.nama }}</strong> (NIK: {{ u.nik }})</p>
+                                            <p class="text-sm text-gray-700"><i class="fas fa-map-marker-alt text-red-500 w-5"></i> Lokasi Usaha: {{ u.lokasiUsaha }} <strong>(RT {{ u.rt }} / RW {{ u.rw }})</strong></p>
+                                            <p class="text-sm text-gray-700 mt-2 bg-white p-2 rounded border border-gray-100 shadow-inner"><strong>Keperluan:</strong> {{ u.keperluan }}<br><strong>Alasan:</strong> {{ u.alasan }}</p>
+                                        </div>
+                                        <div class="flex flex-col gap-2 border-l pl-4 justify-center">
+                                            <button v-if="u.fotoKtp" @click="zoomedImage=u.fotoKtp" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-2 rounded-lg text-xs font-bold transition w-full"><i class="fas fa-id-card mr-1"></i> Cek Foto KTP</button>
+                                            <button v-if="u.fotoUsaha" @click="zoomedImage=u.fotoUsaha" class="bg-purple-100 hover:bg-purple-200 text-purple-700 px-3 py-2 rounded-lg text-xs font-bold transition w-full"><i class="fas fa-store mr-1"></i> Cek Foto Lokasi Usaha</button>
+                                            
+                                            <!-- Status Indikator -->
+                                            <div class="mt-2 text-xs font-bold bg-white border p-2 rounded-lg text-center shadow-sm">
+                                                <p :class="u.statusRT === 'Disetujui' ? 'text-green-600' : 'text-gray-500'">RT: {{ u.statusRT }}</p>
+                                                <p :class="u.statusRW === 'Disetujui' ? 'text-green-600' : 'text-gray-500'">RW: {{ u.statusRW }}</p>
+                                                <p :class="u.statusAdmin === 'Disetujui' ? 'text-green-600' : 'text-gray-500'">Lurah: {{ u.statusAdmin }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Aksi Verifikasi Tergantung Role (RT -> RW -> Admin) -->
+                                    <div class="mt-4 pt-4 border-t border-gray-200 flex justify-end gap-3">
+                                        <!-- Jika RT -->
+                                        <template v-if="user.role === 'rt' && u.statusRT === 'Menunggu'">
+                                            <button @click="setujuiUsaha(u, 'rt', false)" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg text-sm font-bold border border-red-200"><i class="fas fa-times mr-1"></i> Tolak</button>
+                                            <button @click="setujuiUsaha(u, 'rt', true)" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-check mr-1"></i> Setujui (Acc RT)</button>
+                                        </template>
+                                        <!-- Jika RW (Hanya bisa ACC jika RT sudah ACC) -->
+                                        <template v-if="user.role === 'rw' && u.statusRT === 'Disetujui' && u.statusRW === 'Menunggu'">
+                                            <button @click="setujuiUsaha(u, 'rw', false)" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg text-sm font-bold border border-red-200"><i class="fas fa-times mr-1"></i> Tolak</button>
+                                            <button @click="setujuiUsaha(u, 'rw', true)" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-check mr-1"></i> Setujui (Acc RW)</button>
+                                        </template>
+                                        <!-- Jika Admin (Hanya bisa ACC jika RW sudah ACC) -->
+                                        <template v-if="user.role === 'admin_kelurahan' && u.statusRW === 'Disetujui' && u.statusAdmin === 'Menunggu'">
+                                            <button @click="setujuiUsaha(u, 'admin', false)" class="bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg text-sm font-bold border border-red-200"><i class="fas fa-times mr-1"></i> Tolak</button>
+                                            <button @click="setujuiUsaha(u, 'admin', true)" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-bold shadow"><i class="fas fa-check-double mr-1"></i> Setujui & Terbitkan Surat</button>
+                                        </template>
+                                        
+                                        <!-- Teks jika sudah diproses/menunggu bawahannya -->
+                                        <p v-if="user.role === 'rw' && u.statusRT === 'Menunggu'" class="text-sm font-bold text-amber-600 italic">Menunggu persetujuan RT setempat.</p>
+                                        <p v-if="user.role === 'admin_kelurahan' && u.statusRW === 'Menunggu'" class="text-sm font-bold text-amber-600 italic">Menunggu persetujuan RT/RW setempat terlebih dahulu.</p>
+                                        <p v-if="u.status === 'Ditolak'" class="text-sm font-black text-red-600 uppercase bg-red-100 px-4 py-2 rounded"><i class="fas fa-ban"></i> Pengajuan Ditolak</p>
+                                        <p v-if="u.statusAdmin === 'Disetujui'" class="text-sm font-black text-green-600 uppercase bg-green-100 px-4 py-2 rounded"><i class="fas fa-check-circle"></i> Surat Telah Terbit</p>
+                                    </div>
+                                </div>
+                                <div v-if="filteredPengajuanUsaha.length === 0" class="p-8 text-center bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                    <i class="fas fa-inbox text-4xl text-gray-300 mb-3 block"></i>
+                                    <p class="text-gray-500 font-bold">Belum ada pengajuan usaha di wilayah verifikasi Anda.</p>
                                 </div>
                             </div>
                         </div>
@@ -461,74 +742,32 @@
                         </div>
                     </div>
 
-                    <!-- 7. E-SURAT -->
-                    <div v-if="menu==='surat'" class="space-y-6">
-                        <div v-if="user.role==='warga'" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                            <h3 class="font-bold mb-4 border-b pb-2 text-lg"><i class="fas fa-envelope-open-text text-blue-500 mr-2"></i>Buat Pengajuan Surat Baru</h3>
-                            <div class="bg-blue-50 p-5 rounded-xl border border-blue-100 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div><label class="block text-xs font-bold mb-1">Jenis Surat</label><input v-model="formSurat.jenis" type="text" placeholder="Cth: Surat Ket. Domisili..." class="w-full border p-2.5 rounded-lg text-sm outline-none bg-white"></div>
-                                <div><label class="block text-xs font-bold mb-1">Keperluan Lengkap</label><input v-model="formSurat.keperluan" type="text" placeholder="Cth: Untuk syarat beasiswa pendidikan..." class="w-full border p-2.5 rounded-lg text-sm outline-none bg-white"></div>
-                                <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Upload Lampiran (Foto KTP/KK)</label><input type="file" @change="e => uploadFile(e, 'surat')" class="w-full border p-2.5 rounded-lg text-sm bg-white cursor-pointer"></div>
-                                <div class="md:col-span-2 text-right"><button @click="simpanSurat" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-xl shadow-md transition">Kirim Ajuan Surat</button></div>
-                            </div>
+                    <!-- FIX: 9. LAPOR TAMU (MENGEMBALIKAN FITUR YANG HILANG) -->
+                    <div v-if="menu==='tamu'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center">
+                            <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-door-open text-blue-500 mr-2"></i>Buku Lapor Tamu 1x24 Jam</h2>
+                            <button @click="showFormTamu=!showFormTamu" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-plus mr-1"></i> Lapor Kedatangan Tamu</button>
                         </div>
-
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                            <div class="flex justify-between items-center mb-4 border-b pb-4">
-                                <h3 class="font-bold text-lg"><i class="fas fa-inbox text-blue-500 mr-2"></i>Daftar Pengajuan Surat</h3>
-                                <button v-if="user.role==='admin_kelurahan'" @click="downloadExcelData('surat')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow transition flex items-center"><i class="fas fa-file-excel mr-2"></i> Download Excel</button>
-                            </div>
-                            <div class="overflow-x-auto border rounded-xl">
-                                <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 border-b text-gray-600"><tr><th class="p-4">Pengaju & Jenis</th><th class="p-4">Keperluan & Dokumen</th><th class="p-4">Status</th></tr></thead>
-                                    <tbody>
-                                        <tr v-for="s in listSurat.filter(x => user.role==='admin_kelurahan' || x.pengaju===user.nama)" :key="s.id" class="border-b hover:bg-gray-50">
-                                            <td class="p-4"><p class="font-bold text-gray-800">{{ s.pengaju }}</p><p class="text-[10px] text-gray-500 bg-gray-200 px-2 py-0.5 rounded inline-block mt-1">{{ s.jenis }}</p></td>
-                                            <td class="p-4">
-                                                <p class="truncate max-w-[150px] text-xs font-semibold text-gray-700 mb-2">{{ s.keperluan }}</p>
-                                                <div class="flex gap-2">
-                                                    <button @click="downloadText(s.keperluan)" class="text-[10px] bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg font-bold transition shadow-sm flex items-center"><i class="fas fa-download mr-1"></i> Teks</button>
-                                                    <button v-if="s.foto" @click="zoomedImage=s.foto" class="text-[10px] bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg font-bold transition shadow-sm flex items-center"><i class="fas fa-search-plus mr-1"></i> Cek Foto</button>
-                                                    <a v-if="s.foto" :href="s.foto" download="Lampiran_Surat.jpg" class="text-[10px] bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1.5 rounded-lg font-bold transition shadow-sm flex items-center"><i class="fas fa-file-download mr-1"></i> Download File</a>
-                                                </div>
-                                            </td>
-                                            <td class="p-4"><span class="bg-amber-100 text-amber-700 px-3 py-1 rounded text-xs font-bold uppercase"><i class="fas fa-clock mr-1"></i> {{ s.status }}</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div v-if="showFormTamu" class="bg-blue-50 p-6 rounded-2xl border border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-inner">
+                            <div><label class="block text-xs font-bold mb-1">Nama Lengkap Tamu</label><input v-model="formTamu.nama" type="text" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
+                            <div><label class="block text-xs font-bold mb-1">NIK Tamu</label><input v-model="formTamu.nik" type="number" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
+                            <div><label class="block text-xs font-bold mb-1">Asal Kota / Daerah</label><input v-model="formTamu.asal" type="text" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
+                            <div><label class="block text-xs font-bold mb-1">Rencana Lama Menginap (Hari)</label><input v-model="formTamu.lama" type="number" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Tujuan / Keperluan Kedatangan</label><textarea v-model="formTamu.tujuan" rows="2" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></textarea></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Upload Foto KTP Tamu</label><input type="file" @change="e=>uploadFile(e,'tamu')" class="w-full border p-2.5 rounded-lg text-sm bg-white cursor-pointer"></div>
+                            <div class="md:col-span-2 text-right"><button @click="simpanTamu" class="bg-blue-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition">Kirim Laporan Tamu</button></div>
                         </div>
-                    </div>
-
-                    <!-- 8. USULAN BANSOS -->
-                    <div v-if="menu==='bansos'" class="space-y-6">
-                        <div v-if="user.role==='admin_kelurahan'" class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <h3 class="font-bold mb-4 border-b pb-2 text-lg"><i class="fas fa-hand-holding-heart text-teal-600 mr-2"></i>Form Usulan Warga Penerima Bansos</h3>
-                            <div class="bg-teal-50 p-5 rounded-2xl border border-teal-100 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div><label class="block text-xs font-bold mb-1">Nama Lengkap Warga</label><input v-model="formBansos.nama" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                                <div><label class="block text-xs font-bold mb-1 text-teal-800">Ketik Jenis Bansos (Cth: BLT)</label><input v-model="formBansos.jenis" class="w-full border border-teal-300 p-2.5 rounded-lg text-sm font-bold bg-white focus:ring-2 focus:ring-teal-500"></div>
-                                <div class="grid grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-bold mb-1">RT Warga</label><input v-model="formBansos.rt" placeholder="01" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                                    <div><label class="block text-xs font-bold mb-1">RW Warga</label><input v-model="formBansos.rw" placeholder="05" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div v-for="t in listTamu" :key="t.id" class="bg-white p-6 rounded-2xl shadow-sm border relative flex gap-4 items-start hover:shadow-md transition">
+                                <img v-if="t.foto" :src="t.foto" @click="zoomedImage=t.foto" class="w-20 h-20 object-cover rounded-xl border cursor-pointer shrink-0">
+                                <div class="flex-1">
+                                    <h4 class="font-black text-gray-800">{{ t.nama }} <span class="text-[10px] text-gray-400 font-normal ml-1">NIK: {{ t.nik }}</span></h4>
+                                    <p class="text-xs text-gray-500 mt-1 mb-1"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i> Asal: {{ t.asal }}</p>
+                                    <p class="text-xs text-gray-600 mb-2"><strong>Tujuan:</strong> {{ t.tujuan }} ({{ t.lama }} Hari)</p>
+                                    <p class="text-[10px] bg-blue-100 text-blue-700 px-2 py-1 rounded inline-block font-bold">Dilapor oleh: {{ t.pelapor }} (RT {{ t.rt }}/RW {{ t.rw }})</p>
                                 </div>
-                                <div><label class="block text-xs font-bold mb-1">Upload Foto / Kondisi Rumah (Wajib)</label><input type="file" @change="e => uploadFile(e, 'bansos')" class="w-full border p-2.5 rounded-lg text-sm bg-white cursor-pointer"></div>
-                                <div class="md:col-span-2 text-right"><button @click="simpanBansos" class="bg-teal-600 hover:bg-teal-700 text-white font-bold px-8 py-3 rounded-xl shadow transition">Simpan Usulan Ke Database</button></div>
+                                <button v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role) || t.pelapor===user.nama" @click="hapus('tamu', t.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
                             </div>
-                        </div>
-                        <div class="bg-white border rounded-xl overflow-hidden">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-gray-50 border-b"><tr><th class="p-4">Nama & Lokasi Warga</th><th class="p-4">Jenis Bansos</th><th class="p-4">Dokumentasi Foto</th></tr></thead>
-                                <tbody>
-                                    <tr v-for="b in listBansos" :key="b.id" class="border-b">
-                                        <td class="p-4"><p class="font-bold text-gray-800">{{b.nama}}</p><p class="text-xs text-gray-500">RT {{b.rt}} / RW {{b.rw}}</p></td>
-                                        <td class="p-4 font-black text-teal-700">{{b.jenis}}</td>
-                                        <td class="p-4">
-                                            <button v-if="b.foto" @click="zoomedImage=b.foto" class="text-[10px] bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg font-bold transition flex items-center w-max"><i class="fas fa-image mr-1"></i> Lihat Foto Warga</button>
-                                            <span v-else class="text-[10px] text-gray-400 italic">Tidak ada foto</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
 
@@ -592,7 +831,7 @@
                         </div>
                     </div>
 
-                    <!-- 13. LAPAK UMKM (FIX 2: FORM LENGKAP) -->
+                    <!-- 13. LAPAK UMKM -->
                     <div v-if="menu==='umkm'" class="space-y-6">
                         <div class="bg-gradient-to-r from-emerald-600 to-emerald-800 rounded-2xl p-6 text-white shadow-lg text-center">
                             <i class="fas fa-store text-5xl text-emerald-200 mb-3"></i><h2 class="text-2xl font-black mb-2">Lapak UMKM Warga</h2>
@@ -617,7 +856,6 @@
                             <div class="md:col-span-2 text-right mt-2"><button @click="simpanUmkm" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold shadow-md transition">Terbitkan Lapak Sekarang</button></div>
                         </div>
 
-                        <!-- Card Display UMKM -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div v-for="u in listUmkm" :key="u.id" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative hover:shadow-md transition">
                                 <div class="flex gap-4 mb-4">
@@ -743,6 +981,131 @@
                         </div>
                     </div>
 
+                    <!-- FIX: 22. ARISAN WARGA RT/RW -->
+                    <div v-if="menu==='arisan'" class="space-y-6">
+                        <div class="bg-gradient-to-r from-pink-600 to-pink-800 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden">
+                            <i class="fas fa-sync-alt absolute -right-10 -top-10 text-9xl text-white/10"></i>
+                            <h2 class="text-3xl font-black mb-2 relative z-10">Arisan Warga RT {{ user.rt || 'Semua' }} / RW {{ user.rw || 'Semua' }}</h2>
+                            <p class="text-sm text-pink-100 relative z-10 max-w-xl">Transparansi penuh! Kelola anggota, kocok undian arisan otomatis, rekap kas, dan cetak kartu anggota digital.</p>
+                            
+                            <!-- Statistik Singkat -->
+                            <div class="relative z-10 mt-6 flex gap-4 flex-wrap">
+                                <div class="bg-white/20 backdrop-blur border border-white/30 px-6 py-3 rounded-xl">
+                                    <p class="text-xs font-bold uppercase tracking-widest text-pink-100 mb-1">Total Kas Arisan</p>
+                                    <p class="text-2xl font-black">Rp {{ hitungKasArisan(user.rt, user.rw).toLocaleString('id-ID') }}</p>
+                                </div>
+                                <div class="bg-white/20 backdrop-blur border border-white/30 px-6 py-3 rounded-xl">
+                                    <p class="text-xs font-bold uppercase tracking-widest text-pink-100 mb-1">Total Anggota</p>
+                                    <p class="text-2xl font-black">{{ listArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length }} Orang</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Navigasi Arisan -->
+                        <div class="flex gap-3 mb-2 overflow-x-auto pb-2">
+                            <button @click="tabArisan = 'anggota'" :class="tabArisan === 'anggota' ? 'bg-pink-600 text-white shadow-md' : 'bg-white text-gray-600 border'" class="px-6 py-2.5 rounded-full font-bold transition text-sm whitespace-nowrap"><i class="fas fa-users mr-2"></i>Data Anggota & Iuran</button>
+                            <button @click="tabArisan = 'kocok'" :class="tabArisan === 'kocok' ? 'bg-pink-600 text-white shadow-md' : 'bg-white text-gray-600 border'" class="px-6 py-2.5 rounded-full font-bold transition text-sm whitespace-nowrap"><i class="fas fa-random mr-2"></i>Kocok Arisan & Riwayat</button>
+                        </div>
+
+                        <!-- KONTEN: ANGGOTA & IURAN -->
+                        <div v-if="tabArisan === 'anggota'" class="space-y-6">
+                            <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="bg-white p-6 rounded-2xl shadow-sm border">
+                                <h3 class="font-bold mb-4 border-b pb-2 text-lg"><i class="fas fa-user-plus text-pink-500 mr-2"></i>Tambah Anggota & Bayar Iuran</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">Nama Anggota Warga</label><input v-model="formArisan.nama" type="text" class="w-full border p-2.5 rounded-lg text-sm outline-none bg-gray-50 focus:border-pink-400"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Nominal Setor Iuran (Rp)</label><input v-model="formArisan.iuran" type="number" class="w-full border p-2.5 rounded-lg text-sm outline-none bg-gray-50 focus:border-pink-400"></div>
+                                    <div class="md:col-span-2"><button @click="simpanArisan" class="bg-pink-600 hover:bg-pink-700 text-white font-bold px-6 py-2.5 rounded-xl shadow transition w-full md:w-auto"><i class="fas fa-save mr-1"></i> Daftarkan & Simpan Iuran</button></div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">No. Anggota / Undian</th><th class="p-4">Nama Anggota</th><th class="p-4">Total Iuran Terkumpul</th><th class="p-4 text-center">Status Undian</th><th class="p-4 text-center">Aksi / Cetak Kartu</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="a in listArisan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="a.id" class="border-b hover:bg-gray-50">
+                                            <td class="p-4"><span class="font-bold text-gray-800 bg-gray-200 px-2 py-1 rounded text-xs">{{ a.noAnggota }}</span> <span class="text-xs font-black text-pink-600 ml-2">#{{ a.noUndian }}</span></td>
+                                            <td class="p-4 font-bold">{{ a.nama }}</td>
+                                            <td class="p-4 text-emerald-600 font-black">Rp {{ a.totalIuran.toLocaleString('id-ID') }}</td>
+                                            <td class="p-4 text-center">
+                                                <span v-if="a.statusMenang" class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Sudah Menang</span>
+                                                <span v-else class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">Belum Menang</span>
+                                            </td>
+                                            <td class="p-4 text-center">
+                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="tambahIuranManual(a.id)" class="text-[10px] bg-emerald-100 hover:bg-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg font-bold transition mr-2"><i class="fas fa-plus"></i> Iuran</button>
+                                                <button @click="cetakKartuArisan(a)" class="text-[10px] bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1.5 rounded-lg font-bold transition shadow-sm"><i class="fas fa-print mr-1"></i> PDF Kartu</button>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="listArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0"><td colspan="5" class="p-6 text-center text-gray-400 italic">Belum ada data anggota arisan di wilayah ini.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- KONTEN: KOCOK ARISAN & RIWAYAT -->
+                        <div v-if="tabArisan === 'kocok'" class="space-y-6">
+                            <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="bg-white p-8 rounded-2xl shadow-sm border text-center">
+                                <i class="fas fa-gem text-5xl text-pink-400 mb-4 animate-bounce"></i>
+                                <h3 class="text-2xl font-black text-gray-800 mb-2">Waktunya Undian Arisan!</h3>
+                                <p class="text-sm text-gray-500 mb-6">Sistem akan mengacak dan memilih satu pemenang dari anggota yang belum menang.</p>
+                                <button @click="kocokArisan" class="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-black text-lg px-10 py-4 rounded-full shadow-xl transition transform hover:scale-105"><i class="fas fa-dice mr-2"></i> Kocok Arisan Sekarang</button>
+                            </div>
+                            
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                                <h3 class="font-bold text-lg mb-4 border-b pb-2"><i class="fas fa-trophy text-amber-500 mr-2"></i>Riwayat Pemenang Arisan</h3>
+                                <ul class="space-y-3">
+                                    <li v-for="(p, idx) in riwayatArisan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="idx" class="flex justify-between items-center bg-amber-50 border border-amber-200 p-4 rounded-xl">
+                                        <div>
+                                            <p class="text-[10px] text-amber-600 font-bold uppercase">{{ p.tanggal }}</p>
+                                            <p class="font-black text-gray-800 text-lg">{{ p.nama }} <span class="text-xs text-gray-500 font-normal ml-2">Nomor Undian: #{{ p.noUndian }}</span></p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[10px] text-gray-500 font-bold uppercase">Menerima Tarikan</p>
+                                            <p class="font-black text-emerald-600 text-lg">Rp {{ p.nominal.toLocaleString('id-ID') }}</p>
+                                        </div>
+                                    </li>
+                                    <li v-if="riwayatArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0" class="text-center text-gray-400 italic p-4">Belum ada riwayat pemenang ditarik.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FIX: 23. SUMBANGAN WARGA RT/RW -->
+                    <div v-if="menu==='sumbangan'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border flex justify-between items-center flex-wrap gap-4">
+                            <div>
+                                <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-donate text-emerald-500 mr-2"></i>Sumbangan Warga RT {{ user.rt || 'Semua' }} / RW {{ user.rw || 'Semua' }}</h2>
+                                <p class="text-xs text-gray-500 mt-1">Total Terkumpul: <strong class="text-emerald-600 text-sm">Rp {{ hitungKasSumbangan(user.rt, user.rw).toLocaleString('id-ID') }}</strong></p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="showFormSumbangan=!showFormSumbangan" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-plus mr-1"></i> Input Sumbangan</button>
+                                <button @click="downloadSumbanganPDF" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-file-pdf"></i> PDF</button>
+                                <button @click="downloadExcelData('sumbangan')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-file-excel"></i> Excel</button>
+                            </div>
+                        </div>
+
+                        <div v-if="showFormSumbangan" class="bg-emerald-50 p-6 rounded-2xl border border-emerald-200 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-inner">
+                            <div><label class="block text-xs font-bold mb-1">Nama Penyumbang</label><input v-model="formSumbangan.nama" type="text" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none focus:border-emerald-400"></div>
+                            <div><label class="block text-xs font-bold mb-1">Nominal (Rp)</label><input v-model="formSumbangan.nominal" type="number" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none focus:border-emerald-400"></div>
+                            <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Jenis / Tujuan Sumbangan</label><input v-model="formSumbangan.jenis" type="text" placeholder="Cth: Dana Kematian, 17 Agustusan, Pembangunan Masjid..." class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none focus:border-emerald-400"></div>
+                            <div class="md:col-span-2 text-right"><button @click="simpanSumbangan" class="bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md transition">Posting Sumbangan</button></div>
+                        </div>
+
+                        <div class="bg-white border rounded-xl overflow-hidden shadow-sm">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tanggal Posting</th><th class="p-4">Nama Penyumbang</th><th class="p-4">Tujuan Sumbangan</th><th class="p-4 text-right">Nominal (Rp)</th></tr></thead>
+                                <tbody>
+                                    <tr v-for="s in listSumbangan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="s.id" class="border-b hover:bg-gray-50">
+                                        <td class="p-4 text-gray-500 text-xs font-bold">{{ s.tanggal }}</td>
+                                        <td class="p-4 font-black text-gray-800">{{ s.nama }}</td>
+                                        <td class="p-4 text-xs">{{ s.jenis }}</td>
+                                        <td class="p-4 text-right font-black text-emerald-600">Rp {{ s.nominal.toLocaleString('id-ID') }}</td>
+                                    </tr>
+                                    <tr v-if="listSumbangan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0"><td colspan="4" class="p-6 text-center text-gray-400 italic">Belum ada data sumbangan warga.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     <!-- 18. AGENDA & BERITA -->
                     <div v-if="menu==='agenda'" class="space-y-6">
                         <div class="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border">
@@ -773,8 +1136,7 @@
                         </div>
                     </div>
 
-                    <!-- SISANYA (Modul Placeholder Rapi Dipertahankan) -->
-                    <div v-if="['statistik-warga', 'statistik-pekerjaan', 'status-usaha', 'arsip-surat', 'tamu', 'kas'].includes(menu)" class="bg-white p-10 rounded-3xl shadow-sm border text-center">
+                    <div v-if="['statistik-warga', 'statistik-pekerjaan', 'status-usaha', 'arsip-surat', 'kas'].includes(menu)" class="bg-white p-10 rounded-3xl shadow-sm border text-center">
                         <i class="fas fa-cogs text-6xl text-gray-300 mb-4"></i>
                         <h2 class="text-2xl font-black text-gray-800 capitalize">Modul {{ menu.replace('-', ' ') }}</h2>
                         <p class="text-gray-500 mt-2">Arsitektur menu asli dipertahankan secara utuh dalam sistem.</p>
@@ -787,7 +1149,7 @@
 
     <!-- SCRIPT VUE & FUNGSI -->
     <script type="module">
-        import { createApp, ref, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+        import { createApp, ref, computed, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
 
         createApp({
             setup() {
@@ -798,12 +1160,23 @@
                 const isLoggedIn = ref(false);
                 const currentAuthView = ref('landing');
                 const isRegistering = ref(false);
+                const isRegisteringLuar = ref(false); 
                 const regStep = ref(1);
                 const sidebarOpen = ref(false);
                 const menu = ref('dashboard');
-                const user = ref({ nama: '', role: '', rt: '', rw: '' });
-                const publicTab = ref('agenda'); // FIX 3: Tab Default Halaman Depan
+                const user = ref({ nama: '', role: '', rt: '', rw: '', username: '' });
+                const publicTab = ref('agenda'); 
+                const tabSurat = ref('kelurahan'); 
+                const tabArisan = ref('anggota'); // FIX: Arisan tab state
                 
+                // STATE SHOW PASSWORD EYE ICON
+                const showPassLogin = ref(false);
+                const showPassRegLuar = ref(false);
+                const showPassReg = ref(false);
+                const showPassRegRep = ref(false);
+                const showPassAdmin = ref(false);
+                const showPassPejabat = ref(false);
+
                 const zoomedImage = ref(null); 
                 const selectedWarga = ref(null); 
 
@@ -812,9 +1185,13 @@
                 const showFormBursa = ref(false);
                 const showFormFasilitas = ref(false);
 
-                // FIX 1: STATE PENGATURAN WEBSITE
+                // FIX 1: STATE PENGATURAN WEBSITE & TAMPILAN FOOTER
                 const webSettings = ref({
-                    warnaUtama: '#1e3a8a', // Default Tailwind Blue-900
+                    warnaUtama: '#1e3a8a',
+                    logo: '', // URL Gambar Logo
+                    namaWebsite: 'Portal Kelurahan Digital',
+                    headerText: 'Layanan Digital Terpadu',
+                    footerText: '© 2026 Sistem Informasi Kelurahan Digital. Semua Hak Dilindungi.',
                     walikota: { nama: 'Bapak Walikota', jabatan: 'Walikota', foto: 'https://via.placeholder.com/150', pesan: 'Wujudkan kota cerdas dengan pelayanan publik digital yang cepat dan transparan.' },
                     wakil: { nama: 'Bapak Wakil Walikota', jabatan: 'Wakil Walikota', foto: 'https://via.placeholder.com/150', pesan: 'Kolaborasi bersama membangun daerah melalui pemanfaatan teknologi informasi.' },
                     lurah: { nama: 'Bapak Lurah', jabatan: 'Kepala Kelurahan', foto: 'https://via.placeholder.com/200', pesan: 'Selamat datang di portal resmi kelurahan digital. Gunakan layanan mandiri ini untuk mempermudah segala urusan Anda.' }
@@ -823,16 +1200,51 @@
                 const formAdmin = ref({ username: 'admin123', password: 'admin123' });
                 const adminAccount = ref({ username: 'admin123', password: 'admin123' }); 
                 
-                const formPejabat = ref({ nama: '', role: 'rt', wilayah: '', username: '', password: '' });
+                const formPejabat = ref({ nama: '', role: 'rt', wilayah: '', rt: '', rw: '', username: '', password: '', ttd: '', stempel: '' });
                 const listPejabat = ref([
-                    { id: 1, nama: 'Bapak Suryo', role: 'rt', wilayah: 'RT 01 / RW 05', username: 'rt01', password: '123' }
+                    { id: 1, nama: 'Bapak Suryo', role: 'rt', wilayah: 'RT 01 / RW 05', rt: '01', rw: '05', username: 'rt01', password: '123', ttd: '', stempel: '' }
                 ]);
 
-                // FORM DATA LAINNYA
+                // FIX: STATE BENDAHARA, ARISAN, SUMBANGAN, TAMU, LOG AKTIVITAS
+                const listBendahara = ref([]);
+                const formBendahara = ref({ nama: '', username: '', password: '' });
+                
+                const showFormTamu = ref(false);
+                const formTamu = ref({ nama:'', nik:'', asal:'', lama:'', tujuan:'', foto:null });
+                const listTamu = ref([]);
+
+                const showFormSumbangan = ref(false);
+                const formSumbangan = ref({ nama:'', nominal:'', jenis:'' });
+                const listSumbangan = ref([]);
+                
+                const formArisan = ref({ nama:'', iuran:'' });
+                const listArisan = ref([]); // {id, rt, rw, noAnggota, noUndian, nama, totalIuran, statusMenang}
+                const riwayatArisan = ref([]);
+                const logAktivitas = ref([]); // {rt, rw, waktu, user, aksi}
+
+                const catatLog = (aksiStr) => {
+                    const now = new Date().toLocaleString('id-ID');
+                    logAktivitas.value.unshift({ rt: user.value.rt, rw: user.value.rw, waktu: now, user: user.value.nama, aksi: aksiStr });
+                    if(logAktivitas.value.length > 100) logAktivitas.value.pop(); // Penghapusan otomatis data lama (limit 100)
+                };
+
+                // FORM DATA LAINNYA & WARGA LUAR
                 const loginForm = ref({ email: '', password: '' });
+                
+                // Form Warga Tetap
                 const reg = ref({ nik:'', nokk:'', nama:'', rt:'', rw:'', alamat:'', tempat_lahir:'', tgl_lahir:'', kelamin:'Laki-laki', pendidikan:'SMA/SMK', pekerjaan:'', usaha:'', username:'', password:'', repeatPassword:'', status_keluarga:'Kepala Keluarga', status_nikah:'Belum Menikah', jml_kk:1, status_rumah:'Milik Sendiri', sehat_status:'Sehat', gol_darah:'-', penghasilan:'< 1 juta', hp1:'', hp2:'', suku:'' }); 
-                const formSurat = ref({ jenis:'', keperluan:'', foto:null });
-                const formUmkm = ref({ nama:'', wa:'', jamBuka:'08:00', jamTutup:'21:00', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null }); // FIX 2: Lapak UMKM Diupdate
+                
+                // FIX 2: Form Warga Luar & Pengajuan Usaha
+                const regLuar = ref({ nama: '', nik: '', alamat: '', hp: '', username: '', password: '' });
+                const listWargaLuar = ref([]);
+                const formUsahaLuar = ref({ fotoKtp: null, jenisUsaha: '', namaUsaha: '', lokasiUsaha: '', rt: '', rw: '', keperluan: '', alasan: '', fotoUsaha: null });
+                const listPengajuanUsaha = ref([]); // Database Warga Luar
+                
+                const formSurat = ref({ jenis:'', keperluan:'', fotoKtpKk:null, fotoPengantar:null }); // Modifikasi
+                const formSuratPengantar = ref({ nama: '', nik: '', hp: '', alamat: '', rt: '', rw: '', keperluan: '', fotoKtp: null, fotoKk: null, fotoDok: null, catatan: '' });
+                const listSuratPengantar = ref([]); // Database Pengantar RT/RW
+
+                const formUmkm = ref({ nama:'', wa:'', jamBuka:'08:00', jamTutup:'21:00', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null });
                 const formGaleri = ref({ judul:'', foto:null });
                 const formBursa = ref({ judul:'', deskripsi:'', wa:'' });
                 const formFasilitas = ref({ judul:'', lokasi:'', deskripsi:'', foto:null });
@@ -860,28 +1272,52 @@
                     const r = new FileReader(); r.readAsDataURL(f);
                     r.onload = (evt) => { 
                         if(target==='surat') formSurat.value.foto = evt.target.result; 
-                        if(target==='umkm1') formUmkm.value.foto1 = evt.target.result; // FIX 2
-                        if(target==='umkm2') formUmkm.value.foto2 = evt.target.result; // FIX 2
+                        if(target==='umkm1') formUmkm.value.foto1 = evt.target.result; 
+                        if(target==='umkm2') formUmkm.value.foto2 = evt.target.result; 
                         if(target==='galeri') formGaleri.value.foto = evt.target.result;
                         if(target==='bansos') formBansos.value.foto = evt.target.result;
                         if(target==='agenda') formAgenda.value.foto = evt.target.result;
                         if(target==='fasilitas') formFasilitas.value.foto = evt.target.result;
+                        if(target==='tamu') formTamu.value.foto = evt.target.result; // FIX: Lapor Tamu
+                        if(target==='ktpLuar') formUsahaLuar.value.fotoKtp = evt.target.result; 
+                        if(target==='suratKtpKk') formSurat.value.fotoKtpKk = evt.target.result; 
+                        if(target==='suratPengantar') formSurat.value.fotoPengantar = evt.target.result; 
+                        if(target==='pengantarKtp') formSuratPengantar.value.fotoKtp = evt.target.result; 
+                        if(target==='pengantarKk') formSuratPengantar.value.fotoKk = evt.target.result; 
+                        if(target==='pengantarDok') formSuratPengantar.value.fotoDok = evt.target.result; 
+                        if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username === user.value.username); if(p) p.ttd = evt.target.result; }
+                        if(target==='pejabatStempel') { const p = listPejabat.value.find(x => x.username === user.value.username); if(p) p.stempel = evt.target.result; }
                     };
                 };
 
                 const handleLogin = () => {
                     if (loginForm.value.email.trim() === '' || loginForm.value.password.trim() === '') return showToast('Harap ketik Username dan Password Anda!', 'danger');
+                    // 1. Admin
                     if (loginForm.value.email === adminAccount.value.username && loginForm.value.password === adminAccount.value.password) {
-                        user.value = { nama:'Administrator', role:'admin_kelurahan' }; isLoggedIn.value = true; return showToast('Login Admin Utama Sukses');
+                        user.value = { nama:'Administrator', role:'admin_kelurahan', rt:'', rw:'', username: 'admin' }; isLoggedIn.value = true; return showToast('Login Admin Utama Sukses');
                     }
+                    // 2. Pejabat (RT/RW) -> FIX 2: Set RT & RW dari p.rt / p.rw agar filtering verifikasi jalan
                     const p = listPejabat.value.find(x => x.username === loginForm.value.email && x.password === loginForm.value.password);
                     if (p) {
-                        user.value = { nama: p.nama, role: p.role, rt: '', rw: '' }; isLoggedIn.value = true; return showToast(`Berhasil masuk sebagai ${p.role.toUpperCase()}`);
+                        user.value = { nama: p.nama, role: p.role, rt: p.rt, rw: p.rw, username: p.username }; isLoggedIn.value = true; return showToast(`Berhasil masuk sebagai ${p.role.toUpperCase()}`);
                     }
+                    // FIX: Login Bendahara
+                    const b = listBendahara.value.find(x => x.username === loginForm.value.email && x.password === loginForm.value.password);
+                    if (b) {
+                        user.value = { nama: b.nama, role: 'bendahara', rt: b.rt, rw: b.rw, username: b.username }; isLoggedIn.value = true; return showToast(`Berhasil masuk sebagai BENDAHARA RT ${b.rt} / RW ${b.rw}`);
+                    }
+                    // 3. Warga Tetap
                     const w = listWarga.value.find(x => (x.username === loginForm.value.email || x.nik === loginForm.value.email) && x.password === loginForm.value.password);
                     if (w) { 
-                        user.value = { nama: w.nama, role: 'warga', rt: w.rt, rw: w.rw }; isLoggedIn.value = true; return showToast('Login Warga Sukses'); 
+                        user.value = { nama: w.nama, role: 'warga', rt: w.rt, rw: w.rw, username: w.username }; isLoggedIn.value = true; return showToast('Login Warga Sukses'); 
                     }
+                    // 4. FIX 2: Warga Luar (Pelaku Usaha)
+                    const wLuar = listWargaLuar.value.find(x => x.username === loginForm.value.email && x.password === loginForm.value.password);
+                    if (wLuar) {
+                        user.value = { nama: wLuar.nama, role: 'warga_luar', rt: '', rw: '', username: wLuar.username }; 
+                        isLoggedIn.value = true; menu.value = 'pengajuan-usaha'; return showToast('Login Warga Luar Sukses');
+                    }
+                    
                     showToast('Username/NIK atau Password SALAH! Akses ditolak.', 'danger');
                 };
 
@@ -891,10 +1327,229 @@
                     isRegistering.value = false; showToast('Pendaftaran Berhasil! Silakan Login.');
                 };
 
+                // FIX 2: FUNGSI DAFTAR WARGA LUAR
+                const handleRegisterLuar = () => {
+                    if(!regLuar.value.username || !regLuar.value.password || !regLuar.value.nama) return showToast('Mohon lengkapi data!', 'danger');
+                    listWargaLuar.value.unshift({ ...regLuar.value, id: Date.now() });
+                    isRegisteringLuar.value = false; showToast('Pendaftaran Warga Luar Berhasil! Silakan Login.');
+                    regLuar.value = { nama: '', nik: '', alamat: '', hp: '', username: '', password: '' };
+                };
+
                 const logout = () => { isLoggedIn.value=false; currentAuthView.value='landing'; menu.value='dashboard'; showToast('Berhasil Logout'); };
 
-                // FUNGSI CRUD
-                const simpanSurat = () => { listSurat.value.unshift({...formSurat.value, id:Date.now(), pengaju:user.value.nama, status:'Menunggu Verifikasi'}); showToast('Surat diajukan'); formSurat.value={jenis:'', keperluan:'', foto:null}; };
+                // FUNGSI CRUD STANDAR
+                const getPejabatSetting = () => { return listPejabat.value.find(x => x.username === user.value.username) || { ttd:'', stempel:'' }; };
+                
+                const simpanSurat = () => { listSurat.value.unshift({...formSurat.value, id:Date.now(), pengaju:user.value.nama, status:'Menunggu Verifikasi'}); showToast('Surat diajukan ke Kelurahan'); formSurat.value={jenis:'', keperluan:'', fotoKtpKk:null, fotoPengantar:null}; };
+                
+                // CRUD PENGANTAR RT/RW
+                const simpanSuratPengantar = () => {
+                    if(!formSuratPengantar.value.rt || !formSuratPengantar.value.rw || !formSuratPengantar.value.fotoKtp) return showToast('Harap lengkapi RT, RW dan KTP!', 'danger');
+                    const tglNow = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    listSuratPengantar.value.unshift({
+                        ...formSuratPengantar.value, id: Date.now(),
+                        username: user.value.username, tanggal: tglNow,
+                        statusRT: 'Menunggu', statusRW: 'Menunggu'
+                    });
+                    showToast('Pengajuan Surat Pengantar Terkirim ke RT!');
+                    formSuratPengantar.value = { nama: '', nik: '', hp: '', alamat: '', rt: '', rw: '', keperluan: '', fotoKtp: null, fotoKk: null, fotoDok: null, catatan: '' };
+                };
+
+                const setujuiPengantar = (u, role, isApprove) => {
+                    const statusText = isApprove ? 'Disetujui' : 'Ditolak';
+                    if (role === 'rt') u.statusRT = statusText;
+                    if (role === 'rw') u.statusRW = statusText;
+                    showToast(`Pengantar Warga ${statusText}!`);
+                };
+
+                const cetakSuratPengantar = (p) => {
+                    const printWindow = window.open('', '_blank');
+                    const rtObj = listPejabat.value.find(x => x.role === 'rt' && x.rt === p.rt && x.rw === p.rw);
+                    const rwObj = listPejabat.value.find(x => x.role === 'rw' && x.rw === p.rw);
+                    
+                    const ttdRt = rtObj?.ttd ? `<img src="${rtObj.ttd}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
+                    const stempelRt = rtObj?.stempel ? `<img src="${rtObj.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
+                    
+                    const ttdRw = rwObj?.ttd ? `<img src="${rwObj.ttd}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
+                    const stempelRw = rwObj?.stempel ? `<img src="${rwObj.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
+
+                    printWindow.document.write(`
+                        <html><head><title>Surat Pengantar RT/RW</title>
+                        <style>
+                            body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-height: 1.5; }
+                            .header { text-align: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; }
+                            table { width: 100%; margin-top: 10px; }
+                            td { padding: 5px; vertical-align: top; }
+                        </style>
+                        </head><body>
+                        <div class="header">
+                            <h3>RUKUN TETANGGA ${p.rt} / RUKUN WARGA ${p.rw}</h3>
+                            <p>KECAMATAN PUSAT, KELURAHAN DIGITAL</p>
+                        </div>
+                        <h3 style="text-align:center; text-decoration: underline;">SURAT KETERANGAN / PENGANTAR</h3>
+                        <br>
+                        <p>Yang bertanda tangan di bawah ini Pengurus RT ${p.rt} / RW ${p.rw}, menerangkan bahwa:</p>
+                        <table>
+                            <tr><td style="width:200px;">Nama Lengkap</td><td>: <strong>${p.nama}</strong></td></tr>
+                            <tr><td>NIK</td><td>: ${p.nik}</td></tr>
+                            <tr><td>Alamat Tinggal</td><td>: ${p.alamat}</td></tr>
+                            <tr><td>Keperluan</td><td>: <strong>${p.keperluan}</strong></td></tr>
+                            <tr><td>Catatan Tambahan</td><td>: ${p.catatan || '-'}</td></tr>
+                        </table>
+                        <br>
+                        <p>Orang tersebut di atas adalah benar warga kami yang berdomisili di wilayah RT ${p.rt} / RW ${p.rw}. Surat pengantar ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
+                        <br><br><br>
+                        <div style="display: flex; justify-content: space-between; text-align: center;">
+                            <div style="width: 40%; position:relative;">
+                                <p>Mengetahui,<br>Ketua RT ${p.rt}</p>
+                                <br><br>
+                                ${stempelRt}
+                                ${ttdRt}
+                                <br><br>
+                                <p>( ${rtObj?.nama || '......................'} )</p>
+                            </div>
+                            <div style="width: 40%; position:relative;">
+                                <p>Mengetahui,<br>Ketua RW ${p.rw}</p>
+                                <br><br>
+                                ${stempelRw}
+                                ${ttdRw}
+                                <br><br>
+                                <p>( ${rwObj?.nama || '......................'} )</p>
+                            </div>
+                        </div>
+                        <script>window.print();<\/script>
+                        </body></html>
+                    `);
+                    printWindow.document.close();
+                };
+
+                // FIX: CRUD TAMU, ARISAN, SUMBANGAN, BENDAHARA
+                const simpanTamu = () => {
+                    if(!formTamu.value.nama || !formTamu.value.nik) return showToast('Lengkapi Data Tamu', 'danger');
+                    listTamu.value.unshift({...formTamu.value, id:Date.now(), pelapor:user.value.nama, rt: user.value.rt, rw: user.value.rw});
+                    catatLog(`Melaporkan kedatangan tamu atas nama ${formTamu.value.nama}`);
+                    showToast('Laporan Tamu Disimpan'); showFormTamu.value=false; 
+                    formTamu.value={nama:'', nik:'', asal:'', lama:'', tujuan:'', foto:null};
+                };
+
+                const simpanBendahara = () => {
+                    if(!formBendahara.value.nama || !formBendahara.value.username) return showToast('Lengkapi Data', 'danger');
+                    listBendahara.value.unshift({...formBendahara.value, id: Date.now(), rt: user.value.rt, rw: user.value.rw});
+                    catatLog(`Mendaftarkan akun Bendahara baru: ${formBendahara.value.nama}`);
+                    showToast('Akun Bendahara Berhasil Dibuat');
+                    formBendahara.value = {nama:'', username:'', password:''};
+                };
+
+                const simpanSumbangan = () => {
+                    if(!formSumbangan.value.nama || !formSumbangan.value.nominal) return showToast('Isi nama dan nominal', 'danger');
+                    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    listSumbangan.value.unshift({...formSumbangan.value, id:Date.now(), rt: user.value.rt, rw: user.value.rw, tanggal: tgl});
+                    catatLog(`Menerima sumbangan dari ${formSumbangan.value.nama} sebesar Rp ${formSumbangan.value.nominal}`);
+                    showToast('Sumbangan Berhasil Diposting'); showFormSumbangan.value=false;
+                    formSumbangan.value = {nama:'', nominal:'', jenis:''};
+                };
+
+                const hitungKasSumbangan = (rt, rw) => {
+                    return listSumbangan.value.filter(x => x.rt === rt && x.rw === rw).reduce((sum, item) => sum + Number(item.nominal), 0);
+                };
+
+                const simpanArisan = () => {
+                    if(!formArisan.value.nama) return showToast('Isi nama anggota', 'danger');
+                    const cRt = user.value.rt; const cRw = user.value.rw;
+                    const membersInRT = listArisan.value.filter(x => x.rt === cRt && x.rw === cRw);
+                    const noUrut = membersInRT.length + 1;
+                    const noAnggota = `ARS-${("00" + noUrut).slice(-3)}`;
+                    
+                    listArisan.value.unshift({
+                        id: Date.now(), rt: cRt, rw: cRw, nama: formArisan.value.nama,
+                        noAnggota: noAnggota, noUndian: noUrut,
+                        totalIuran: Number(formArisan.value.iuran || 0), statusMenang: false
+                    });
+                    catatLog(`Mendaftarkan anggota arisan baru: ${formArisan.value.nama}`);
+                    showToast('Anggota Arisan Ditambahkan');
+                    formArisan.value = {nama:'', iuran:''};
+                };
+
+                const tambahIuranManual = (id) => {
+                    const nom = prompt('Masukkan nominal setoran iuran (Rp):', '50000');
+                    if(nom && !isNaN(nom)) {
+                        const idx = listArisan.value.findIndex(x => x.id === id);
+                        if(idx > -1) {
+                            listArisan.value[idx].totalIuran += Number(nom);
+                            catatLog(`Menerima iuran arisan Rp ${nom} dari ${listArisan.value[idx].nama}`);
+                            showToast('Iuran berhasil ditambahkan');
+                        }
+                    }
+                };
+
+                const hitungKasArisan = (rt, rw) => {
+                    const totalPemasukan = listArisan.value.filter(x => x.rt === rt && x.rw === rw).reduce((sum, item) => sum + item.totalIuran, 0);
+                    const totalPengeluaran = riwayatArisan.value.filter(x => x.rt === rt && x.rw === rw).reduce((sum, item) => sum + item.nominal, 0);
+                    return totalPemasukan - totalPengeluaran;
+                };
+
+                const kocokArisan = () => {
+                    const eligible = listArisan.value.filter(x => x.rt === user.value.rt && x.rw === user.value.rw && !x.statusMenang);
+                    if(eligible.length === 0) return showToast('Tidak ada anggota yang memenuhi syarat untuk diundi (Semua sudah menang/kosong)', 'danger');
+                    
+                    const kasSkrg = hitungKasArisan(user.value.rt, user.value.rw);
+                    if(kasSkrg <= 0) return showToast('Kas Arisan Kosong! Tidak bisa melakukan tarikan.', 'danger');
+
+                    // Efek acak sederhana
+                    let winner = eligible[Math.floor(Math.random() * eligible.length)];
+                    
+                    // Update state
+                    const idx = listArisan.value.findIndex(x => x.id === winner.id);
+                    listArisan.value[idx].statusMenang = true;
+                    
+                    const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    riwayatArisan.value.unshift({ id: Date.now(), rt: user.value.rt, rw: user.value.rw, nama: winner.nama, noUndian: winner.noUndian, tanggal: tgl, nominal: kasSkrg });
+                    
+                    catatLog(`MENGUNDI ARISAN: Pemenang ${winner.nama} (Nominal Tarikan: Rp ${kasSkrg})`);
+                    showToast(`SELAMAT! ${winner.nama} (Undian #${winner.noUndian}) memenangkan arisan senilai Rp ${kasSkrg.toLocaleString('id-ID')}`);
+                };
+
+                const cetakKartuArisan = (a) => {
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <html><head><title>Kartu Anggota Arisan</title>
+                        <style>body{font-family:sans-serif; text-align:center; padding:40px;} .card{border:2px dashed #ec4899; padding:20px; border-radius:15px; display:inline-block; width:300px; background:#fdf2f8;} .title{color:#be185d; font-weight:900; font-size:20px; border-bottom:2px solid #fbcfe8; padding-bottom:10px; margin-bottom:15px;} .num{font-size:30px; font-weight:900; margin:10px 0;} .label{font-size:10px; text-transform:uppercase; color:#9ca3af; font-weight:bold; letter-spacing:1px;}</style>
+                        </head><body>
+                        <div class="card">
+                            <div class="title">KARTU ARISAN RT ${a.rt}/RW ${a.rw}</div>
+                            <div class="label">Nama Anggota</div>
+                            <h3 style="margin:5px 0 15px 0; color:#1f2937;">${a.nama}</h3>
+                            <div class="label">Nomor Anggota</div>
+                            <div style="font-family:monospace; font-weight:bold; color:#ec4899; font-size:16px;">${a.noAnggota}</div>
+                            <div class="label" style="margin-top:15px;">Nomor Undian Anda</div>
+                            <div class="num">#${a.noUndian}</div>
+                            <div class="label" style="margin-top:15px; padding-top:15px; border-top:1px solid #fbcfe8;">Simpan kartu ini sebagai bukti keanggotaan.</div>
+                        </div>
+                        <script>window.print();<\/script>
+                        </body></html>
+                    `);
+                    printWindow.document.close();
+                };
+
+                const downloadSumbanganPDF = () => {
+                    const printWindow = window.open('', '_blank');
+                    const dataHtml = listSumbangan.value.filter(x => x.rt === user.value.rt && x.rw === user.value.rw).map(s => `<tr><td>${s.tanggal}</td><td>${s.nama}</td><td>${s.jenis}</td><td style="text-align:right;">Rp ${s.nominal.toLocaleString('id-ID')}</td></tr>`).join('');
+                    printWindow.document.write(`
+                        <html><head><title>Rekap Sumbangan Warga</title>
+                        <style>body{font-family:sans-serif; padding:20px;} table{width:100%; border-collapse:collapse; margin-top:20px;} th,td{border:1px solid #ccc; padding:8px;} th{background:#f3f4f6; text-align:left;}</style>
+                        </head><body>
+                        <h2>Rekapitulasi Sumbangan Warga RT ${user.value.rt} / RW ${user.value.rw}</h2>
+                        <p>Total Kas Sumbangan: <strong>Rp ${hitungKasSumbangan(user.value.rt, user.value.rw).toLocaleString('id-ID')}</strong></p>
+                        <table>
+                            <thead><tr><th>Tanggal</th><th>Nama Penyumbang</th><th>Jenis/Tujuan</th><th style="text-align:right;">Nominal (Rp)</th></tr></thead>
+                            <tbody>${dataHtml || '<tr><td colspan="4" style="text-align:center;">Belum ada data sumbangan.</td></tr>'}</tbody>
+                        </table>
+                        <script>window.print();<\/script>
+                        </body></html>
+                    `);
+                    printWindow.document.close();
+                };
+
                 const simpanUmkm = () => { listUmkm.value.unshift({...formUmkm.value, id:Date.now(), pemilik:user.value.nama}); showToast('Lapak diterbitkan'); showFormUmkm.value=false; formUmkm.value={nama:'', wa:'', jamBuka:'', jamTutup:'', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null}; };
                 const simpanGaleri = () => { listGaleri.value.unshift({...formGaleri.value, id:Date.now()}); showToast('Foto diupload'); showFormGaleri.value=false; };
                 const simpanBursa = () => { listBursa.value.unshift({...formBursa.value, id:Date.now(), pengiklan:user.value.nama}); showToast('Iklan diposting'); showFormBursa.value=false; };
@@ -904,8 +1559,121 @@
                 const simpanSampah = () => { const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); listSampah.value.unshift({...formSampah.value, id:Date.now(), tanggal: tgl}); showToast('Data Setoran Sampah Disimpan'); formSampah.value = { nama:'', jenis:'', berat:'' }; };
                 const simpanAgenda = () => { if(!formAgenda.value.judul || !formAgenda.value.isi) return showToast('Judul dan Isi harus diisi', 'danger'); listAgenda.value.unshift({...formAgenda.value, id:Date.now(), tanggal: formAgenda.value.tanggal || new Date().toLocaleDateString('id-ID') }); showToast('Agenda/Berita Diterbitkan'); formAgenda.value = { judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null }; };
                 const updateAdmin = () => { if(!formAdmin.value.username || !formAdmin.value.password) return showToast('Tidak Boleh Kosong', 'danger'); adminAccount.value = { ...formAdmin.value }; showToast('Akses Admin Utama Berhasil Diubah!'); };
-                const simpanPejabat = () => { if(!formPejabat.value.username || !formPejabat.value.nama) return showToast('Lengkapi Data Pejabat', 'danger'); listPejabat.value.unshift({...formPejabat.value, id: Date.now()}); showToast(`Akun ${formPejabat.value.role.toUpperCase()} Berhasil Didaftarkan`); formPejabat.value = { nama: '', role: 'rt', wilayah: '', username: '', password: '' }; };
+                const simpanPejabat = () => { if(!formPejabat.value.username || !formPejabat.value.nama) return showToast('Lengkapi Data Pejabat', 'danger'); listPejabat.value.unshift({...formPejabat.value, id: Date.now()}); showToast(`Akun ${formPejabat.value.role.toUpperCase()} Berhasil Didaftarkan`); formPejabat.value = { nama: '', role: 'rt', wilayah: '', rt: '', rw: '', username: '', password: '', ttd: '', stempel: '' }; };
                 const balasKomentar = (laporan) => { if (!laporan.inputBalasan.trim()) return showToast('Komentar tidak boleh kosong', 'danger'); laporan.komentar.push({ nama: user.value.nama, isi: laporan.inputBalasan }); laporan.inputBalasan = ''; showToast('Tanggapan dikirim!'); };
+
+                // FIX 2: FUNGSI KHUSUS WARGA LUAR & VERIFIKASI
+                const simpanPengajuanUsaha = () => {
+                    if(!formUsahaLuar.value.nama || !formUsahaLuar.value.rt || !formUsahaLuar.value.rw || !formUsahaLuar.value.fotoKtp) return showToast('Harap lengkapi semua data wajib & foto!', 'danger');
+                    
+                    const noSurat = 'PMK-' + Date.now().toString().slice(-6);
+                    const tglNow = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    
+                    listPengajuanUsaha.value.unshift({
+                        ...formUsahaLuar.value, id: Date.now(),
+                        username: user.value.username, nomorPengajuan: noSurat, tanggal: tglNow,
+                        statusRT: 'Menunggu', statusRW: 'Menunggu', statusAdmin: 'Menunggu', status: 'Diproses'
+                    });
+                    
+                    showToast('Pengajuan Terkirim ke RT/RW!');
+                    formUsahaLuar.value = { fotoKtp: null, jenisUsaha: '', namaUsaha: '', lokasiUsaha: '', rt: '', rw: '', keperluan: '', alasan: '', fotoUsaha: null };
+                };
+
+                // Computed filter untuk dashboard RT/RW/Admin
+                const filteredPengajuanUsaha = computed(() => {
+                    if (user.value.role === 'admin_kelurahan') return listPengajuanUsaha.value;
+                    if (user.value.role === 'rt') return listPengajuanUsaha.value.filter(x => x.rt === user.value.rt);
+                    if (user.value.role === 'rw') return listPengajuanUsaha.value.filter(x => x.rw === user.value.rw);
+                    return [];
+                });
+
+                const setujuiUsaha = (u, role, isApprove) => {
+                    const statusText = isApprove ? 'Disetujui' : 'Ditolak';
+                    if (role === 'rt') u.statusRT = statusText;
+                    if (role === 'rw') u.statusRW = statusText;
+                    if (role === 'admin') u.statusAdmin = statusText;
+
+                    if (u.statusRT === 'Ditolak' || u.statusRW === 'Ditolak' || u.statusAdmin === 'Ditolak') {
+                        u.status = 'Ditolak';
+                    } else if (u.statusAdmin === 'Disetujui') {
+                        u.status = 'Surat Terbit';
+                    } else {
+                        u.status = 'Diproses';
+                    }
+                    showToast(`Pengajuan ${statusText}!`);
+                };
+
+                const cetakSuratUsaha = (p) => {
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <html><head><title>Surat Rekomendasi - ${p.nomorPengajuan}</title>
+                        <style>
+                            body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-height: 1.5; }
+                            .header { text-align: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; }
+                            .header h2, .header h3, .header p { margin: 3px 0; }
+                            .stamp { display: inline-block; padding: 10px 20px; border: 3px solid; border-radius: 5px; font-weight: bold; transform: rotate(-10deg); font-family: 'Courier New', Courier, monospace; letter-spacing: 2px; }
+                            .stamp-rt { color: #16a34a; border-color: #16a34a; }
+                            .stamp-rw { color: #ea580c; border-color: #ea580c; }
+                            .stamp-lurah { color: #2563eb; border-color: #2563eb; border-radius: 50%; width: 100px; height: 100px; line-height: 100px; text-align: center; padding:0; }
+                            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                            td { padding: 5px; vertical-align: top; }
+                            .col-label { width: 200px; }
+                        </style>
+                        </head><body>
+                        <div class="header">
+                            <h2>PEMERINTAH DAERAH KABUPATEN/KOTA</h2>
+                            <h3>KECAMATAN PUSAT, KELURAHAN DIGITAL</h3>
+                            <p style="font-size: 12px; font-style: italic;">Jalan Pelayanan Publik No. 1, Telp: (021) 1234567, Kode Pos: 12345</p>
+                        </div>
+                        <h3 style="text-align:center; text-decoration: underline; margin-bottom:0;">SURAT KETERANGAN USAHA (SKU)</h3>
+                        <p style="text-align:center; margin-top:5px;">Nomor: ${p.nomorPengajuan} / KEL / 2026</p>
+                        <br>
+                        <p>Yang bertanda tangan di bawah ini, Kepala Kelurahan Digital, menerangkan bahwa:</p>
+                        <table>
+                            <tr><td class="col-label">Nama Lengkap</td><td>: <strong>${p.nama}</strong></td></tr>
+                            <tr><td class="col-label">NIK Sesuai KTP</td><td>: ${p.nik}</td></tr>
+                            <tr><td class="col-label">Alamat Tinggal / Asal</td><td>: ${p.alamat}</td></tr>
+                            <tr><td class="col-label">No. Telepon / WhatsApp</td><td>: ${p.hp}</td></tr>
+                        </table>
+                        <br>
+                        <p>Adalah benar memiliki dan menjalankan usaha di wilayah kami, dengan rincian operasional sebagai berikut:</p>
+                        <table>
+                            <tr><td class="col-label">Nama Usaha</td><td>: <strong>${p.namaUsaha}</strong></td></tr>
+                            <tr><td class="col-label">Bidang / Jenis Usaha</td><td>: ${p.jenisUsaha}</td></tr>
+                            <tr><td class="col-label">Alamat Lokasi Usaha</td><td>: ${p.lokasiUsaha} (RT ${p.rt} / RW ${p.rw})</td></tr>
+                        </table>
+                        <br>
+                        <p>Surat keterangan ini diterbitkan berdasarkan hasil verifikasi dari pengurus RT dan RW setempat. Adapun surat ini digunakan untuk <strong>${p.keperluan}</strong>.</p>
+                        <p>Demikian surat keterangan ini dibuat agar dapat dipergunakan sebagaimana mestinya oleh pihak yang berkepentingan.</p>
+                        <br><br><br>
+                        <div style="display: flex; justify-content: space-between; text-align: center;">
+                            <div style="width: 30%;">
+                                <p>Mengetahui,<br>Ketua RT ${p.rt}</p>
+                                <br><br>
+                                <div class="stamp stamp-rt">VERIFIED RT</div>
+                                <br><br>
+                                <p>( Tanda Tangan Digital )</p>
+                            </div>
+                            <div style="width: 30%;">
+                                <p>Mengetahui,<br>Ketua RW ${p.rw}</p>
+                                <br><br>
+                                <div class="stamp stamp-rw">VERIFIED RW</div>
+                                <br><br>
+                                <p>( Tanda Tangan Digital )</p>
+                            </div>
+                            <div style="width: 30%;">
+                                <p>Dikeluarkan pada: ${p.tanggal}<br>Kepala Kelurahan Digital</p>
+                                <br><br>
+                                <div class="stamp stamp-lurah">SAH</div>
+                                <br><br>
+                                <p>( ${webSettings.value.lurah.nama} )</p>
+                            </div>
+                        </div>
+                        <script>window.print();<\/script>
+                        </body></html>
+                    `);
+                    printWindow.document.close();
+                };
 
                 const hapus = (tipe, id) => {
                     if(!confirm('Hapus data secara permanen?')) return;
@@ -927,6 +1695,9 @@
                     let d = []; let n = tipe + '_data.csv';
                     if(tipe==='kependudukan') d = listWarga.value.map(x=>({ NIK:x.nik, No_KK:x.nokk, Nama:x.nama, Alamat:x.alamat, RT:x.rt, RW:x.rw, TTL:x.tempat_lahir+" "+x.tgl_lahir, Gender:x.kelamin, Pendidikan:x.pendidikan, Pekerjaan:x.pekerjaan, Usaha:x.usaha }));
                     if(tipe==='surat') d = listSurat.value.map(x=>({ Pengaju:x.pengaju, Jenis_Surat:x.jenis, Keperluan:x.keperluan, Status:x.status }));
+                    // FIX: Export Excel Sumbangan
+                    if(tipe==='sumbangan') d = listSumbangan.value.filter(x => x.rt === user.value.rt && x.rw === user.value.rw).map(x=>({ Tanggal:x.tanggal, Nama:x.nama, Jenis:x.jenis, Nominal:x.nominal }));
+                    
                     if(!d || d.length === 0) return showToast('Belum ada data untuk didownload','danger');
                     const headers = Object.keys(d[0]).join(',') + '\n';
                     const rows = d.map(o=>Object.values(o).map(v=>`"${v}"`).join(',')).join('\n');
@@ -935,13 +1706,16 @@
                 };
 
                 return {
-                    notification, showToast, isLoggedIn, currentAuthView, isRegistering, regStep, sidebarOpen, menu, user, publicTab,
-                    zoomedImage, selectedWarga,
-                    loginForm, reg, formSurat, formUmkm, formGaleri, formBursa, formFasilitas, formBansos, formAnggaran, showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas,
-                    formSampah, formAgenda, formAdmin, formPejabat, adminAccount, listPejabat, webSettings,
-                    listWarga, listAgenda, listSurat, listUmkm, listGaleri, listBursa, listFasilitas, listBansos, listAnggaran, listLaporan, listSampah,
-                    handleLogin, handleRegister, logout, uploadFile, simpanSurat, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanBansos, simpanAnggaran, simpanSampah, simpanAgenda, simpanPejabat, updateAdmin,
-                    hapus, downloadText, downloadExcelData, balasKomentar
+                    notification, showToast, isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user, publicTab, tabSurat, tabArisan,
+                    showPassLogin, showPassRegLuar, showPassReg, showPassRegRep, showPassAdmin, showPassPejabat,
+                    zoomedImage, selectedWarga, webSettings,
+                    loginForm, reg, regLuar, formSurat, formSuratPengantar, formUmkm, formGaleri, formBursa, formFasilitas, formBansos, formAnggaran, showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas,
+                    formSampah, formAgenda, formAdmin, formPejabat, adminAccount, listPejabat, formUsahaLuar, formBendahara, formTamu, formSumbangan, formArisan, showFormTamu, showFormSumbangan,
+                    listWarga, listWargaLuar, listAgenda, listSurat, listSuratPengantar, listUmkm, listGaleri, listBursa, listFasilitas, listBansos, listAnggaran, listLaporan, listSampah, listPengajuanUsaha, filteredPengajuanUsaha, getPejabatSetting,
+                    listBendahara, listTamu, listSumbangan, listArisan, riwayatArisan, logAktivitas,
+                    handleLogin, handleRegister, handleRegisterLuar, logout, uploadFile, simpanSurat, simpanSuratPengantar, setujuiPengantar, cetakSuratPengantar, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanBansos, simpanAnggaran, simpanSampah, simpanAgenda, simpanPejabat, updateAdmin,
+                    hapus, downloadText, downloadExcelData, balasKomentar, simpanPengajuanUsaha, setujuiUsaha, cetakSuratUsaha,
+                    simpanBendahara, simpanTamu, simpanSumbangan, hitungKasSumbangan, simpanArisan, tambahIuranManual, hitungKasArisan, kocokArisan, cetakKartuArisan, downloadSumbanganPDF
                 };
             }
         }).mount('#app');
