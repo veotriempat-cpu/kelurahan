@@ -1424,19 +1424,25 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
         import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
+        // =========================================================================
         // PENGATURAN API KEY FIREBASE DENGAN FALLBACK AMAN
+        // =========================================================================
         let firebaseConfig = { apiKey: "" };
         try {
+            // JIKA DIBUKA DI CANVAS INI (OTOMATIS TERSIMPAN KE CLOUD CANVAS)
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                 firebaseConfig = JSON.parse(__firebase_config);
             } else {
+                
+                // JIKA ANDA HOSTING WEB INI SENDIRI DI LUAR (WAJIB GANTI INI)
+                // Hapus tulisan di bawah dan ganti dengan kode dari Firebase Console Anda
                 firebaseConfig = {
-                    apiKey: "ISI_DENGAN_API_KEY_ANDA",
-                    authDomain: "kelurahan-xxx.firebaseapp.com",
-                    projectId: "kelurahan-xxx",
-                    storageBucket: "kelurahan-xxx.appspot.com",
-                    messagingSenderId: "123456789",
-                    appId: "1:123456789:web:abcdef"
+                    apiKey: "AIzaSyBo5cJOd9EBFKwlq3bv_BhA2E9sRN0H-Ew",
+                    authDomain: "sistem-kelurahan-58782.firebaseapp.com",
+                    projectId: "sistem-kelurahan-58782",
+                    storageBucket: "sistem-kelurahan-58782.firebasestorage.app",
+                    messagingSenderId: "482964956660",
+                    appId: "1:482964956660:web:65db19b725cebd911c45a1"
                 };
             }
         } catch (e) {
@@ -1446,7 +1452,9 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'kelurahan-digital-v1';
+        
+        // JIKA DIHOSTING SENDIRI, ID INI BISA DIBIARKAN ATAU DIGANTI NAMA KELURAHANNYA
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'sistem-kelurahan-58782';
 
         createApp({
             setup() {
@@ -1568,7 +1576,7 @@
                             }
                         } catch (e) { 
                             console.error("Auth error", e); 
-                            showToast("Database Firebase belum terhubung! Berjalan dalam Mode Lokal (Data akan hilang saat direfresh).", "warning");
+                            showToast("Berjalan dalam Mode Lokal (Data akan hilang saat direfresh karena tidak ada database cloud sungguhan yang tersambung).", "warning");
                         }
                     };
                     initAuth();
@@ -1633,7 +1641,7 @@
                     }, (err) => console.error(err));
                 };
 
-                // PERBAIKAN 2: AUTO FALLBACK IN-MEMORY (Jika Firebase Error, aplikasi tetap bisa diuji / login)
+                // AUTO FALLBACK IN-MEMORY (Jika Firebase Error, aplikasi tetap bisa diuji / login)
                 const saveData = async (colName, data) => {
                     const id = data.id || Date.now().toString();
                     const payload = { ...data, id: id.toString() };
@@ -1712,7 +1720,6 @@
                     };
                 };
 
-                // PERBAIKAN 1: String Casting (Mencegah error NIK angka vs form huruf)
                 const handleLogin = () => {
                     const emailInput = String(loginForm.value.email).trim();
                     const passInput = String(loginForm.value.password).trim();
