@@ -440,7 +440,7 @@
                         <a href="#" @click.prevent="menu='status-usaha'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='status-usaha'?'bg-white/20':'hover:bg-white/10']"><i class="fas fa-store-alt w-5 text-center mr-1"></i> 5. Status Usaha</a>
                         <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='arsip-surat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='arsip-surat'?'bg-white/20':'hover:bg-white/10']"><i class="fas fa-folder-open w-5 text-center mr-1"></i> 6. Arsip Surat</a>
                         <a v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-usaha'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200 mt-2', menu==='verifikasi-usaha'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-stamp w-5 text-center mr-1"></i> 19. Verifikasi Usaha Warga Luar</a>
-                        <a v-if="['rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-pengantar'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-blue-200 mt-2', menu==='verifikasi-pengantar'?'bg-blue-600 shadow border border-blue-400':'hover:bg-white/10']"><i class="fas fa-file-signature w-5 text-center mr-1"></i> 20. Verifikasi Pengantar Warga</a>
+                        <a v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-pengantar'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-blue-200 mt-2', menu==='verifikasi-pengantar'?'bg-blue-600 shadow border border-blue-400':'hover:bg-white/10']"><i class="fas fa-file-signature w-5 text-center mr-1"></i> 20. Verifikasi E-Surat Warga</a>
                         <a v-if="['rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='pengaturan-pejabat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200 mt-2', menu==='pengaturan-pejabat'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-signature w-5 text-center mr-1"></i> 21. Pengaturan TTD & Stempel</a>
                     </div>
 
@@ -668,18 +668,18 @@
                                 <div class="mt-4 border-t pt-4">
                                     <h4 class="text-xs font-bold text-gray-500 mb-2">Daftar Bendahara Aktif:</h4>
                                     <ul class="text-sm space-y-2">
-                                        <li v-for="b in listBendahara.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="b.id" class="flex justify-between items-center bg-gray-50 p-2 rounded border">
+                                        <li v-for="b in listBendahara.filter(x => x.rt == user.rt && x.rw == user.rw)" :key="b.id" class="flex justify-between items-center bg-gray-50 p-2 rounded border">
                                             <span><strong>{{ b.nama }}</strong> ({{ b.username }})</span>
                                             <button @click="hapus('bendahara', b.id)" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
                                         </li>
-                                        <li v-if="listBendahara.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0" class="text-xs italic text-gray-400">Belum ada bendahara.</li>
+                                        <li v-if="listBendahara.filter(x => x.rt == user.rt && x.rw == user.rw).length === 0" class="text-xs italic text-gray-400">Belum ada bendahara.</li>
                                     </ul>
                                 </div>
                             </div>
                             <div class="bg-white p-6 rounded-2xl shadow-sm border max-h-96 overflow-y-auto">
                                 <h3 class="font-bold text-gray-800 mb-4 border-b pb-2"><i class="fas fa-clipboard-list text-blue-500 mr-2"></i>Log Aktivitas Pengurus</h3>
                                 <ul class="space-y-3">
-                                    <li v-for="(log, idx) in logAktivitas.filter(x => x.rt === user.rt && x.rw === user.rw).slice(0, 20)" :key="idx" class="text-xs border-b pb-2">
+                                    <li v-for="(log, idx) in logAktivitas.filter(x => x.rt == user.rt && x.rw == user.rw).slice(0, 20)" :key="idx" class="text-xs border-b pb-2">
                                         <span class="text-gray-400 block mb-1">{{ log.waktu }}</span>
                                         <span class="font-bold text-blue-600">{{ log.user }}</span>: {{ log.aksi }}
                                     </li>
@@ -803,11 +803,18 @@
                     <div v-if="menu==='surat'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
                             <div class="flex justify-between items-center mb-6 border-b pb-4">
-                                <div><h2 class="text-xl font-bold text-gray-800"><i class="fas fa-envelope-open-text text-blue-500 mr-2"></i>Layanan E-Surat Warga</h2><p class="text-xs text-gray-500 mt-1">Ajukan surat pengantar langsung ke RT/RW tanpa harus keluar rumah.</p></div>
-                                <button v-if="user.role === 'warga'" @click="showFormSuratWarga=!showFormSuratWarga" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-plus mr-1"></i> Buat Surat Pengantar</button>
+                                <div><h2 class="text-xl font-bold text-gray-800"><i class="fas fa-envelope-open-text text-blue-500 mr-2"></i>Layanan E-Surat Warga</h2><p class="text-xs text-gray-500 mt-1">Ajukan surat pengantar/keterangan langsung dari rumah.</p></div>
+                                <button v-if="user.role === 'warga'" @click="showFormSuratWarga=!showFormSuratWarga" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-plus mr-1"></i> Buat Surat Baru</button>
                             </div>
                             
                             <div v-if="showFormSuratWarga && user.role === 'warga'" class="bg-blue-50 p-6 rounded-2xl border border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-inner mb-6">
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold mb-1 text-blue-800">Tujuan Surat</label>
+                                    <select v-model="formSuratPengantar.tujuan" class="w-full border-2 border-blue-300 p-2.5 rounded-lg text-sm bg-white font-bold outline-none">
+                                        <option value="RT/RW">Surat Pengantar RT / RW</option>
+                                        <option value="Lurah">Surat Langsung ke Kelurahan (Lurah)</option>
+                                    </select>
+                                </div>
                                 <div><label class="block text-xs font-bold mb-1">Nama Lengkap (Sesuai KTP)</label><input v-model="formSuratPengantar.nama" class="w-full border p-2.5 rounded-lg text-sm bg-white"></div>
                                 <div><label class="block text-xs font-bold mb-1">NIK</label><input v-model="formSuratPengantar.nik" class="w-full border p-2.5 rounded-lg text-sm bg-white"></div>
                                 <div><label class="block text-xs font-bold mb-1">RT (Cth: 01)</label><input v-model="formSuratPengantar.rt" class="w-full border p-2.5 rounded-lg text-sm bg-white"></div>
@@ -818,21 +825,25 @@
                                 <div><label class="block text-xs font-bold mb-1">Upload KTP (Wajib)</label><input type="file" @change="e=>uploadFile(e,'pengantarKtp')" class="w-full border p-2.5 rounded-lg text-sm bg-white"></div>
                                 <div><label class="block text-xs font-bold mb-1">Upload KK (Wajib)</label><input type="file" @change="e=>uploadFile(e,'pengantarKk')" class="w-full border p-2.5 rounded-lg text-sm bg-white"></div>
                                 <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Dokumen Pendukung Lain (Jika ada)</label><input type="file" @change="e=>uploadFile(e,'pengantarDok')" class="w-full border p-2.5 rounded-lg text-sm bg-white"></div>
-                                <div class="md:col-span-2 text-right mt-4"><button @click="simpanSuratPengantar" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition w-full md:w-auto">Kirim Pengajuan ke RT/RW</button></div>
+                                <div class="md:col-span-2 text-right mt-4"><button @click="simpanSuratPengantar" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition w-full md:w-auto">Kirim Pengajuan Surat</button></div>
                             </div>
 
                             <div class="overflow-x-auto border rounded-xl">
                                 <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tanggal Pengajuan</th><th class="p-4">Keperluan</th><th class="p-4 text-center">Status RT</th><th class="p-4 text-center">Status RW</th><th class="p-4 text-center">Aksi / Cetak</th></tr></thead>
+                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tgl & Keperluan</th><th class="p-4 text-center">Status RT</th><th class="p-4 text-center">Status RW</th><th class="p-4 text-center">Status Kelurahan</th><th class="p-4 text-center">Aksi / Cetak</th></tr></thead>
                                     <tbody>
-                                        <tr v-for="u in listSuratPengantar.filter(x => user.role === 'admin_kelurahan' ? true : x.username === user.username)" :key="'p'+u.id" class="border-b hover:bg-gray-50">
-                                            <td class="p-4 font-bold text-gray-800">{{ u.tanggal || '-' }}</td>
-                                            <td class="p-4">{{ u.keperluan }}</td>
-                                            <td class="p-4 text-center"><span :class="u.statusRT === 'Disetujui' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-[10px] font-bold uppercase">{{ u.statusRT }}</span></td>
-                                            <td class="p-4 text-center"><span :class="u.statusRW === 'Disetujui' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-[10px] font-bold uppercase">{{ u.statusRW }}</span></td>
+                                        <tr v-for="u in listSuratPengantar.filter(x => user.role === 'admin_kelurahan' ? true : String(x.username) === String(user.username))" :key="'p'+u.id" class="border-b hover:bg-gray-50">
+                                            <td class="p-4">
+                                                <p class="font-bold text-gray-800">{{ u.tanggal || '-' }}</p>
+                                                <p class="text-xs">{{ u.keperluan }}</p>
+                                                <p v-if="u.tujuan === 'Lurah'" class="text-[10px] font-black text-red-600 mt-1 uppercase">Surat Langsung Lurah</p>
+                                            </td>
+                                            <td class="p-4 text-center"><span :class="u.statusRT === 'Disetujui' ? 'bg-green-100 text-green-700' : (u.statusRT === 'Bypass' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600')" class="px-2 py-1 rounded text-[10px] font-bold uppercase">{{ u.statusRT }}</span></td>
+                                            <td class="p-4 text-center"><span :class="u.statusRW === 'Disetujui' ? 'bg-green-100 text-green-700' : (u.statusRW === 'Bypass' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-600')" class="px-2 py-1 rounded text-[10px] font-bold uppercase">{{ u.statusRW }}</span></td>
+                                            <td class="p-4 text-center"><span :class="u.statusAdmin === 'Disetujui' ? 'bg-green-100 text-green-700' : (u.statusAdmin === 'Menunggu' ? 'bg-gray-100 text-gray-600' : 'bg-red-100 text-red-700')" class="px-2 py-1 rounded text-[10px] font-bold uppercase">{{ u.statusAdmin || 'Menunggu' }}</span></td>
                                             <td class="p-4 text-center">
-                                                <button v-if="u.statusRW === 'Disetujui'" @click="cetakPengantarWarga(u)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow"><i class="fas fa-print"></i> Cetak</button>
-                                                <span v-else class="text-xs text-gray-400 italic">Menunggu...</span>
+                                                <button v-if="u.statusAdmin === 'Disetujui' || (u.tujuan === 'RT/RW' && u.statusRW === 'Disetujui')" @click="cetakPengantarWarga(u)" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow"><i class="fas fa-print"></i> Cetak</button>
+                                                <span v-else class="text-xs text-gray-400 italic">Diproses...</span>
                                             </td>
                                         </tr>
                                         <tr v-if="listSuratPengantar.length === 0"><td colspan="5" class="p-6 text-center text-gray-400 italic">Belum ada riwayat surat.</td></tr>
@@ -867,7 +878,7 @@
                                 <table class="w-full text-left text-sm whitespace-nowrap">
                                     <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tamu</th><th class="p-4">Asal</th><th class="p-4">Pelapor (Tuan Rumah)</th><th class="p-4 text-center">Foto KTP</th><th v-if="user.role==='admin_kelurahan' || user.role==='rt' || user.role==='rw'" class="p-4 text-center">Aksi</th></tr></thead>
                                     <tbody>
-                                        <tr v-for="t in listTamu.filter(x => ['admin_kelurahan', 'babinsa'].includes(user.role) ? true : (x.rt === user.rt && x.rw === user.rw) || x.pelapor === user.nama)" :key="t.id" class="border-b hover:bg-gray-50">
+                                        <tr v-for="t in listTamu.filter(x => ['admin_kelurahan', 'babinsa'].includes(user.role) ? true : (x.rt == user.rt && x.rw == user.rw) || String(x.pelapor) === String(user.nama))" :key="t.id" class="border-b hover:bg-gray-50">
                                             <td class="p-4"><p class="font-bold text-gray-800">{{ t.nama }}</p><p class="text-[10px] text-gray-500">Selama: {{ t.lama }} Hari</p></td>
                                             <td class="p-4 text-xs">{{ t.asal }}</td>
                                             <td class="p-4 font-bold text-blue-600"><i class="fas fa-home mr-1"></i> {{ t.pelapor }} (RT {{t.rt}}/RW {{t.rw}})</td>
@@ -916,7 +927,7 @@
                             </div>
                             
                             <div class="space-y-4">
-                                <div v-for="l in listLaporan.filter(x => user.role === 'admin_kelurahan' || user.role === 'babinsa' || x.privasi === 'Publik' || x.username === user.username || (['rt','rw'].includes(user.role) && x.rt === user.rt && x.rw === user.rw))" :key="l.id" class="bg-gray-50 p-5 rounded-2xl border hover:shadow-md transition">
+                                <div v-for="l in listLaporan.filter(x => user.role === 'admin_kelurahan' || user.role === 'babinsa' || x.privasi === 'Publik' || String(x.username) === String(user.username) || (['rt','rw'].includes(user.role) && x.rt == user.rt && x.rw == user.rw))" :key="l.id" class="bg-gray-50 p-5 rounded-2xl border hover:shadow-md transition">
                                     <div class="flex justify-between items-start mb-3">
                                         <div>
                                             <h4 class="font-black text-gray-800 text-lg">{{ l.judul }}</h4>
@@ -942,7 +953,7 @@
                                             <button @click="balasKomentar(l)" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition">Balas</button>
                                         </div>
                                     </div>
-                                    <div class="mt-4 text-right" v-if="user.role === 'admin_kelurahan' || l.username === user.username">
+                                    <div class="mt-4 text-right" v-if="user.role === 'admin_kelurahan' || String(l.username) === String(user.username)">
                                         <button @click="hapus('laporan', l.id)" class="text-red-500 hover:text-red-700 text-xs font-bold"><i class="fas fa-trash"></i> Hapus Pengaduan</button>
                                     </div>
                                 </div>
@@ -951,10 +962,20 @@
                         </div>
                     </div>
 
-                    <!-- 22. ARISAN WARGA (DITAMPILKAN KEMBALI) -->
+                    <!-- 22. ARISAN WARGA -->
                     <div v-if="menu==='arisan'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
                             <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-sync-alt text-pink-500 mr-2"></i>Sistem Arisan Warga RT {{ user.rt }} / RW {{ user.rw }}</h2>
+                            
+                            <!-- TOMBOL DAFTAR UNTUK WARGA -->
+                            <div v-if="user.role === 'warga' && !listArisan.find(x => String(x.username) === String(user.username))" class="mb-6 bg-pink-50 p-5 rounded-2xl border border-pink-200 flex flex-col md:flex-row justify-between items-center gap-4">
+                                <div>
+                                    <h3 class="font-black text-pink-800 text-lg">Mari Bergabung di Arisan Warga!</h3>
+                                    <p class="text-sm text-pink-600 mt-1">Ikuti arisan untuk mempererat tali silaturahmi warga RT {{user.rt}} / RW {{user.rw}}.</p>
+                                </div>
+                                <button @click="daftarArisanWarga" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition whitespace-nowrap"><i class="fas fa-user-plus mr-1"></i> Daftar Jadi Anggota</button>
+                            </div>
+
                             <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 bg-pink-50 p-4 rounded-xl border border-pink-200">
                                 <div>
                                     <p class="text-xs font-bold text-pink-600 uppercase">Total Kas Arisan Saat Ini</p>
@@ -966,14 +987,14 @@
                             <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                                 <input v-model="formArisan.nama" placeholder="Nama Anggota Baru" class="border p-2.5 rounded-lg text-sm outline-none">
                                 <input v-model="formArisan.iuran" type="number" placeholder="Iuran Awal (Rp)" class="border p-2.5 rounded-lg text-sm outline-none">
-                                <button @click="simpanArisan" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg shadow transition">Tambah Anggota</button>
+                                <button @click="simpanArisan" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg shadow transition">Tambah Manual</button>
                             </div>
                             
                             <div class="overflow-x-auto border rounded-xl">
                                 <table class="w-full text-left text-sm whitespace-nowrap">
                                     <thead class="bg-gray-50 border-b"><tr><th class="p-4">No. Anggota</th><th class="p-4">Nama</th><th class="p-4 text-right">Total Iuran Masuk</th><th class="p-4 text-center">Status Menang</th><th class="p-4 text-center">Aksi</th></tr></thead>
                                     <tbody>
-                                        <tr v-for="a in listArisan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="a.id" class="border-b">
+                                        <tr v-for="a in listArisan.filter(x => x.rt == user.rt && x.rw == user.rw)" :key="a.id" class="border-b">
                                             <td class="p-4 font-mono text-xs text-gray-500">{{ a.noAnggota }}</td>
                                             <td class="p-4 font-bold">{{ a.nama }}</td>
                                             <td class="p-4 text-right text-emerald-600 font-bold">Rp {{ Number(a.totalIuran || 0).toLocaleString('id-ID') }}</td>
@@ -984,52 +1005,72 @@
                                                 <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="hapus('arisan', a.id)" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
                                             </td>
                                         </tr>
-                                        <tr v-if="listArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0"><td colspan="5" class="p-4 text-center text-gray-400 italic">Belum ada anggota arisan.</td></tr>
+                                        <tr v-if="listArisan.filter(x => x.rt == user.rt && x.rw == user.rw).length === 0"><td colspan="5" class="p-4 text-center text-gray-400 italic">Belum ada anggota arisan.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
                             
                             <h3 class="font-bold text-gray-800 mt-8 mb-4 border-b pb-2"><i class="fas fa-trophy text-amber-500 mr-2"></i>Riwayat Pemenang Arisan</h3>
                             <ul class="space-y-2">
-                                <li v-for="r in riwayatArisan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="r.id" class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm flex justify-between">
+                                <li v-for="r in riwayatArisan.filter(x => x.rt == user.rt && x.rw == user.rw)" :key="r.id" class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm flex justify-between">
                                     <span><strong>{{ r.nama }}</strong> menang pada {{ r.tanggal }}</span>
                                     <span class="font-bold text-amber-700">Menarik: Rp {{ Number(r.nominal || 0).toLocaleString('id-ID') }}</span>
                                 </li>
-                                <li v-if="riwayatArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0" class="text-xs text-gray-400 italic">Belum ada riwayat pemenang.</li>
+                                <li v-if="riwayatArisan.filter(x => x.rt == user.rt && x.rw == user.rw).length === 0" class="text-xs text-gray-400 italic">Belum ada riwayat pemenang.</li>
                             </ul>
                         </div>
                     </div>
 
-                    <!-- 23. SUMBANGAN WARGA (DITAMPILKAN KEMBALI) -->
+                    <!-- 23. SUMBANGAN WARGA -->
                     <div v-if="menu==='sumbangan'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
                             <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-donate text-pink-500 mr-2"></i>Pencatatan Sumbangan / Iuran Warga RT {{ user.rt }} / RW {{ user.rw }}</h2>
-                            <div class="flex justify-between items-center mb-6 bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                            
+                            <!-- FORM KIRIM SUMBANGAN UNTUK WARGA -->
+                            <div v-if="user.role === 'warga'" class="bg-emerald-50 p-6 rounded-2xl border border-emerald-200 mb-6 shadow-inner">
+                                <h3 class="font-black text-emerald-800 mb-4 border-b border-emerald-200 pb-2"><i class="fas fa-hand-holding-usd mr-2"></i>Kirim Sumbangan / Bayar Iuran</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label class="block text-xs font-bold mb-1">Jenis / Keterangan (Cth: Iuran Kebersihan)</label><input v-model="formSumbanganWarga.jenis" class="w-full border p-2.5 rounded-lg text-sm outline-none"></div>
+                                    <div><label class="block text-xs font-bold mb-1">Nominal (Rp)</label><input v-model="formSumbanganWarga.nominal" type="number" class="w-full border p-2.5 rounded-lg text-sm outline-none"></div>
+                                    <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Upload Foto Bukti Transfer/Bayar</label><input type="file" @change="e=>uploadFile(e, 'buktiSumbangan')" class="w-full border p-2.5 rounded-lg text-sm bg-white cursor-pointer"></div>
+                                    <div class="md:col-span-2 text-right mt-2"><button @click="kirimSumbanganWarga" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition"><i class="fas fa-paper-plane mr-1"></i> Kirim Bukti ke RT/RW</button></div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
                                 <div>
-                                    <p class="text-xs font-bold text-emerald-600 uppercase">Total Kas Terkumpul</p>
-                                    <p class="text-3xl font-black text-gray-800">Rp {{ hitungKasSumbangan().toLocaleString('id-ID') }}</p>
+                                    <p class="text-xs font-bold text-gray-500 uppercase">Total Kas Terkumpul (Tervalidasi)</p>
+                                    <p class="text-3xl font-black text-emerald-700">Rp {{ hitungKasSumbangan().toLocaleString('id-ID') }}</p>
                                 </div>
                             </div>
                             
+                            <!-- INPUT LANGSUNG UNTUK RT/RW/BENDAHARA -->
                             <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="bg-gray-50 p-4 rounded-xl border mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                                 <input v-model="formSumbangan.nama" placeholder="Nama Penyumbang" class="border p-2.5 rounded-lg text-sm outline-none">
                                 <input v-model="formSumbangan.jenis" placeholder="Jenis / Keterangan" class="border p-2.5 rounded-lg text-sm outline-none md:col-span-1">
                                 <input v-model="formSumbangan.nominal" type="number" placeholder="Nominal (Rp)" class="border p-2.5 rounded-lg text-sm outline-none">
-                                <button @click="simpanSumbangan" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-lg shadow transition">Catat Kas Masuk</button>
+                                <button @click="simpanSumbangan" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-lg shadow transition">Catat Langsung</button>
                             </div>
                             
                             <div class="overflow-x-auto border rounded-xl">
                                 <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tanggal</th><th class="p-4">Nama Penyumbang</th><th class="p-4">Keterangan</th><th class="p-4 text-right">Nominal</th><th v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="p-4 text-center">Aksi</th></tr></thead>
+                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tgl & Nama</th><th class="p-4">Keterangan</th><th class="p-4 text-right">Nominal</th><th class="p-4 text-center">Status</th><th class="p-4 text-center">Aksi / Bukti</th></tr></thead>
                                     <tbody>
-                                        <tr v-for="s in listSumbangan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="s.id" class="border-b hover:bg-gray-50">
-                                            <td class="p-4 text-xs text-gray-500">{{ s.tanggal }}</td>
-                                            <td class="p-4 font-bold">{{ s.nama }}</td>
+                                        <tr v-for="s in listSumbangan.filter(x => x.rt == user.rt && x.rw == user.rw)" :key="s.id" class="border-b hover:bg-gray-50">
+                                            <td class="p-4"><p class="font-bold">{{ s.nama }}</p><p class="text-[10px] text-gray-500">{{ s.tanggal }}</p></td>
                                             <td class="p-4 text-xs">{{ s.jenis || '-' }}</td>
                                             <td class="p-4 text-right font-bold text-emerald-600">Rp {{ Number(s.nominal || 0).toLocaleString('id-ID') }}</td>
-                                            <td v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="p-4 text-center"><button @click="hapus('sumbangan', s.id)" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded"><i class="fas fa-trash"></i></button></td>
+                                            <td class="p-4 text-center">
+                                                <span v-if="s.status === 'Menunggu Validasi'" class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-[10px] font-black uppercase">Menunggu Validasi</span>
+                                                <span v-else class="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-black uppercase">Sah / Masuk Kas</span>
+                                            </td>
+                                            <td class="p-4 text-center">
+                                                <button v-if="s.bukti" @click="zoomedImage=s.bukti" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-bold mr-1"><i class="fas fa-image"></i> Bukti</button>
+                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role) && s.status === 'Menunggu Validasi'" @click="validasiSumbangan(s)" class="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold shadow mr-1"><i class="fas fa-check"></i> ACC</button>
+                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="hapus('sumbangan', s.id)" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
+                                            </td>
                                         </tr>
-                                        <tr v-if="listSumbangan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0"><td colspan="5" class="p-4 text-center text-gray-400 italic">Belum ada catatan sumbangan.</td></tr>
+                                        <tr v-if="listSumbangan.filter(x => x.rt == user.rt && x.rw == user.rw).length === 0"><td colspan="5" class="p-4 text-center text-gray-400 italic">Belum ada catatan sumbangan.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1136,7 +1177,7 @@
                                             <p class="text-xs text-gray-600 line-clamp-2">{{ u.deskripsi }}</p>
                                         </div>
                                     </div>
-                                    <button v-if="user.role === 'admin_kelurahan' || u.pemilik === user.nama" @click="hapus('umkm', u.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
+                                    <button v-if="user.role === 'admin_kelurahan' || String(u.pemilik) === String(user.nama)" @click="hapus('umkm', u.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
                                 </div>
                                 <div v-if="listUmkm.length === 0" class="col-span-2 text-center p-8 text-gray-400 italic font-bold">Belum ada lapak UMKM.</div>
                             </div>
@@ -1168,7 +1209,7 @@
                                         <p class="text-[10px] text-gray-400 mb-2">Pelapor: {{ f.pelapor }}</p>
                                         <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">{{ f.status }}</span>
                                     </div>
-                                    <button v-if="user.role === 'admin_kelurahan' || f.pelapor === user.nama" @click="hapus('fasilitas', f.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
+                                    <button v-if="user.role === 'admin_kelurahan' || String(f.pelapor) === String(user.nama)" @click="hapus('fasilitas', f.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
                                 </div>
                                 <div v-if="listFasilitas.length === 0" class="col-span-2 text-center p-8 text-gray-400 italic font-bold">Belum ada fasilitas rusak.</div>
                             </div>
@@ -1195,7 +1236,7 @@
                                     <h4 class="font-black text-lg text-gray-800">{{ b.judul }}</h4>
                                     <p class="text-sm text-gray-600 mt-2 mb-4 whitespace-pre-wrap">{{ b.deskripsi }}</p>
                                     <p class="text-xs text-gray-500 font-bold bg-gray-100 inline-block px-3 py-1 rounded-lg"><i class="fas fa-user-circle text-amber-500 mr-1"></i> {{ b.pengiklan }} | WA: {{ b.wa }}</p>
-                                    <button v-if="user.role === 'admin_kelurahan' || b.pengiklan === user.nama" @click="hapus('bursa', b.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
+                                    <button v-if="user.role === 'admin_kelurahan' || String(b.pengiklan) === String(user.nama)" @click="hapus('bursa', b.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
                                 </div>
                                 <div v-if="listBursa.length === 0" class="col-span-2 text-center p-8 text-gray-400 italic font-bold">Belum ada Iklan / Jasa terdaftar.</div>
                             </div>
@@ -1295,7 +1336,7 @@
                                 <table class="w-full text-left text-sm whitespace-nowrap">
                                     <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tgl & Nomor</th><th class="p-4">Nama Usaha / Bidang</th><th class="p-4 text-center">Status RT</th><th class="p-4 text-center">Status RW</th><th class="p-4 text-center">Final Kelurahan</th><th class="p-4 text-center">Cetak</th></tr></thead>
                                     <tbody>
-                                        <tr v-for="u in listPengajuanUsaha.filter(x => x.username === user.username)" :key="u.id" class="border-b hover:bg-gray-50">
+                                        <tr v-for="u in listPengajuanUsaha.filter(x => String(x.username) === String(user.username))" :key="u.id" class="border-b hover:bg-gray-50">
                                             <td class="p-4"><p class="font-bold">{{ u.tanggal }}</p><p class="text-[10px] text-gray-500 font-mono">{{ u.nomorPengajuan }}</p></td>
                                             <td class="p-4"><p class="font-black text-amber-700">{{ u.namaUsaha }}</p><p class="text-[10px] uppercase font-bold text-gray-500">{{ u.jenisUsaha }}</p></td>
                                             <td class="p-4 text-center"><span :class="u.statusRT === 'Disetujui' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-[10px] font-bold uppercase">{{ u.statusRT }}</span></td>
@@ -1306,7 +1347,7 @@
                                                 <span v-else class="text-xs text-gray-400 italic">Menunggu...</span>
                                             </td>
                                         </tr>
-                                        <tr v-if="listPengajuanUsaha.filter(x => x.username === user.username).length === 0"><td colspan="6" class="p-6 text-center text-gray-400 italic font-bold">Anda belum memiliki riwayat pengajuan.</td></tr>
+                                        <tr v-if="listPengajuanUsaha.filter(x => String(x.username) === String(user.username)).length === 0"><td colspan="6" class="p-6 text-center text-gray-400 italic font-bold">Anda belum memiliki riwayat pengajuan.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1359,16 +1400,20 @@
                         </div>
                     </div>
 
-                    <!-- 20. VERIFIKASI PENGANTAR WARGA (RT / RW) -->
+                    <!-- 20. VERIFIKASI PENGANTAR WARGA (RT / RW / ADMIN) -->
                     <div v-if="menu==='verifikasi-pengantar'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-file-signature text-blue-500 mr-2"></i>Verifikasi Surat Pengantar Warga Tetap</h2>
+                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-file-signature text-blue-500 mr-2"></i>Verifikasi E-Surat Warga</h2>
                             <div class="overflow-x-auto border rounded-xl">
                                 <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tgl & Nama Warga</th><th class="p-4">Keperluan Pengantar</th><th class="p-4 text-center">Status</th><th class="p-4 text-center">Aksi Verifikasi Anda</th></tr></thead>
+                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tgl & Nama Warga</th><th class="p-4">Keperluan Pengantar</th><th class="p-4 text-center">Status Berjalan</th><th class="p-4 text-center">Aksi Verifikasi Anda</th></tr></thead>
                                     <tbody>
-                                        <tr v-for="u in listSuratPengantar.filter(x => user.role === 'rt' ? x.rt === user.rt : x.rw === user.rw)" :key="'vp'+u.id" class="border-b hover:bg-gray-50">
-                                            <td class="p-4"><p class="font-bold text-gray-800">{{ u.tanggal }}</p><p class="text-xs text-blue-600 font-bold uppercase mt-1">{{ u.nama }}</p></td>
+                                        <tr v-for="u in listSuratPengantar.filter(x => user.role === 'rt' ? x.rt == user.rt : (user.role === 'rw' ? x.rw == user.rw : true))" :key="'vp'+u.id" class="border-b hover:bg-gray-50">
+                                            <td class="p-4">
+                                                <p class="font-bold text-gray-800">{{ u.tanggal }}</p>
+                                                <p class="text-xs text-blue-600 font-bold uppercase mt-1">{{ u.nama }}</p>
+                                                <p v-if="u.tujuan === 'Lurah'" class="text-[10px] font-black text-red-600 mt-1 uppercase">SURAT LANGSUNG LURAH</p>
+                                            </td>
                                             <td class="p-4">
                                                 <p class="font-bold text-gray-700 whitespace-pre-wrap">{{ u.keperluan }}</p>
                                                 <div class="flex gap-2 mt-2">
@@ -1377,22 +1422,27 @@
                                                 </div>
                                             </td>
                                             <td class="p-4 text-center text-[10px] font-bold">
-                                                <p class="mb-1">RT: <span :class="u.statusRT==='Disetujui'?'text-green-600':(u.statusRT==='Ditolak'?'text-red-600':'text-gray-500')">{{ u.statusRT }}</span></p>
-                                                <p>RW: <span :class="u.statusRW==='Disetujui'?'text-green-600':(u.statusRW==='Ditolak'?'text-red-600':'text-gray-500')">{{ u.statusRW }}</span></p>
+                                                <p class="mb-1">RT: <span :class="u.statusRT==='Disetujui'?'text-green-600':(u.statusRT==='Bypass'?'text-purple-600':'text-gray-500')">{{ u.statusRT }}</span></p>
+                                                <p class="mb-1">RW: <span :class="u.statusRW==='Disetujui'?'text-green-600':(u.statusRW==='Bypass'?'text-purple-600':'text-gray-500')">{{ u.statusRW }}</span></p>
+                                                <p>Admin: <span :class="u.statusAdmin==='Disetujui'?'text-green-600':(u.statusAdmin==='Ditolak'?'text-red-600':'text-gray-500')">{{ u.statusAdmin || 'Menunggu' }}</span></p>
                                             </td>
                                             <td class="p-4 text-center">
-                                                <div v-if="user.role === 'rt' && u.statusRT === 'Menunggu'" class="flex justify-center gap-2">
+                                                <div v-if="user.role === 'rt' && u.statusRT === 'Menunggu' && u.tujuan !== 'Lurah'" class="flex justify-center gap-2">
                                                     <button @click="setujuiPengantar(u, 'rt', true)" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded font-bold shadow text-xs"><i class="fas fa-check"></i> Setuju</button>
                                                     <button @click="setujuiPengantar(u, 'rt', false)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded font-bold shadow text-xs"><i class="fas fa-times"></i> Tolak</button>
                                                 </div>
-                                                <div v-else-if="user.role === 'rw' && u.statusRW === 'Menunggu' && u.statusRT === 'Disetujui'" class="flex justify-center gap-2">
+                                                <div v-else-if="user.role === 'rw' && u.statusRW === 'Menunggu' && u.statusRT === 'Disetujui' && u.tujuan !== 'Lurah'" class="flex justify-center gap-2">
                                                     <button @click="setujuiPengantar(u, 'rw', true)" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded font-bold shadow text-xs"><i class="fas fa-check"></i> Setuju</button>
                                                     <button @click="setujuiPengantar(u, 'rw', false)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded font-bold shadow text-xs"><i class="fas fa-times"></i> Tolak</button>
                                                 </div>
-                                                <span v-else class="text-xs text-gray-400 italic">Selesai / Menunggu RT</span>
+                                                <div v-else-if="user.role === 'admin_kelurahan' && u.statusAdmin === 'Menunggu' && (u.statusRW === 'Disetujui' || u.statusRW === 'Bypass')" class="flex justify-center gap-2">
+                                                    <button @click="setujuiPengantar(u, 'admin', true)" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded font-bold shadow text-xs"><i class="fas fa-check"></i> Terbitkan/ACC</button>
+                                                    <button @click="setujuiPengantar(u, 'admin', false)" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded font-bold shadow text-xs"><i class="fas fa-times"></i> Tolak</button>
+                                                </div>
+                                                <span v-else class="text-xs text-gray-400 italic">Selesai / Menunggu Proses</span>
                                             </td>
                                         </tr>
-                                        <tr v-if="listSuratPengantar.filter(x => user.role === 'rt' ? x.rt === user.rt : x.rw === user.rw).length === 0"><td colspan="4" class="p-6 text-center text-gray-400 italic font-bold">Tidak ada antrean pengantar.</td></tr>
+                                        <tr v-if="listSuratPengantar.filter(x => user.role === 'rt' ? x.rt == user.rt : (user.role === 'rw' ? x.rw == user.rw : true)).length === 0"><td colspan="4" class="p-6 text-center text-gray-400 italic font-bold">Tidak ada antrean pengantar.</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1446,13 +1496,10 @@
         // =========================================================================
         let firebaseConfig = { apiKey: "" };
         try {
-            // JIKA DIBUKA DI CANVAS INI (OTOMATIS TERSIMPAN KE CLOUD CANVAS)
             if (typeof __firebase_config !== 'undefined' && __firebase_config) {
                 firebaseConfig = JSON.parse(__firebase_config);
             } else {
-                
                 // JIKA ANDA HOSTING WEB INI SENDIRI DI LUAR (WAJIB GANTI INI)
-                // Hapus tulisan di bawah dan ganti dengan kode dari Firebase Console Anda
                 firebaseConfig = {
                     apiKey: "AIzaSyBo5cJOd9EBFKwlq3bv_BhA2E9sRN0H-Ew",
                     authDomain: "sistem-kelurahan-58782.firebaseapp.com",
@@ -1470,7 +1517,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
-        // JIKA DIHOSTING SENDIRI, ID INI BISA DIBIARKAN ATAU DIGANTI NAMA KELURAHANNYA
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'sistem-kelurahan-58782';
 
         createApp({
@@ -1544,6 +1590,7 @@
                 const listLaporan = ref([]);
 
                 const formSumbangan = ref({ nama:'', nominal:'', jenis:'' });
+                const formSumbanganWarga = ref({ jenis:'', nominal:'', bukti:null });
                 const listSumbangan = ref([]);
                 
                 const formArisan = ref({ nama:'', iuran:'' });
@@ -1561,7 +1608,7 @@
                 const formUsahaLuar = ref({ fotoKtp: null, jenisUsaha: '', namaUsaha: '', lokasiUsaha: '', rt: '', rw: '', keperluan: '', alasan: '', fotoUsaha: null });
                 const listPengajuanUsaha = ref([]); 
                 
-                const formSuratPengantar = ref({ nama: '', nik: '', hp: '', alamat: '', rt: '', rw: '', keperluan: '', fotoKtp: null, fotoKk: null, fotoDok: null, catatan: '' });
+                const formSuratPengantar = ref({ tujuan: 'RT/RW', nama: '', nik: '', hp: '', alamat: '', rt: '', rw: '', keperluan: '', fotoKtp: null, fotoKk: null, fotoDok: null, catatan: '' });
                 const listSuratPengantar = ref([]); 
 
                 const formUmkm = ref({ nama:'', wa:'', jamBuka:'08:00', jamTutup:'21:00', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null });
@@ -1607,7 +1654,6 @@
                 const getColRef = (cName) => collection(db, 'artifacts', appId, 'public', 'data', cName);
                 const getDocRef = (cName, dId) => doc(db, 'artifacts', appId, 'public', 'data', cName, dId);
 
-                // MEMORY MAP UNTUK FALLBACK MODE LOKAL
                 const getListMap = () => ({
                     'pejabat': listPejabat, 'warga': listWarga, 'wargaLuar': listWargaLuar, 'bendahara': listBendahara, 
                     'tamu': listTamu, 'laporan': listLaporan, 'sumbangan': listSumbangan, 'arisan': listArisan, 
@@ -1621,7 +1667,7 @@
                     const sync = (cName, refVar) => {
                         onSnapshot(getColRef(cName), (snap) => {
                             refVar.value = snap.docs.map(d => ({ ...d.data(), id: d.id }));
-                        }, (err) => console.error(err));
+                        }, (err) => console.error("Firebase Sync Error on " + cName, err));
                     };
 
                     sync('warga', listWarga);
@@ -1658,7 +1704,6 @@
                     }, (err) => console.error(err));
                 };
 
-                // AUTO FALLBACK IN-MEMORY (Jika Firebase Error, aplikasi tetap bisa diuji / login)
                 const saveData = async (colName, data) => {
                     const id = data.id || Date.now().toString();
                     const payload = { ...data, id: id.toString() };
@@ -1666,13 +1711,14 @@
                     if(fbUser.value) {
                         try {
                             await setDoc(getDocRef(colName, id.toString()), payload);
-                            return; // Jika berhasil, listener onSnapshot akan mengupdate array
+                            return; 
                         } catch (e) {
                             console.error("Firebase Save Error:", e);
+                            showToast("Error Firebase: Gagal menyimpan data.", "danger");
                         }
                     }
                     
-                    // FALLBACK: Simpan ke Memori Sementara jika offline / belum dikonfigurasi
+                    // FALLBACK
                     const map = getListMap();
                     if(map[colName]) {
                         const list = map[colName].value;
@@ -1732,6 +1778,7 @@
                         if(target==='pengantarKtp') formSuratPengantar.value.fotoKtp = evt.target.result; 
                         if(target==='pengantarKk') formSuratPengantar.value.fotoKk = evt.target.result; 
                         if(target==='pengantarDok') formSuratPengantar.value.fotoDok = evt.target.result; 
+                        if(target==='buktiSumbangan') formSumbanganWarga.value.bukti = evt.target.result; 
                         if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username === user.value.username); if(p) p.ttd = evt.target.result; }
                         if(target==='pejabatStempel') { const p = listPejabat.value.find(x => x.username === user.value.username); if(p) p.stempel = evt.target.result; }
                     };
@@ -1750,7 +1797,7 @@
                     if (p) {
                         user.value = { nama: p.nama, role: p.role, rt: p.rt, rw: p.rw, username: p.username, ttd: p.ttd }; 
                         isLoggedIn.value = true; 
-                        if (p.role === 'babinsa') menu.value = 'tamu'; // Otomatis masuk ke Tamu untuk Babinsa
+                        if (p.role === 'babinsa') menu.value = 'tamu'; 
                         return showToast(`Berhasil masuk sebagai ${p.role.toUpperCase()}`);
                     }
                     const b = listBendahara.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
@@ -1828,9 +1875,14 @@
                 const simpanSuratPengantar = async () => {
                     if(!formSuratPengantar.value.rt || !formSuratPengantar.value.rw || !formSuratPengantar.value.fotoKtp) return showToast('Harap lengkapi RT, RW dan KTP!', 'danger');
                     const tglNow = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                    await saveData('suratPengantar', { ...formSuratPengantar.value, username: user.value.username, tanggal: tglNow, statusRT: 'Menunggu', statusRW: 'Menunggu' });
-                    showToast('Pengajuan Surat Pengantar Terkirim ke RT!');
-                    formSuratPengantar.value = { nama: '', nik: '', hp: '', alamat: '', rt: '', rw: '', keperluan: '', fotoKtp: null, fotoKk: null, fotoDok: null, catatan: '' };
+                    
+                    let sRT = formSuratPengantar.value.tujuan === 'Lurah' ? 'Bypass' : 'Menunggu';
+                    let sRW = formSuratPengantar.value.tujuan === 'Lurah' ? 'Bypass' : 'Menunggu';
+                    let sAdmin = 'Menunggu';
+
+                    await saveData('suratPengantar', { ...formSuratPengantar.value, username: user.value.username, tanggal: tglNow, statusRT: sRT, statusRW: sRW, statusAdmin: sAdmin });
+                    showToast('Pengajuan Surat Terkirim!');
+                    formSuratPengantar.value = { tujuan: 'RT/RW', nama: '', nik: '', hp: '', alamat: '', rt: '', rw: '', keperluan: '', fotoKtp: null, fotoKk: null, fotoDok: null, catatan: '' };
                     showFormSuratWarga.value = false;
                 };
 
@@ -1838,30 +1890,50 @@
                     const statusText = isApprove ? 'Disetujui' : 'Ditolak';
                     if (role === 'rt') u.statusRT = statusText;
                     if (role === 'rw') u.statusRW = statusText;
+                    if (role === 'admin') u.statusAdmin = statusText;
                     await updateData('suratPengantar', u);
-                    showToast(`Pengantar Warga ${statusText}!`);
+                    showToast(`Surat Warga ${statusText}!`);
                 };
                 
                 const cetakPengantarWarga = (p) => {
                     const printWindow = window.open('', '_blank');
-                    const rtObj = listPejabat.value.find(x => x.role === 'rt' && x.rt === p.rt && x.rw === p.rw);
-                    const rwObj = listPejabat.value.find(x => x.role === 'rw' && x.rw === p.rw);
-                    const ttdRt = rtObj?.ttd ? `<img src="${rtObj.ttd}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
-                    const ttdRw = rwObj?.ttd ? `<img src="${rwObj.ttd}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
-                    const stempelRt = rtObj?.stempel ? `<img src="${rtObj.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
-                    const stempelRw = rwObj?.stempel ? `<img src="${rwObj.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
+                    
+                    if(p.tujuan === 'Lurah') {
+                        const lurahName = webSettings.value.lurah.nama || '......................';
+                        const ttdLurah = webSettings.value.ttd.lurah ? `<img src="${webSettings.value.ttd.lurah}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
+                        const stempelLurah = webSettings.value.ttd.stempel ? `<img src="${webSettings.value.ttd.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
+                        
+                        printWindow.document.write(`
+                            <html><head><title>Surat Keterangan Lurah</title><style>body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-height: 1.5; } .header { text-align: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; } .header h3 { margin: 3px 0; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } td { padding: 5px; vertical-align: top; } .col-label { width: 200px; }</style></head><body>
+                            <div class="header"><h3>PEMERINTAH KOTA / KABUPATEN</h3><h3>KELURAHAN DIGITAL, KECAMATAN PUSAT</h3></div>
+                            <h3 style="text-align:center; text-decoration: underline; margin-bottom:0;">SURAT KETERANGAN LURAH</h3>
+                            <p style="text-align:center; margin-top:5px;">Nomor: ${Date.now().toString().slice(-6)} / KEL / ${new Date().getFullYear()}</p>
+                            <br><p>Yang bertanda tangan di bawah ini Kepala Kelurahan, menerangkan dengan sesungguhnya bahwa:</p>
+                            <table><tr><td class="col-label">Nama Lengkap</td><td>: <strong>${p.nama}</strong></td></tr><tr><td class="col-label">NIK</td><td>: ${p.nik}</td></tr><tr><td class="col-label">Alamat</td><td>: ${p.alamat} (RT ${p.rt}/RW ${p.rw})</td></tr><tr><td class="col-label">Keperluan</td><td>: <strong>${p.keperluan}</strong></td></tr></table>
+                            <br><p>Orang tersebut di atas benar warga kami dan surat keterangan ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
+                            <br><br><div style="text-align: right; width: 100%;"><div style="display:inline-block; text-align:left; position:relative; width: 250px;"><p>Kepala Kelurahan,</p><br><br>${stempelLurah}${ttdLurah}<br><br><p>( <strong>${lurahName}</strong> )</p></div></div>
+                            <script>window.print();<\/script></body></html>
+                        `);
+                    } else {
+                        const rtObj = listPejabat.value.find(x => x.role === 'rt' && x.rt == p.rt && x.rw == p.rw);
+                        const rwObj = listPejabat.value.find(x => x.role === 'rw' && x.rw == p.rw);
+                        const ttdRt = rtObj?.ttd ? `<img src="${rtObj.ttd}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
+                        const ttdRw = rwObj?.ttd ? `<img src="${rwObj.ttd}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
+                        const stempelRt = rtObj?.stempel ? `<img src="${rtObj.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
+                        const stempelRw = rwObj?.stempel ? `<img src="${rwObj.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
 
-                    printWindow.document.write(`
-                        <html><head><title>Surat Pengantar RT/RW</title><style>body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-height: 1.5; } .header { text-align: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; } .header h3 { margin: 3px 0; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } td { padding: 5px; vertical-align: top; } .col-label { width: 200px; }</style></head><body>
-                        <div class="header"><h3>PENGURUS RT ${p.rt} / RW ${p.rw}</h3><h3>KELURAHAN DIGITAL, KECAMATAN PUSAT</h3></div>
-                        <h3 style="text-align:center; text-decoration: underline; margin-bottom:0;">SURAT PENGANTAR RT/RW</h3>
-                        <p style="text-align:center; margin-top:5px;">Nomor: ${Date.now().toString().slice(-6)} / RT${p.rt} / ${new Date().getFullYear()}</p>
-                        <br><p>Yang bertanda tangan di bawah ini Ketua RT ${p.rt} dan Ketua RW ${p.rw}, menerangkan dengan sesungguhnya bahwa:</p>
-                        <table><tr><td class="col-label">Nama Lengkap</td><td>: <strong>${p.nama}</strong></td></tr><tr><td class="col-label">NIK</td><td>: ${p.nik}</td></tr><tr><td class="col-label">Alamat</td><td>: ${p.alamat}</td></tr><tr><td class="col-label">Keperluan</td><td>: <strong>${p.keperluan}</strong></td></tr></table>
-                        <br><p>Orang tersebut di atas benar warga kami dan surat pengantar ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
-                        <br><br><div style="display: flex; justify-content: space-between; text-align: center;"><div style="width: 40%; position:relative;"><p>Mengetahui,<br>Ketua RT ${p.rt}</p><br><br>${stempelRt}${ttdRt}<br><br><p>( ${rtObj?.nama || '......................'} )</p></div><div style="width: 40%; position:relative;"><p>Ketua RW ${p.rw}</p><br><br>${stempelRw}${ttdRw}<br><br><p>( ${rwObj?.nama || '......................'} )</p></div></div>
-                        <script>window.print();<\/script></body></html>
-                    `);
+                        printWindow.document.write(`
+                            <html><head><title>Surat Pengantar RT/RW</title><style>body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-height: 1.5; } .header { text-align: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; } .header h3 { margin: 3px 0; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } td { padding: 5px; vertical-align: top; } .col-label { width: 200px; }</style></head><body>
+                            <div class="header"><h3>PENGURUS RT ${p.rt} / RW ${p.rw}</h3><h3>KELURAHAN DIGITAL, KECAMATAN PUSAT</h3></div>
+                            <h3 style="text-align:center; text-decoration: underline; margin-bottom:0;">SURAT PENGANTAR RT/RW</h3>
+                            <p style="text-align:center; margin-top:5px;">Nomor: ${Date.now().toString().slice(-6)} / RT${p.rt} / ${new Date().getFullYear()}</p>
+                            <br><p>Yang bertanda tangan di bawah ini Ketua RT ${p.rt} dan Ketua RW ${p.rw}, menerangkan dengan sesungguhnya bahwa:</p>
+                            <table><tr><td class="col-label">Nama Lengkap</td><td>: <strong>${p.nama}</strong></td></tr><tr><td class="col-label">NIK</td><td>: ${p.nik}</td></tr><tr><td class="col-label">Alamat</td><td>: ${p.alamat}</td></tr><tr><td class="col-label">Keperluan</td><td>: <strong>${p.keperluan}</strong></td></tr></table>
+                            <br><p>Orang tersebut di atas benar warga kami dan surat pengantar ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
+                            <br><br><div style="display: flex; justify-content: space-between; text-align: center;"><div style="width: 40%; position:relative;"><p>Mengetahui,<br>Ketua RT ${p.rt}</p><br><br>${stempelRt}${ttdRt}<br><br><p>( ${rtObj?.nama || '......................'} )</p></div><div style="width: 40%; position:relative;"><p>Ketua RW ${p.rw}</p><br><br>${stempelRw}${ttdRw}<br><br><p>( ${rwObj?.nama || '......................'} )</p></div></div>
+                            <script>window.print();<\/script></body></html>
+                        `);
+                    }
                     printWindow.document.close();
                 };
 
@@ -1880,46 +1952,316 @@
                     formBendahara.value = { nama: '', username: '', password: '' };
                 };
 
+                const kirimSumbanganWarga = async () => {
+                    if(!formSumbanganWarga.value.nominal || !formSumbanganWarga.value.bukti) return showToast('Nominal dan Bukti Transfer wajib diisi!', 'danger');
+                    await saveData('sumbangan', { ...formSumbanganWarga.value, nama: user.value.nama, username: user.value.username, rt: user.value.rt, rw: user.value.rw, tanggal: new Date().toLocaleDateString('id-ID'), status: 'Menunggu Validasi' });
+                    showToast('Sumbangan terkirim! Menunggu divalidasi RT/RW.');
+                    formSumbanganWarga.value = { jenis:'', nominal:'', bukti:null };
+                };
+
                 const simpanSumbangan = async () => {
                     if(!formSumbangan.value.nama || !formSumbangan.value.nominal) return showToast('Harap melengkapi data', 'danger');
-                    await saveData('sumbangan', { ...formSumbangan.value, rt: user.value.rt, rw: user.value.rw, tanggal: new Date().toLocaleDateString('id-ID') });
-                    showToast('Data sumbangan disimpan');
+                    await saveData('sumbangan', { ...formSumbangan.value, rt: user.value.rt, rw: user.value.rw, tanggal: new Date().toLocaleDateString('id-ID'), status: 'Divalidasi' });
+                    showToast('Data sumbangan dicatat ke Kas');
                     formSumbangan.value = { nama:'', nominal:'', jenis:'' };
+                };
+                
+                const validasiSumbangan = async (s) => {
+                    s.status = 'Divalidasi';
+                    await updateData('sumbangan', s);
+                    showToast('Sumbangan divalidasi dan masuk ke Kas!');
                 };
 
                 const simpanBansos = async () => {
-                    if(!formBansos.value.nama) return showToast('Lengkapi usulan bansos', 'danger');
-                    await saveData('bansos', formBansos.value);
-                    showToast('Usulan Bansos terkirim');
-                    showFormBansos.value = false;
+                    if(!formBansos.value.nama || !formBansos.value.jenis) return showToast('Lengkapi data bansos', 'danger');
+                    await saveData('bansos', { ...formBansos.value, rt: user.value.rt, rw: user.value.rw });
+                    showToast('Data Bansos Berhasil Disimpan');
                     formBansos.value = { nama:'', jenis:'', rt:'', rw:'', foto:null };
+                    showFormBansos.value = false;
+                };
+
+                const simpanAnggaran = async () => {
+                    if(!formAnggaran.value.pagu || !formAnggaran.value.realisasi) return showToast('Isi pagu dan realisasi', 'danger');
+                    await saveData('anggaran', { ...formAnggaran.value, pembuat: user.value.nama, rt: user.value.rt, rw: user.value.rw });
+                    showToast('Anggaran Berhasil Disimpan');
+                    formAnggaran.value = { bidang:'Infrastruktur', bidangLainnya:'', pagu:'', realisasi:'' };
+                    showFormAdministrasi.value = false;
+                };
+
+                const simpanUmkm = async () => {
+                    if(!formUmkm.value.nama || !formUmkm.value.foto1) return showToast('Nama dan Foto 1 wajib diisi', 'danger');
+                    await saveData('umkm', { ...formUmkm.value, pemilik: user.value.nama, username: user.value.username });
+                    showToast('Lapak UMKM Berhasil Dipublish');
+                    formUmkm.value = { nama:'', wa:'', jamBuka:'08:00', jamTutup:'21:00', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null };
+                    showFormUmkm.value = false;
+                };
+
+                const simpanGaleri = async () => {
+                    if(!formGaleri.value.foto) return showToast('Pilih foto terlebih dahulu', 'danger');
+                    await saveData('galeri', { ...formGaleri.value, uploader: user.value.nama });
+                    showToast('Foto Berhasil Diunggah ke Galeri');
+                    formGaleri.value = { judul:'', foto:null };
+                    showFormGaleri.value = false;
+                };
+
+                const simpanBursa = async () => {
+                    if(!formBursa.value.judul || !formBursa.value.deskripsi) return showToast('Lengkapi data iklan', 'danger');
+                    await saveData('bursa', { ...formBursa.value, pengiklan: user.value.nama, username: user.value.username });
+                    showToast('Iklan/Jasa Berhasil Diposting');
+                    formBursa.value = { judul:'', deskripsi:'', wa:'' };
+                    showFormBursa.value = false;
+                };
+
+                const simpanFasilitas = async () => {
+                    if(!formFasilitas.value.judul || !formFasilitas.value.foto) return showToast('Judul dan foto wajib diisi', 'danger');
+                    await saveData('fasilitas', { ...formFasilitas.value, pelapor: user.value.nama, username: user.value.username, status: 'Menunggu Penanganan' });
+                    showToast('Laporan Fasilitas Terkirim');
+                    formFasilitas.value = { judul:'', lokasi:'', deskripsi:'', foto:null };
+                    showFormFasilitas.value = false;
+                };
+
+                const simpanAgenda = async () => {
+                    if(!formAgenda.value.judul || !formAgenda.value.tanggal) return showToast('Judul dan Tanggal wajib diisi', 'danger');
+                    await saveData('agenda', { ...formAgenda.value, pembuat: user.value.nama });
+                    showToast('Agenda/Berita Berhasil Diterbitkan');
+                    formAgenda.value = { judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null };
+                    showFormAgenda.value = false;
+                };
+
+                const simpanPengajuanUsaha = async () => {
+                    if(!formUsahaLuar.value.namaUsaha || !formUsahaLuar.value.fotoKtp || !formUsahaLuar.value.fotoUsaha) return showToast('Lengkapi data dan wajib upload KTP & Foto Usaha', 'danger');
+                    const tglNow = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    const noPengajuan = 'SKU-' + Date.now().toString().slice(-6);
+                    await saveData('pengajuanUsaha', { 
+                        ...formUsahaLuar.value, 
+                        nama: user.value.nama, 
+                        username: user.value.username, 
+                        tanggal: tglNow,
+                        nomorPengajuan: noPengajuan,
+                        statusRT: 'Menunggu', 
+                        statusRW: 'Menunggu', 
+                        statusAdmin: 'Menunggu' 
+                    });
+                    showToast('Pengajuan Berhasil Dikirim');
+                    formUsahaLuar.value = { fotoKtp: null, jenisUsaha: '', namaUsaha: '', lokasiUsaha: '', rt: '', rw: '', keperluan: '', alasan: '', fotoUsaha: null };
+                    showFormPengajuan.value = false;
+                };
+
+                const setujuiUsaha = async (u, role, isApprove) => {
+                    const statusText = isApprove ? 'Disetujui' : 'Ditolak';
+                    if (role === 'rt') u.statusRT = statusText;
+                    if (role === 'rw') u.statusRW = statusText;
+                    if (role === 'admin') u.statusAdmin = statusText;
+                    await updateData('pengajuanUsaha', u);
+                    showToast(`Pengajuan Usaha ${statusText}!`);
+                };
+
+                const cetakSuratUsaha = (u) => {
+                    const printWindow = window.open('', '_blank');
+                    const lurahName = webSettings.value.lurah.nama || '......................';
+                    const ttdLurah = webSettings.value.ttd.lurah ? `<img src="${webSettings.value.ttd.lurah}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
+                    const stempelLurah = webSettings.value.ttd.stempel ? `<img src="${webSettings.value.ttd.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
+                    
+                    printWindow.document.write(`
+                        <html><head><title>Surat Keterangan Usaha</title><style>body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-height: 1.5; } .header { text-align: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; } .header h3 { margin: 3px 0; } table { width: 100%; border-collapse: collapse; margin-top: 10px; } td { padding: 5px; vertical-align: top; } .col-label { width: 200px; }</style></head><body>
+                        <div class="header"><h3>PEMERINTAH KOTA / KABUPATEN</h3><h3>KELURAHAN DIGITAL, KECAMATAN PUSAT</h3></div>
+                        <h3 style="text-align:center; text-decoration: underline; margin-bottom:0;">SURAT KETERANGAN USAHA</h3>
+                        <p style="text-align:center; margin-top:5px;">Nomor: ${u.nomorPengajuan} / SKU / ${new Date().getFullYear()}</p>
+                        <br><p>Yang bertanda tangan di bawah ini Kepala Kelurahan, menerangkan dengan sesungguhnya bahwa:</p>
+                        <table><tr><td class="col-label">Nama Pemilik</td><td>: <strong>${u.nama}</strong></td></tr><tr><td class="col-label">Nama Usaha</td><td>: <strong>${u.namaUsaha}</strong> (${u.jenisUsaha})</td></tr><tr><td class="col-label">Lokasi Usaha</td><td>: ${u.lokasiUsaha} (RT ${u.rt}/RW ${u.rw})</td></tr></table>
+                        <br><p>Adalah benar nama tersebut di atas memiliki usaha di wilayah kami. Surat keterangan ini dibuat untuk keperluan: <strong>${u.keperluan}</strong>.</p>
+                        <br><br><div style="text-align: right; width: 100%;"><div style="display:inline-block; text-align:left; position:relative; width: 250px;"><p>Kepala Kelurahan,</p><br><br>${stempelLurah}${ttdLurah}<br><br><p>( <strong>${lurahName}</strong> )</p></div></div>
+                        <script>window.print();<\/script></body></html>
+                    `);
+                    printWindow.document.close();
+                };
+
+                const simpanPejabat = async () => {
+                    if(!formPejabat.value.nama || !formPejabat.value.username || !formPejabat.value.password) return showToast('Lengkapi data pejabat', 'danger');
+                    await saveData('pejabat', { ...formPejabat.value });
+                    showToast('Akun Pejabat Berhasil Didaftarkan');
+                    formPejabat.value = { nama: '', role: 'rt', wilayah: '', rt: '', rw: '', username: '', password: '', ttd: '', stempel: '' };
+                };
+
+                const hapus = async (colName, id) => {
+                    customConfirm('Hapus Data', 'Yakin ingin menghapus data ini?', async () => {
+                        await deleteData(colName, id);
+                        showToast('Data berhasil dihapus');
+                    });
+                };
+
+                const simpanLaporan = async () => {
+                    if(!formLaporan.value.judul || !formLaporan.value.isi) return showToast('Judul dan isi laporan wajib diisi', 'danger');
+                    const tglNow = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    await saveData('laporan', { 
+                        ...formLaporan.value, 
+                        pelapor: user.value.nama, 
+                        username: user.value.username, 
+                        rt: user.value.rt, 
+                        rw: user.value.rw,
+                        tanggal: tglNow,
+                        status: 'Menunggu',
+                        komentar: []
+                    });
+                    showToast('Pengaduan Berhasil Dikirim');
+                    formLaporan.value = { judul:'', isi:'', kategori:'Infrastruktur', privasi:'Publik', foto:null };
+                    showFormLaporan.value = false;
+                };
+
+                const balasKomentar = async (l) => {
+                    if(!l.inputBalasan) return;
+                    if(!l.komentar) l.komentar = [];
+                    l.komentar.push({ nama: user.value.nama, isi: l.inputBalasan });
+                    l.status = 'Diproses'; 
+                    await updateData('laporan', l);
+                    l.inputBalasan = '';
+                    showToast('Tanggapan berhasil dikirim');
+                };
+
+                const daftarArisanWarga = async () => {
+                    await saveData('arisan', {
+                        nama: user.value.nama,
+                        username: user.value.username,
+                        rt: user.value.rt,
+                        rw: user.value.rw,
+                        noAnggota: 'A-' + Math.floor(Math.random() * 9000 + 1000),
+                        totalIuran: 0,
+                        statusMenang: false
+                    });
+                    showToast('Berhasil mendaftar Arisan Warga!');
+                };
+
+                const simpanArisan = async () => {
+                    if(!formArisan.value.nama) return showToast('Nama anggota wajib diisi', 'danger');
+                    await saveData('arisan', {
+                        nama: formArisan.value.nama,
+                        username: formArisan.value.nama.toLowerCase().replace(/\s/g, ''),
+                        rt: user.value.rt,
+                        rw: user.value.rw,
+                        noAnggota: 'A-' + Math.floor(Math.random() * 9000 + 1000),
+                        totalIuran: Number(formArisan.value.iuran || 0),
+                        statusMenang: false
+                    });
+                    showToast('Anggota Arisan Ditambahkan');
+                    formArisan.value = { nama:'', iuran:'' };
+                };
+
+                const tambahIuranManual = async (a, val) => {
+                    const nominal = Number(val);
+                    if(isNaN(nominal) || nominal <= 0) return showToast('Nominal tidak valid', 'danger');
+                    a.totalIuran = (Number(a.totalIuran) || 0) + nominal;
+                    await updateData('arisan', a);
+                    showToast(`Iuran Rp ${nominal.toLocaleString('id-ID')} ditambahkan untuk ${a.nama}`);
+                };
+
+                const kocokArisan = async () => {
+                    const anggotaBisaMenang = listArisan.value.filter(x => x.rt == user.value.rt && x.rw == user.value.rw && !x.statusMenang);
+                    if(anggotaBisaMenang.length === 0) return showToast('Semua anggota sudah menang / belum ada anggota!', 'warning');
+                    
+                    const pemenang = anggotaBisaMenang[Math.floor(Math.random() * anggotaBisaMenang.length)];
+                    const totalTarikan = hitungKasArisan(user.value.rt, user.value.rw);
+                    
+                    customConfirm('Pemenang Arisan!', `Selamat kepada: ${pemenang.nama}\nTotal Tarikan: Rp ${totalTarikan.toLocaleString('id-ID')}\n\nLanjutkan sahkan pemenang?`, async () => {
+                        pemenang.statusMenang = true;
+                        await updateData('arisan', pemenang);
+                        
+                        await saveData('riwayatArisan', {
+                            rt: user.value.rt,
+                            rw: user.value.rw,
+                            nama: pemenang.nama,
+                            nominal: totalTarikan,
+                            tanggal: new Date().toLocaleDateString('id-ID')
+                        });
+                        
+                        showToast(`Arisan dimenangkan oleh ${pemenang.nama}!`);
+                    });
+                };
+
+                const cetakKartuArisan = (a) => {
+                    const printWindow = window.open('', '_blank');
+                    printWindow.document.write(`
+                        <html><head><title>Kartu Arisan</title><style>body { font-family: sans-serif; padding: 20px; text-align: center;} .card { border: 2px dashed #db2777; padding: 20px; border-radius: 10px; display: inline-block; width: 300px; background: #fdf2f8;} h2 { color: #9d174d; margin-top: 0; } p { margin: 5px 0; font-weight: bold; color: #333; }</style></head><body>
+                        <div class="card">
+                            <h2>KARTU ARISAN RT ${a.rt} / RW ${a.rw}</h2>
+                            <p>No Anggota: ${a.noAnggota}</p>
+                            <p style="font-size: 1.2rem; color: #db2777;">${a.nama}</p>
+                            <hr style="border: 1px solid #fbcfe8; margin: 10px 0;">
+                            <p>Total Iuran: Rp ${Number(a.totalIuran || 0).toLocaleString('id-ID')}</p>
+                            <p>Status: ${a.statusMenang ? 'SUDAH MENANG' : 'BELUM MENANG'}</p>
+                        </div>
+                        <script>window.print();<\/script></body></html>
+                    `);
+                    printWindow.document.close();
+                };
+
+                const hitungKasArisan = (rt, rw) => {
+                    const totalMasuk = listArisan.value.filter(x => x.rt == rt && x.rw == rw).reduce((sum, curr) => sum + Number(curr.totalIuran || 0), 0);
+                    const totalKeluar = riwayatArisan.value.filter(x => x.rt == rt && x.rw == rw).reduce((sum, curr) => sum + Number(curr.nominal || 0), 0);
+                    return Math.max(0, totalMasuk - totalKeluar);
                 };
 
                 const hitungKasSumbangan = () => {
-                    return listSumbangan.value.filter(x => x.rt === user.value.rt && x.rw === user.value.rw).reduce((acc, curr) => acc + Number(curr.nominal || 0), 0);
+                    return listSumbangan.value.filter(x => x.rt == user.value.rt && x.rw == user.value.rw && x.status === 'Divalidasi').reduce((sum, curr) => sum + Number(curr.nominal || 0), 0);
                 };
 
-                const rekapKasAdmin = computed(() => {
-                    const rekap = {};
-                    listSumbangan.value.forEach(s => {
-                        const key = `RT ${s.rt} / RW ${s.rw}`;
-                        if(!rekap[key]) rekap[key] = 0;
-                        rekap[key] += Number(s.nominal || 0);
+                const downloadExcelData = (type) => {
+                    let data = [];
+                    let filename = 'Data_Export.csv';
+                    if(type === 'kependudukan') {
+                        data = listWarga.value.map(w => ({ NIK: w.nik, Nama: w.nama, Kelamin: w.kelamin, TempatLahir: w.tempat_lahir, TanggalLahir: w.tgl_lahir, Pendidikan: w.pendidikan, Pekerjaan: w.pekerjaan, Alamat: `${w.alamat} RT ${w.rt} RW ${w.rw}`, HP: w.hp1 }));
+                        filename = 'Data_Kependudukan.csv';
+                    } else if(type === 'surat') {
+                        data = listSuratPengantar.value.map(s => ({ Tanggal: s.tanggal, Nama: s.nama, NIK: s.nik, Keperluan: s.keperluan, Status: s.statusAdmin }));
+                        filename = 'Rekap_Surat_Warga.csv';
+                    }
+                    if(data.length === 0) return showToast('Tidak ada data untuk didownload', 'warning');
+                    
+                    const headers = Object.keys(data[0]).join(',');
+                    const csvRows = data.map(row => Object.values(row).map(val => `"${String(val).replace(/"/g, '""')}"`).join(','));
+                    const csvString = [headers, ...csvRows].join('\n');
+                    
+                    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = filename;
+                    link.click();
+                };
+
+                const getNamaBulan = () => {
+                    const months = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+                    return months[new Date().getMonth()];
+                };
+
+                const formatTgl = (tgl) => {
+                    if(!tgl) return '-';
+                    const d = new Date(tgl);
+                    return `${d.getDate()} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ags','Sep','Okt','Nov','Des'][d.getMonth()]} ${d.getFullYear()}`;
+                };
+
+                // COMPUTED PROPERTIES
+                const wargaUlangTahun = computed(() => {
+                    const currentMonth = new Date().getMonth() + 1;
+                    return listWarga.value.filter(w => {
+                        if(!w.tgl_lahir) return false;
+                        const m = parseInt(w.tgl_lahir.split('-')[1]);
+                        return m === currentMonth;
                     });
-                    return Object.keys(rekap).map(k => ({ wilayah: k, total: rekap[k] }));
                 });
 
                 const statistikGender = computed(() => {
-                    let l = 0, p = 0;
-                    listWarga.value.forEach(w => { if(w.kelamin === 'Laki-laki') l++; else p++; });
-                    return { l, p };
+                    return {
+                        l: listWarga.value.filter(w => w.kelamin === 'Laki-laki').length,
+                        p: listWarga.value.filter(w => w.kelamin === 'Perempuan').length
+                    };
                 });
 
                 const statistikUsia = computed(() => {
                     const res = { balita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0 };
+                    const currentYear = new Date().getFullYear();
                     listWarga.value.forEach(w => {
                         if(!w.tgl_lahir) return;
-                        const age = new Date().getFullYear() - new Date(w.tgl_lahir).getFullYear();
+                        const y = parseInt(w.tgl_lahir.split('-')[0]);
+                        const age = currentYear - y;
                         if(age <= 5) res.balita++;
                         else if(age <= 12) res.anak++;
                         else if(age <= 25) res.remaja++;
@@ -1930,222 +2272,59 @@
                 });
 
                 const rekapPekerjaan = computed(() => {
-                    const rekap = {};
+                    const map = {};
                     listWarga.value.forEach(w => {
-                        if(w.pekerjaan) {
-                            rekap[w.pekerjaan] = (rekap[w.pekerjaan] || 0) + 1;
-                        }
+                        const pk = (w.pekerjaan || 'Belum/Tidak Bekerja').trim().toLowerCase();
+                        map[pk] = (map[pk] || 0) + 1;
                     });
-                    return rekap;
+                    return map;
                 });
 
-                const getNamaBulan = () => {
-                    const b = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-                    return b[new Date().getMonth()];
-                };
-
-                const formatTgl = (tgl) => {
-                    if(!tgl) return '-';
-                    const d = new Date(tgl);
-                    return `${d.getDate()} ${getNamaBulan()}`;
-                };
-
-                const wargaUlangTahun = computed(() => {
-                    const m = new Date().getMonth() + 1;
-                    return listWarga.value.filter(w => {
-                        if(!w.tgl_lahir) return false;
-                        return parseInt(w.tgl_lahir.split('-')[1]) === m;
+                const rekapKasAdmin = computed(() => {
+                    const rtrwSet = new Set();
+                    listSumbangan.value.forEach(s => {
+                        if(s.rt && s.rw) rtrwSet.add(`RT ${s.rt} / RW ${s.rw}`);
                     });
+                    const result = [];
+                    rtrwSet.forEach(wilayah => {
+                        const [rtStr, rwStr] = wilayah.split(' / ');
+                        const rt = rtStr.replace('RT ', '');
+                        const rw = rwStr.replace('RW ', '');
+                        const total = listSumbangan.value.filter(x => x.rt == rt && x.rw == rw && x.status === 'Divalidasi').reduce((sum, curr) => sum + Number(curr.nominal || 0), 0);
+                        result.push({ wilayah, total });
+                    });
+                    const totalAll = result.reduce((sum, curr) => sum + curr.total, 0);
+                    if(result.length > 0) result.unshift({ wilayah: 'TOTAL SELURUH RW/RT', total: totalAll });
+                    return result;
                 });
-
-                const simpanArisan = async () => {
-                    if(!formArisan.value.nama) return;
-                    await saveData('arisan', { ...formArisan.value, rt: user.value.rt, rw: user.value.rw, totalIuran: 0, noAnggota: `ARS-${Date.now().toString().slice(-4)}` });
-                    showToast('Anggota Arisan Ditambahkan');
-                    formArisan.value = { nama:'', iuran:'' };
-                };
-
-                const tambahIuranManual = async (a, nominal) => {
-                    a.totalIuran = Number(a.totalIuran || 0) + Number(nominal);
-                    await updateData('arisan', a);
-                    showToast('Iuran berhasil ditambahkan');
-                };
-
-                const hitungKasArisan = (rt, rw) => {
-                    return listArisan.value.filter(x => x.rt === rt && x.rw === rw).reduce((a, b) => a + Number(b.totalIuran || 0), 0);
-                };
-
-                const kocokArisan = async () => {
-                    const eligible = listArisan.value.filter(x => x.rt === user.value.rt && x.rw === user.value.rw && !x.statusMenang);
-                    if(eligible.length === 0) return showToast('Semua anggota sudah menang / Data Kosong', 'danger');
-                    const kasSkrg = hitungKasArisan(user.value.rt, user.value.rw);
-                    const winner = eligible[Math.floor(Math.random() * eligible.length)];
-                    winner.statusMenang = true; 
-                    await updateData('arisan', winner);
-                    await saveData('riwayatArisan', { rt: user.value.rt, rw: user.value.rw, nama: winner.nama, nominal: kasSkrg, tanggal: new Date().toLocaleDateString('id-ID') });
-                    showToast(`SELAMAT! Pemenang: ${winner.nama} (Menarik Rp ${kasSkrg})`);
-                };
-
-                const cetakKartuArisan = (a) => {
-                    const printWindow = window.open('', '_blank');
-                    printWindow.document.write(`<html><body style="font-family:sans-serif; text-align:center; padding:20px;"><h2>KARTU ARISAN</h2><p>Nama: ${a.nama}</p><p>No Anggota: ${a.noAnggota}</p><script>window.print();<\/script></body></html>`);
-                    printWindow.document.close();
-                };
-
-                const simpanAnggaran = async () => {
-                    if(!formAnggaran.value.pagu) return showToast('Lengkapi Data', 'danger');
-                    await saveData('anggaran', formAnggaran.value);
-                    showToast('Anggaran disimpan');
-                    formAnggaran.value = { bidang:'Infrastruktur', bidangLainnya:'', pagu:'', realisasi:'' };
-                    showFormAdministrasi.value = false;
-                };
-
-                const simpanUmkm = async () => {
-                    if(!formUmkm.value.nama) return showToast('Lengkapi Data UMKM', 'danger');
-                    await saveData('umkm', { ...formUmkm.value, pemilik: user.value.nama });
-                    showToast('UMKM dipublish');
-                    showFormUmkm.value = false;
-                    formUmkm.value = { nama:'', wa:'', jamBuka:'08:00', jamTutup:'21:00', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null };
-                };
-
-                const simpanFasilitas = async () => {
-                    if(!formFasilitas.value.judul) return showToast('Lengkapi Laporan Fasilitas', 'danger');
-                    await saveData('fasilitas', { ...formFasilitas.value, pelapor: user.value.nama, status: 'Menunggu' });
-                    showToast('Laporan fasilitas dikirim');
-                    showFormFasilitas.value = false;
-                    formFasilitas.value = { judul:'', lokasi:'', deskripsi:'', foto:null };
-                };
-
-                const simpanBursa = async () => {
-                    if(!formBursa.value.judul) return showToast('Lengkapi Iklan Bursa', 'danger');
-                    await saveData('bursa', { ...formBursa.value, pengiklan: user.value.nama });
-                    showToast('Iklan bursa diposting');
-                    showFormBursa.value = false;
-                    formBursa.value = { judul:'', deskripsi:'', wa:'' };
-                };
-
-                const simpanSampah = async () => {
-                    if(!formSampah.value.nama) return showToast('Lengkapi Data Setoran', 'danger');
-                    await saveData('sampah', { ...formSampah.value, tanggal: new Date().toLocaleDateString('id-ID') });
-                    showToast('Setoran sampah dicatat');
-                    formSampah.value = { nama:'', jenis:'', berat:'' };
-                };
-
-                const simpanGaleri = async () => {
-                    if(!formGaleri.value.foto) return showToast('Upload foto galeri!', 'danger');
-                    await saveData('galeri', formGaleri.value);
-                    showToast('Foto diunggah');
-                    showFormGaleri.value = false;
-                    formGaleri.value = { judul:'', foto:null };
-                };
-
-                const simpanAgenda = async () => {
-                    if(!formAgenda.value.judul) return showToast('Lengkapi Agenda!', 'danger');
-                    await saveData('agenda', formAgenda.value);
-                    showToast('Agenda diterbitkan');
-                    showFormAgenda.value = false;
-                    formAgenda.value = { judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null };
-                };
-
-                const simpanPengajuanUsaha = async () => {
-                    if(!formUsahaLuar.value.namaUsaha) return showToast('Lengkapi form', 'danger');
-                    const no = `SKU-${Date.now().toString().slice(-6)}`;
-                    await saveData('pengajuanUsaha', { ...formUsahaLuar.value, username: user.value.username, nama: user.value.nama, nomorPengajuan: no, tanggal: new Date().toLocaleDateString('id-ID'), statusRT: 'Menunggu', statusRW: 'Menunggu', statusAdmin: 'Menunggu' });
-                    showToast('Pengajuan Usaha Terkirim!');
-                    showFormPengajuan.value = false;
-                    formUsahaLuar.value = { fotoKtp: null, jenisUsaha: '', namaUsaha: '', lokasiUsaha: '', rt: '', rw: '', keperluan: '', alasan: '', fotoUsaha: null };
-                };
-
-                const setujuiUsaha = async (u, role, isApprove) => {
-                    const statusText = isApprove ? 'Disetujui' : 'Ditolak';
-                    if(role === 'rt') u.statusRT = statusText;
-                    if(role === 'rw') u.statusRW = statusText;
-                    if(role === 'admin') u.statusAdmin = statusText;
-                    await updateData('pengajuanUsaha', u);
-                    showToast(`Pengajuan ${statusText}`);
-                };
-
-                const cetakSuratUsaha = (u) => {
-                    const printWindow = window.open('', '_blank');
-                    printWindow.document.write(`<html><body style="font-family:'Times New Roman', serif; padding:40px;"><h3 style="text-align:center;">SURAT KETERANGAN USAHA</h3><p>Nomor: ${u.nomorPengajuan}</p><p>Nama: ${u.nama}</p><p>Nama Usaha: ${u.namaUsaha}</p><p>Alamat Usaha: ${u.lokasiUsaha} (RT ${u.rt} / RW ${u.rw})</p><script>window.print();<\/script></body></html>`);
-                    printWindow.document.close();
-                };
-
-                const simpanLaporan = async () => {
-                    if(!formLaporan.value.judul) return showToast('Isi judul pengaduan', 'danger');
-                    await saveData('laporan', { ...formLaporan.value, pelapor: user.value.nama, username: user.value.username, rt: user.value.rt, rw: user.value.rw, tanggal: new Date().toLocaleDateString('id-ID'), status: 'Menunggu' });
-                    showToast('Laporan Pengaduan Terkirim');
-                    showFormLaporan.value = false;
-                    formLaporan.value = { judul:'', isi:'', kategori:'Infrastruktur', privasi:'Publik', foto:null };
-                };
-
-                const balasKomentar = async (l) => {
-                    if(!l.inputBalasan) return;
-                    if(!l.komentar) l.komentar = [];
-                    l.komentar.push({ nama: user.value.nama, isi: l.inputBalasan });
-                    l.status = 'Selesai';
-                    l.inputBalasan = '';
-                    await updateData('laporan', l);
-                    showToast('Tanggapan dikirim');
-                };
-
-                const simpanPejabat = async () => {
-                    if(!formPejabat.value.username) return showToast('Isi username', 'danger');
-                    await saveData('pejabat', formPejabat.value);
-                    showToast('Pejabat Ditambahkan');
-                    formPejabat.value = { nama: '', role: 'rt', wilayah: '', rt: '', rw: '', username: '', password: '', ttd: '', stempel: '' };
-                };
-
-                const hapus = (col, id) => {
-                    customConfirm('Hapus Data', 'Yakin menghapus data ini?', async () => {
-                        await deleteData(col, id);
-                        showToast('Data berhasil dihapus');
-                    });
-                };
-
-                const downloadExcelData = (type) => {
-                    let csv = '';
-                    if(type === 'kependudukan') {
-                        csv = 'NIK,No KK,Nama,Tempat Lahir,Tanggal Lahir,Jenis Kelamin,Alamat,RT,RW,Status,Pendidikan,Pekerjaan\n';
-                        csv += listWarga.value.map(w => `"${w.nik}","${w.nokk}","${w.nama}","${w.tempat_lahir}","${w.tgl_lahir}","${w.kelamin}","${w.alamat}",${w.rt},${w.rw},"${w.status_keluarga}","${w.pendidikan}","${w.pekerjaan}"`).join('\n');
-                    } else if (type === 'surat') {
-                        csv = 'Tanggal,Nama Pemohon,Keperluan,Status RT,Status RW\n';
-                        csv += listSuratPengantar.value.map(s => `"${s.tanggal}","${s.nama}","${s.keperluan}","${s.statusRT}","${s.statusRW}"`).join('\n');
-                    }
-                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.setAttribute('href', url);
-                    a.setAttribute('download', `Rekap_Data_${type}.csv`);
-                    a.click();
-                };
 
                 const filteredPengajuanUsaha = computed(() => {
-                    return listPengajuanUsaha.value.filter(u => {
-                        if(user.value.role === 'rt') return u.rt === user.value.rt;
-                        if(user.value.role === 'rw') return u.rw === user.value.rw;
-                        if(user.value.role === 'admin_kelurahan') return true;
-                        return false;
-                    });
+                    if(user.value.role === 'rt') return listPengajuanUsaha.value.filter(x => x.rt == user.value.rt);
+                    if(user.value.role === 'rw') return listPengajuanUsaha.value.filter(x => x.rw == user.value.rw);
+                    if(user.value.role === 'admin_kelurahan') return listPengajuanUsaha.value;
+                    return [];
                 });
 
                 return {
-                    fbUser, notification, dialog, customConfirm, customPrompt, executeDialog, showToast,
-                    isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user, publicTab, tabArisan,
-                    showPassLogin, showPassRegLuar, showPassReg, showPassRegRep, showPassAdmin, showPassPejabat,
-                    zoomedImage, selectedWarga, showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda,
-                    showFormSuratWarga, showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormSumbangan,
-                    webSettings, formWargaTtd, formAdmin, adminAccount, formPejabat, listPejabat, listBendahara, formBendahara,
-                    formTamu, listTamu, formLaporan, listLaporan, formSumbangan, listSumbangan, formArisan, listArisan, riwayatArisan, logAktivitas,
-                    loginForm, reg, regLuar, listWarga, listWargaLuar, formUsahaLuar, listPengajuanUsaha, filteredPengajuanUsaha,
-                    formSuratPengantar, listSuratPengantar, formUmkm, formGaleri, formBursa, formFasilitas, formBansos, formAnggaran, formSampah, formAgenda,
-                    listAgenda, listUmkm, listGaleri, listBursa, listFasilitas, listBansos, listAnggaran, listSampah,
-                    handleLogin, handleRegister, handleRegisterLuar, logout, getPejabatSetting, simpanPengaturanPejabat, simpanWebSettings, updateAdmin, simpanTtdWarga,
-                    simpanSuratPengantar, setujuiPengantar, cetakPengantarWarga, simpanTamu, simpanBendahara, simpanSumbangan, simpanBansos,
-                    hitungKasSumbangan, rekapKasAdmin, statistikGender, statistikUsia, rekapPekerjaan, getNamaBulan, formatTgl, wargaUlangTahun,
-                    simpanArisan, tambahIuranManual, hitungKasArisan, kocokArisan, cetakKartuArisan,
-                    simpanAnggaran, simpanUmkm, simpanFasilitas, simpanBursa, simpanSampah, simpanGaleri, simpanAgenda, simpanPengajuanUsaha,
-                    setujuiUsaha, cetakSuratUsaha, simpanLaporan, balasKomentar, simpanPejabat, hapus, downloadExcelData, uploadFile
+                    isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user,
+                    publicTab, tabArisan, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, adminAccount,
+                    showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
+                    showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormSumbangan,
+                    showPassLogin, showPassReg, showPassRegRep, showPassRegLuar, showPassAdmin, showPassPejabat,
+                    loginForm, reg, regLuar, formWargaTtd, formAdmin, formPejabat, formBendahara, formTamu, formLaporan,
+                    formSumbangan, formSumbanganWarga, formArisan, formUsahaLuar, formSuratPengantar, formUmkm, formGaleri,
+                    formBursa, formFasilitas, formBansos, formAnggaran, formSampah, formAgenda,
+                    listPejabat, listBendahara, listTamu, listLaporan, listSumbangan, listArisan, riwayatArisan, logAktivitas,
+                    listWarga, listWargaLuar, listPengajuanUsaha, listSuratPengantar, listUmkm, listGaleri, listBursa,
+                    listFasilitas, listBansos, listAnggaran, listSampah, listAgenda,
+                    statistikGender, statistikUsia, rekapPekerjaan, rekapKasAdmin, wargaUlangTahun, filteredPengajuanUsaha,
+                    handleLogin, handleRegister, handleRegisterLuar, logout, getPejabatSetting, simpanPengaturanPejabat,
+                    simpanWebSettings, updateAdmin, simpanTtdWarga, simpanSuratPengantar, setujuiPengantar, cetakPengantarWarga,
+                    simpanTamu, simpanBendahara, kirimSumbanganWarga, simpanSumbangan, validasiSumbangan, simpanBansos,
+                    simpanAnggaran, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanAgenda, simpanPengajuanUsaha,
+                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, daftarArisanWarga,
+                    simpanArisan, tambahIuranManual, kocokArisan, cetakKartuArisan, hitungKasArisan, hitungKasSumbangan,
+                    downloadExcelData, getNamaBulan, formatTgl, customConfirm, customPrompt, uploadFile
                 };
             }
         }).mount('#app');
