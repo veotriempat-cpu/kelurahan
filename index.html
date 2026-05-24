@@ -67,7 +67,7 @@
             </div>
         </div>
 
-        <!-- ================= LANDING PAGE & LOGIN (DENGAN PENGATURAN LOGO, NAMA, HEADER & FOOTER) ================= -->
+        <!-- ================= LANDING PAGE & LOGIN ================= -->
         <div v-if="!isLoggedIn" class="min-h-screen bg-gray-50 flex flex-col font-sans relative overflow-y-auto">
             <nav class="bg-white/95 backdrop-blur shadow-sm px-6 py-4 flex justify-between items-center fixed w-full z-50 border-b border-gray-100">
                 <div class="flex items-center gap-4">
@@ -144,6 +144,7 @@
                             <h4 class="font-black text-xl text-gray-800 mb-2">{{ agenda.judul }}</h4>
                             <p class="text-sm text-gray-600">{{ agenda.isi }}</p>
                         </div>
+                        <div v-if="listAgenda.length===0" class="col-span-3 text-center p-8 text-gray-400 italic">Belum ada agenda/berita diterbitkan.</div>
                     </div>
 
                     <div v-if="publicTab==='umkm'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -164,6 +165,7 @@
                             </div>
                             <a :href="'https://wa.me/'+u.wa" target="_blank" class="mt-4 block text-center bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-xl font-bold shadow-sm transition"><i class="fab fa-whatsapp text-lg mr-1"></i> Chat Penjual Sekarang</a>
                         </div>
+                        <div v-if="listUmkm.length===0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada lapak UMKM terdaftar.</div>
                     </div>
 
                     <div v-if="publicTab==='bursa'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -172,6 +174,7 @@
                             <p class="text-sm text-gray-600 mt-2 mb-4">{{ b.deskripsi }}</p>
                             <p class="text-xs text-gray-500 font-bold bg-gray-100 inline-block px-3 py-1 rounded-lg"><i class="fas fa-user-circle text-amber-500 mr-1"></i> {{ b.pengiklan }} | WA: {{ b.wa }}</p>
                         </div>
+                        <div v-if="listBursa.length===0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada Iklan / Jasa terdaftar.</div>
                     </div>
 
                     <div v-if="publicTab==='fasilitas'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -183,6 +186,7 @@
                                 <span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-black uppercase">{{ f.status }}</span>
                             </div>
                         </div>
+                        <div v-if="listFasilitas.length===0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada laporan fasilitas.</div>
                     </div>
 
                     <div v-if="publicTab==='galeri'" class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -190,6 +194,7 @@
                             <img :src="g.foto" @click="zoomedImage=g.foto" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                             <div class="absolute bottom-0 w-full bg-black/60 p-3 text-white text-xs font-bold"><p class="truncate">{{ g.judul }}</p></div>
                         </div>
+                        <div v-if="listGaleri.length===0" class="col-span-4 text-center p-8 text-gray-400 italic">Belum ada foto galeri diunggah.</div>
                     </div>
                 </div>
             </div>
@@ -424,7 +429,7 @@
                         <div :style="{ backgroundColor: webSettings.warnaUtama }" class="rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
                             <i class="fas fa-city absolute -right-10 -top-10 text-9xl text-white/10"></i>
                             <h2 class="text-3xl font-black mb-2 relative z-10">Selamat Datang, {{ user.nama }}!</h2>
-                            <p class="text-sm text-blue-100 relative z-10 max-w-xl">Semua fitur desain asli Anda telah dipertahankan. Sistem keamanan berjalan aktif memblokir akses ilegal.</p>
+                            <p class="text-sm text-blue-100 relative z-10 max-w-xl">Semua fitur desain asli Anda telah dipertahankan. Sistem keamanan dan penyimpanan lokal aktif berjalan.</p>
                         </div>
                         
                         <div v-if="user.role==='admin_kelurahan'" class="bg-white p-6 rounded-2xl shadow-sm border">
@@ -519,7 +524,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <button @click="showToast('Pengaturan Website & TTD Berhasil Disimpan!')" class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-md transition w-full md:w-auto"><i class="fas fa-save mr-1"></i> Simpan Konfigurasi Tampilan Website</button>
+                            <button @click="simpanWebSettings" class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-xl font-bold shadow-md transition w-full md:w-auto"><i class="fas fa-save mr-1"></i> Simpan Konfigurasi Tampilan Website</button>
                         </div>
 
                         <!-- PENGATURAN ADMIN & PEJABAT -->
@@ -571,6 +576,7 @@
                                                 <td class="p-3">{{ p.username }}</td>
                                                 <td class="p-3"><button @click="hapus('pejabat', p.id)" class="text-red-500 hover:text-red-700 bg-red-50 p-2 rounded"><i class="fas fa-trash"></i></button></td>
                                             </tr>
+                                            <tr v-if="listPejabat.length === 0"><td colspan="5" class="p-3 text-center text-gray-400 italic">Belum ada akun pejabat terdaftar.</td></tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -830,8 +836,105 @@
                                         <td class="p-4 text-xs font-semibold">{{ w.pekerjaan }}</td>
                                         <td class="p-4 text-center"><button @click="selectedWarga = w" class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-4 py-1.5 rounded-lg text-xs font-bold transition">Lihat Detail</button></td>
                                     </tr>
+                                    <tr v-if="listWarga.length === 0"><td colspan="4" class="p-6 text-center text-gray-400 italic">Belum ada data warga terdaftar.</td></tr>
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+
+                    <!-- 3. STATISTIK WARGA (UPDATE: TAMPILKAN GENDER & USIA MESKIPUN 0) -->
+                    <div v-if="menu==='statistik-warga'" class="space-y-6">
+                        <div class="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-3xl p-8 text-white shadow-xl flex items-center justify-between">
+                            <div>
+                                <h2 class="text-3xl font-black mb-2"><i class="fas fa-chart-pie mr-2"></i>Statistik Demografi Warga</h2>
+                                <p class="text-sm text-blue-100">Pemetaan jumlah penduduk berdasarkan jenis kelamin dan kategori usia.</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-4xl font-black">{{ listWarga.length }}</p>
+                                <p class="text-xs uppercase tracking-widest text-blue-200 font-bold">Total Warga</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Kategori Gender -->
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <h3 class="font-bold text-lg text-gray-800 mb-6 border-b pb-2"><i class="fas fa-venus-mars text-purple-500 mr-2"></i>Berdasarkan Jenis Kelamin</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-3"><div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600"><i class="fas fa-male text-xl"></i></div><span class="font-bold text-gray-700">Laki-Laki</span></div>
+                                        <span class="text-2xl font-black text-gray-800">{{ statistikGender.l }} <span class="text-xs text-gray-400 font-normal">Jiwa</span></span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" :style="`width: ${listWarga.length ? (statistikGender.l/listWarga.length)*100 : 0}%`"></div></div>
+                                    
+                                    <div class="flex items-center justify-between mt-6">
+                                        <div class="flex items-center gap-3"><div class="w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-pink-600"><i class="fas fa-female text-xl"></i></div><span class="font-bold text-gray-700">Perempuan</span></div>
+                                        <span class="text-2xl font-black text-gray-800">{{ statistikGender.p }} <span class="text-xs text-gray-400 font-normal">Jiwa</span></span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2"><div class="bg-pink-500 h-2 rounded-full" :style="`width: ${listWarga.length ? (statistikGender.p/listWarga.length)*100 : 0}%`"></div></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Kategori Usia -->
+                            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <h3 class="font-bold text-lg text-gray-800 mb-6 border-b pb-2"><i class="fas fa-birthday-cake text-amber-500 mr-2"></i>Berdasarkan Kategori Usia</h3>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border">
+                                        <span class="font-bold text-gray-700 text-sm">Balita <span class="text-[10px] text-gray-400 ml-1">(0-5 thn)</span></span>
+                                        <span class="font-black text-emerald-600">{{ statistikUsia.balita }} <span class="text-[10px] font-normal text-gray-500">Jiwa</span></span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border">
+                                        <span class="font-bold text-gray-700 text-sm">Anak-Anak <span class="text-[10px] text-gray-400 ml-1">(6-12 thn)</span></span>
+                                        <span class="font-black text-blue-600">{{ statistikUsia.anak }} <span class="text-[10px] font-normal text-gray-500">Jiwa</span></span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border">
+                                        <span class="font-bold text-gray-700 text-sm">Remaja <span class="text-[10px] text-gray-400 ml-1">(13-25 thn)</span></span>
+                                        <span class="font-black text-purple-600">{{ statistikUsia.remaja }} <span class="text-[10px] font-normal text-gray-500">Jiwa</span></span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border">
+                                        <span class="font-bold text-gray-700 text-sm">Dewasa <span class="text-[10px] text-gray-400 ml-1">(26-59 thn)</span></span>
+                                        <span class="font-black text-amber-600">{{ statistikUsia.dewasa }} <span class="text-[10px] font-normal text-gray-500">Jiwa</span></span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg border">
+                                        <span class="font-bold text-gray-700 text-sm">Lansia <span class="text-[10px] text-gray-400 ml-1">(>60 thn)</span></span>
+                                        <span class="font-black text-red-600">{{ statistikUsia.lansia }} <span class="text-[10px] font-normal text-gray-500">Jiwa</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 11. KAS LINGKUNGAN (UPDATE: SUMBANGAN OTOMATIS JADI KAS & KARTU ADMIN) -->
+                    <div v-if="menu==='kas'" class="space-y-6">
+                        <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+                            <i class="fas fa-wallet absolute -right-10 -top-10 text-9xl text-white/10"></i>
+                            <h2 class="text-3xl font-black mb-2 relative z-10">Kas Lingkungan Digital</h2>
+                            <p class="text-sm text-emerald-100 relative z-10 max-w-xl">
+                                {{ user.role === 'admin_kelurahan' ? 'Pantau total transparansi kas masing-masing wilayah secara real-time.' : 'Total Kas Lingkungan berdasarkan sumbangan warga di wilayah Anda.' }}
+                            </p>
+                        </div>
+
+                        <!-- View RT/RW -->
+                        <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 text-center max-w-md mx-auto">
+                            <p class="text-gray-500 font-bold uppercase tracking-widest text-xs mb-2">Total Kas RT {{ user.rt }} / RW {{ user.rw }}</p>
+                            <h3 class="text-5xl font-black text-emerald-600 mb-4">Rp {{ hitungKasSumbangan(user.rt, user.rw).toLocaleString('id-ID') }}</h3>
+                            <p class="text-sm text-gray-400 bg-gray-50 p-3 rounded-lg border">Pemasukan kas lingkungan ini dihitung secara otomatis dari total donasi di menu <strong>Sumbangan Warga</strong>.</p>
+                        </div>
+
+                        <!-- View Admin (Kartu Kas per Wilayah) -->
+                        <div v-if="user.role === 'admin_kelurahan'" class="space-y-4">
+                            <h3 class="font-bold text-lg text-gray-800 border-b pb-2"><i class="fas fa-th-large text-emerald-500 mr-2"></i>Rekapitulasi Kas Seluruh RT/RW</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div v-for="(k, idx) in rekapKasAdmin" :key="idx" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden hover:shadow-md transition">
+                                    <div class="absolute top-0 right-0 w-16 h-16 bg-emerald-50 rounded-bl-full -z-10"></div>
+                                    <p class="text-xs font-bold uppercase tracking-widest text-emerald-600 mb-1">Wilayah</p>
+                                    <h4 class="font-black text-xl text-gray-800 mb-4">{{ k.wilayah }}</h4>
+                                    <p class="text-[10px] text-gray-500 font-bold">Total Saldo Kas:</p>
+                                    <p class="text-2xl font-black text-emerald-600">Rp {{ k.total.toLocaleString('id-ID') }}</p>
+                                </div>
+                                <div v-if="rekapKasAdmin.length === 0" class="col-span-3 text-center p-8 text-gray-400 italic border rounded-xl bg-gray-50">
+                                    Belum ada data pejabat RT/RW atau kas sumbangan yang terdaftar di sistem.
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -862,6 +965,7 @@
                                 </div>
                                 <button v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role) || t.pelapor===user.nama" @click="hapus('tamu', t.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
                             </div>
+                            <div v-if="listTamu.length === 0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada laporan tamu.</div>
                         </div>
                     </div>
 
@@ -894,6 +998,7 @@
                                     </div>
                                     <button v-if="user.role==='admin_kelurahan'" @click="hapus('laporan', l.id)" class="absolute top-4 right-4 text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm border border-red-100 opacity-0 group-hover:opacity-100"><i class="fas fa-trash mr-1"></i> Hapus Laporan</button>
                                 </div>
+                                <div v-if="listLaporan.length === 0" class="text-center p-8 text-gray-400 italic">Belum ada pengaduan.</div>
                             </div>
                         </div>
                     </div>
@@ -922,6 +1027,7 @@
                                 <div class="flex justify-between text-sm font-bold"><span class="text-gray-500">Pagu: Rp {{a.pagu}}</span><span class="text-blue-600">Realisasi: Rp {{a.realisasi}}</span></div>
                                 <button v-if="user.role==='admin_kelurahan'" @click="hapus('anggaran', a.id)" class="absolute top-4 right-4 text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
                             </div>
+                            <div v-if="listAnggaran.length === 0" class="text-center p-8 text-gray-400 italic">Belum ada realisasi anggaran.</div>
                         </div>
                     </div>
 
@@ -974,6 +1080,7 @@
                                 
                                 <button v-if="user.role==='admin_kelurahan' || u.pemilik===user.nama" @click="hapus('umkm', u.id)" class="absolute top-4 right-4 text-red-500 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg text-xs font-bold transition shadow-sm"><i class="fas fa-trash mr-1"></i> Hapus</button>
                             </div>
+                            <div v-if="listUmkm.length === 0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada Lapak UMKM.</div>
                         </div>
                     </div>
 
@@ -1001,6 +1108,7 @@
                                 </div>
                                 <button v-if="user.role==='admin_kelurahan' || f.pelapor===user.nama" @click="hapus('fasilitas', f.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
                             </div>
+                            <div v-if="listFasilitas.length === 0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada laporan fasilitas.</div>
                         </div>
                     </div>
 
@@ -1022,6 +1130,7 @@
                                 <p class="text-xs text-gray-500 font-bold bg-gray-100 inline-block px-3 py-1 rounded-lg"><i class="fas fa-user-circle text-amber-500 mr-1"></i> {{ b.pengiklan }} | WA: {{ b.wa }}</p>
                                 <button v-if="user.role==='admin_kelurahan' || b.pengiklan===user.nama" @click="hapus('bursa', b.id)" class="absolute top-4 right-4 text-red-500 bg-red-50 p-2 rounded-lg hover:bg-red-100"><i class="fas fa-trash"></i></button>
                             </div>
+                            <div v-if="listBursa.length === 0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada Iklan Kerja.</div>
                         </div>
                     </div>
 
@@ -1072,6 +1181,7 @@
                                 <div class="absolute bottom-0 w-full bg-black/60 p-3 text-white text-xs font-bold"><p class="truncate">{{ g.judul }}</p></div>
                                 <button v-if="user.role==='admin_kelurahan'" @click.stop="hapus('galeri', g.id)" class="absolute top-2 right-2 text-red-500 bg-white/90 hover:bg-red-50 p-2 rounded-lg opacity-0 group-hover:opacity-100 transition duration-300 shadow"><i class="fas fa-trash"></i></button>
                             </div>
+                            <div v-if="listGaleri.length === 0" class="col-span-4 text-center p-8 text-gray-400 italic">Belum ada foto galeri.</div>
                         </div>
                     </div>
 
@@ -1223,10 +1333,11 @@
                                 </div>
                                 <button v-if="user.role==='admin_kelurahan'" @click="hapus('agenda', a.id)" class="absolute top-4 right-4 text-red-500 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition"><i class="fas fa-trash"></i></button>
                             </div>
+                            <div v-if="listAgenda.length === 0" class="text-center p-8 text-gray-400 italic">Belum ada agenda terdaftar.</div>
                         </div>
                     </div>
 
-                    <div v-if="['statistik-warga', 'statistik-pekerjaan', 'status-usaha', 'arsip-surat', 'kas', 'surat', 'bansos'].includes(menu)" class="bg-white p-10 rounded-3xl shadow-sm border text-center">
+                    <div v-if="['statistik-pekerjaan', 'status-usaha', 'arsip-surat', 'surat', 'bansos'].includes(menu)" class="bg-white p-10 rounded-3xl shadow-sm border text-center">
                         <i class="fas fa-cogs text-6xl text-gray-300 mb-4"></i>
                         <h2 class="text-2xl font-black text-gray-800 capitalize">Modul {{ menu.replace('-', ' ') }}</h2>
                         <p class="text-gray-500 mt-2">Arsitektur menu asli dipertahankan secara utuh dalam sistem.</p>
@@ -1238,10 +1349,14 @@
     </div>
 
     <script type="module">
-        import { createApp, ref, computed, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
+        import { createApp, ref, computed, watch, onMounted } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js';
 
         createApp({
             setup() {
+                // --- FUNGSI LOCAL STORAGE (DATA TIDAK HILANG SAAT REFRESH/DEPLOY) ---
+                const loadState = (key, defaultVal) => { const saved = localStorage.getItem('kelurahan_app_' + key); return saved ? JSON.parse(saved) : defaultVal; };
+                const saveState = (key, val) => { localStorage.setItem('kelurahan_app_' + key, JSON.stringify(val)); };
+
                 const notification = ref({ show: false, message: '', type: 'success' });
                 const showToast = (msg, type='success') => { notification.value={show:true, message:msg, type}; setTimeout(()=>notification.value.show=false, 3000); };
                 
@@ -1272,39 +1387,36 @@
                 const showFormBursa = ref(false);
                 const showFormFasilitas = ref(false);
 
-                const webSettings = ref({
+                // --- STATE YANG DISIMPAN DI LOCAL STORAGE (CLEAN SLATE) ---
+                const webSettings = ref(loadState('webSettings', {
                     warnaUtama: '#1e3a8a', logo: '', namaWebsite: 'Portal Kelurahan Digital', headerText: 'Layanan Digital Terpadu', footerText: '© 2026 Sistem Informasi Kelurahan Digital. Semua Hak Dilindungi.',
                     walikota: { nama: 'Bapak Walikota', jabatan: 'Walikota', foto: 'https://via.placeholder.com/150', pesan: 'Wujudkan kota cerdas dengan pelayanan publik digital yang cepat dan transparan.' },
                     wakil: { nama: 'Bapak Wakil Walikota', jabatan: 'Wakil Walikota', foto: 'https://via.placeholder.com/150', pesan: 'Kolaborasi bersama membangun daerah melalui pemanfaatan teknologi informasi.' },
                     lurah: { nama: 'Bapak Lurah', jabatan: 'Kepala Kelurahan', foto: 'https://via.placeholder.com/200', pesan: 'Selamat datang di portal resmi kelurahan digital. Gunakan layanan mandiri ini untuk mempermudah segala urusan Anda.' },
                     ttd: { lurah: '', sekretaris: '', stempel: '', aktif: true }
-                });
+                }));
 
                 const formWargaTtd = ref({ url: '' });
-
                 const formAdmin = ref({ username: 'admin123', password: 'admin123' });
-                const adminAccount = ref({ username: 'admin123', password: 'admin123' }); 
+                const adminAccount = ref(loadState('adminAccount', { username: 'admin123', password: 'admin123' })); 
                 
                 const formPejabat = ref({ nama: '', role: 'rt', wilayah: '', rt: '', rw: '', username: '', password: '', ttd: '', stempel: '' });
-                const listPejabat = ref([
-                    { id: 1, nama: 'Bapak Suryo', role: 'rt', wilayah: 'RT 01 / RW 05', rt: '01', rw: '05', username: 'rt01', password: '123', ttd: '', stempel: '' }
-                ]);
-
-                const listBendahara = ref([]);
+                const listPejabat = ref(loadState('listPejabat', []));
+                const listBendahara = ref(loadState('listBendahara', []));
                 const formBendahara = ref({ nama: '', username: '', password: '' });
                 
                 const showFormTamu = ref(false);
                 const formTamu = ref({ nama:'', nik:'', asal:'', lama:'', tujuan:'', foto:null });
-                const listTamu = ref([]);
+                const listTamu = ref(loadState('listTamu', []));
 
                 const showFormSumbangan = ref(false);
                 const formSumbangan = ref({ nama:'', nominal:'', jenis:'' });
-                const listSumbangan = ref([]);
+                const listSumbangan = ref(loadState('listSumbangan', []));
                 
                 const formArisan = ref({ nama:'', iuran:'' });
-                const listArisan = ref([]); 
-                const riwayatArisan = ref([]);
-                const logAktivitas = ref([]); 
+                const listArisan = ref(loadState('listArisan', [])); 
+                const riwayatArisan = ref(loadState('riwayatArisan', []));
+                const logAktivitas = ref(loadState('logAktivitas', [])); 
 
                 const catatLog = (aksiStr) => {
                     const now = new Date().toLocaleString('id-ID');
@@ -1314,15 +1426,18 @@
 
                 const loginForm = ref({ email: '', password: '' });
                 const reg = ref({ nik:'', nokk:'', nama:'', rt:'', rw:'', alamat:'', tempat_lahir:'', tgl_lahir:'', kelamin:'Laki-laki', pendidikan:'SMA/SMK', pekerjaan:'', usaha:'', username:'', password:'', repeatPassword:'', status_keluarga:'Kepala Keluarga', status_nikah:'Belum Menikah', jml_kk:1, status_rumah:'Milik Sendiri', sehat_status:'Sehat', gol_darah:'-', penghasilan:'< 1 juta', hp1:'', hp2:'', suku:'', ttd:'' }); 
-                
                 const regLuar = ref({ nama: '', nik: '', alamat: '', hp: '', username: '', password: '', ttd:'' });
-                const listWargaLuar = ref([]);
+                
+                const listWarga = ref(loadState('listWarga', []));
+                const listWargaLuar = ref(loadState('listWargaLuar', []));
+                
                 const formUsahaLuar = ref({ fotoKtp: null, jenisUsaha: '', namaUsaha: '', lokasiUsaha: '', rt: '', rw: '', keperluan: '', alasan: '', fotoUsaha: null });
-                const listPengajuanUsaha = ref([]); 
+                const listPengajuanUsaha = ref(loadState('listPengajuanUsaha', [])); 
                 
                 const formSurat = ref({ jenis:'', keperluan:'', fotoKtpKk:null, fotoPengantar:null }); 
                 const formSuratPengantar = ref({ nama: '', nik: '', hp: '', alamat: '', rt: '', rw: '', keperluan: '', fotoKtp: null, fotoKk: null, fotoDok: null, catatan: '' });
-                const listSuratPengantar = ref([]); 
+                const listSuratPengantar = ref(loadState('listSuratPengantar', [])); 
+                const listSurat = ref(loadState('listSurat', []));
 
                 const formUmkm = ref({ nama:'', wa:'', jamBuka:'08:00', jamTutup:'21:00', nib:'', alamat:'', harga:'', deskripsi:'', foto1:null, foto2:null });
                 const formGaleri = ref({ judul:'', foto:null });
@@ -1333,17 +1448,38 @@
                 const formSampah = ref({ nama:'', jenis:'', berat:'' }); 
                 const formAgenda = ref({ judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null }); 
 
-                const listWarga = ref([{ id:1, nik:'3501', nokk:'3501', nama:'Budi Santoso', rt:'01', rw:'05', alamat:'Jl. Melati', kelamin:'Laki-laki', pendidikan:'SMA/SMK', pekerjaan:'Pedagang', usaha:'Toko Sembako', status_keluarga:'Kepala Keluarga', status_nikah:'Menikah', sehat_status:'Sehat', gol_darah:'O', username:'warga1', password:'123', ttd:'' }]);
-                const listAgenda = ref([{ id:1, judul:'Kerja Bakti Masal', isi:'Diwajibkan seluruh warga hadir di lapangan balai desa. Diharapkan membawa peralatan.', tanggal:'20 Okt 2023', kategori:'Pengumuman', foto:null }]);
-                const listSurat = ref([]);
-                const listUmkm = ref([{ id:1, pemilik:'Budi Santoso', nama:'Toko Sembako Murah', wa:'628123456789', jamBuka:'07:00', jamTutup:'22:00', nib:'123456789', alamat:'Jl. Melati RT 01/05', harga:'5.000 - 50.000', deskripsi:'Menjual berbagai macam kebutuhan pokok harian.', foto1:null, foto2:null }]);
-                const listGaleri = ref([]);
-                const listBursa = ref([]);
-                const listFasilitas = ref([{ id:1, judul:'Lampu Jalan Mati', lokasi:'Jl. Merdeka Ujung', deskripsi:'Lampu mati sudah 3 hari rawan maling', pelapor:'Warga1', status:'Menunggu Perbaikan', foto:null }]);
-                const listBansos = ref([]);
-                const listAnggaran = ref([]);
-                const listSampah = ref([{ id: 1, tanggal: '23 Mei 2024', nama: 'Siti Aminah', jenis: 'Botol Plastik', berat: '5' }]);
-                const listLaporan = ref([{ id: 1, pelapor: 'Budi Santoso', isi: 'Lampu jalan mati di gang buntu RT 01. Mohon segera dicek karena gelap rawan maling.', komentar: [{ nama: 'Administrator', isi: 'Siap Pak Budi, tim teknisi desa akan segera menuju lokasi siang ini.' }], inputBalasan: '' }]);
+                const listAgenda = ref(loadState('listAgenda', []));
+                const listUmkm = ref(loadState('listUmkm', []));
+                const listGaleri = ref(loadState('listGaleri', []));
+                const listBursa = ref(loadState('listBursa', []));
+                const listFasilitas = ref(loadState('listFasilitas', []));
+                const listBansos = ref(loadState('listBansos', []));
+                const listAnggaran = ref(loadState('listAnggaran', []));
+                const listSampah = ref(loadState('listSampah', []));
+                const listLaporan = ref(loadState('listLaporan', []));
+
+                // --- AUTOSAVE WATCHERS ---
+                watch(webSettings, (val) => saveState('webSettings', val), { deep: true });
+                watch(adminAccount, (val) => saveState('adminAccount', val), { deep: true });
+                watch(listWarga, (val) => saveState('listWarga', val), { deep: true });
+                watch(listWargaLuar, (val) => saveState('listWargaLuar', val), { deep: true });
+                watch(listPejabat, (val) => saveState('listPejabat', val), { deep: true });
+                watch(listBendahara, (val) => saveState('listBendahara', val), { deep: true });
+                watch(listSumbangan, (val) => saveState('listSumbangan', val), { deep: true });
+                watch(listTamu, (val) => saveState('listTamu', val), { deep: true });
+                watch(listArisan, (val) => saveState('listArisan', val), { deep: true });
+                watch(riwayatArisan, (val) => saveState('riwayatArisan', val), { deep: true });
+                watch(logAktivitas, (val) => saveState('logAktivitas', val), { deep: true });
+                watch(listAgenda, (val) => saveState('listAgenda', val), { deep: true });
+                watch(listUmkm, (val) => saveState('listUmkm', val), { deep: true });
+                watch(listGaleri, (val) => saveState('listGaleri', val), { deep: true });
+                watch(listBursa, (val) => saveState('listBursa', val), { deep: true });
+                watch(listFasilitas, (val) => saveState('listFasilitas', val), { deep: true });
+                watch(listSampah, (val) => saveState('listSampah', val), { deep: true });
+                watch(listLaporan, (val) => saveState('listLaporan', val), { deep: true });
+                watch(listPengajuanUsaha, (val) => saveState('listPengajuanUsaha', val), { deep: true });
+                watch(listSuratPengantar, (val) => saveState('listSuratPengantar', val), { deep: true });
+                watch(listAnggaran, (val) => saveState('listAnggaran', val), { deep: true });
 
                 const uploadFile = (e, target) => {
                     const f = e.target.files[0]; if(!f) return;
@@ -1371,7 +1507,7 @@
                 const handleLogin = () => {
                     if (loginForm.value.email.trim() === '' || loginForm.value.password.trim() === '') return showToast('Harap ketik Username dan Password Anda!', 'danger');
                     if (loginForm.value.email === adminAccount.value.username && loginForm.value.password === adminAccount.value.password) {
-                        user.value = { nama:'Administrator', role:'admin_kelurahan', rt:'', rw:'', username: 'admin', ttd:'' }; isLoggedIn.value = true; return showToast('Login Admin Utama Sukses');
+                        user.value = { nama:'Administrator', role:'admin_kelurahan', rt:'', rw:'', username: adminAccount.value.username, ttd:'' }; isLoggedIn.value = true; return showToast('Login Admin Utama Sukses');
                     }
                     const p = listPejabat.value.find(x => x.username === loginForm.value.email && x.password === loginForm.value.password);
                     if (p) {
@@ -1409,6 +1545,8 @@
 
                 const getPejabatSetting = () => { return listPejabat.value.find(x => x.username === user.value.username) || { ttd:'', stempel:'' }; };
                 
+                const simpanWebSettings = () => { showToast('Pengaturan Website & TTD Berhasil Disimpan!'); };
+
                 const simpanTtdWarga = () => {
                     if(user.value.role === 'warga'){
                         const wIdx = listWarga.value.findIndex(x => x.username === user.value.username);
@@ -1420,8 +1558,6 @@
                     user.value.ttd = formWargaTtd.value.url;
                     showToast('Pengaturan TTD Anda Berhasil Disimpan!');
                 };
-                
-                const simpanSurat = () => { listSurat.value.unshift({...formSurat.value, id:Date.now(), pengaju:user.value.nama, status:'Menunggu Verifikasi'}); showToast('Surat diajukan ke Kelurahan'); formSurat.value={jenis:'', keperluan:'', fotoKtpKk:null, fotoPengantar:null}; };
                 
                 const simpanSuratPengantar = () => {
                     if(!formSuratPengantar.value.rt || !formSuratPengantar.value.rw || !formSuratPengantar.value.fotoKtp) return showToast('Harap lengkapi RT, RW dan KTP!', 'danger');
@@ -1440,69 +1576,6 @@
                     if (role === 'rt') u.statusRT = statusText;
                     if (role === 'rw') u.statusRW = statusText;
                     showToast(`Pengantar Warga ${statusText}!`);
-                };
-
-                const cetakSuratPengantar = (p) => {
-                    const printWindow = window.open('', '_blank');
-                    const rtObj = listPejabat.value.find(x => x.role === 'rt' && x.rt === p.rt && x.rw === p.rw);
-                    const rwObj = listPejabat.value.find(x => x.role === 'rw' && x.rw === p.rw);
-                    
-                    const ttdRt = rtObj?.ttd ? `<img src="${rtObj.ttd}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
-                    const stempelRt = rtObj?.stempel ? `<img src="${rtObj.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
-                    
-                    const ttdRw = rwObj?.ttd ? `<img src="${rwObj.ttd}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
-                    const stempelRw = rwObj?.stempel ? `<img src="${rwObj.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-30px; margin-top:-20px; transform: rotate(-10deg);">` : '';
-
-                    const wObj = listWarga.value.find(x => x.username === p.username);
-                    const ttdWarga = wObj?.ttd ? `<img src="${wObj.ttd}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px;">` : '';
-
-                    printWindow.document.write(`
-                        <html><head><title>Surat Pengantar RT/RW</title>
-                        <style>
-                            body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-height: 1.5; }
-                            .header { text-align: center; border-bottom: 3px solid black; padding-bottom: 10px; margin-bottom: 20px; }
-                            table { width: 100%; margin-top: 10px; }
-                            td { padding: 5px; vertical-align: top; }
-                        </style>
-                        </head><body>
-                        <div class="header">
-                            <h3>RUKUN TETANGGA ${p.rt} / RUKUN WARGA ${p.rw}</h3>
-                            <p>KECAMATAN PUSAT, KELURAHAN DIGITAL</p>
-                        </div>
-                        <h3 style="text-align:center; text-decoration: underline;">SURAT KETERANGAN / PENGANTAR</h3>
-                        <br>
-                        <p>Yang bertanda tangan di bawah ini Pengurus RT ${p.rt} / RW ${p.rw}, menerangkan bahwa:</p>
-                        <table>
-                            <tr><td style="width:200px;">Nama Lengkap</td><td>: <strong>${p.nama}</strong></td></tr>
-                            <tr><td>NIK</td><td>: ${p.nik}</td></tr>
-                            <tr><td>Alamat Tinggal</td><td>: ${p.alamat}</td></tr>
-                            <tr><td>Keperluan</td><td>: <strong>${p.keperluan}</strong></td></tr>
-                            <tr><td>Catatan Tambahan</td><td>: ${p.catatan || '-'}</td></tr>
-                        </table>
-                        <br>
-                        <p>Orang tersebut di atas adalah benar warga kami yang berdomisili di wilayah RT ${p.rt} / RW ${p.rw}. Surat pengantar ini dibuat untuk dipergunakan sebagaimana mestinya.</p>
-                        <br><br><br>
-                        <div style="display: flex; justify-content: space-between; text-align: center;">
-                            <div style="width: 30%; position:relative;">
-                                <p>Pemohon,</p><br><br>
-                                ${ttdWarga}<br><br>
-                                <p>( ${p.nama} )</p>
-                            </div>
-                            <div style="width: 30%; position:relative;">
-                                <p>Mengetahui,<br>Ketua RT ${p.rt}</p><br><br>
-                                ${stempelRt}${ttdRt}<br><br>
-                                <p>( ${rtObj?.nama || '......................'} )</p>
-                            </div>
-                            <div style="width: 30%; position:relative;">
-                                <p>Mengetahui,<br>Ketua RW ${p.rw}</p><br><br>
-                                ${stempelRw}${ttdRw}<br><br>
-                                <p>( ${rwObj?.nama || '......................'} )</p>
-                            </div>
-                        </div>
-                        <script>window.print();<\/script>
-                        </body></html>
-                    `);
-                    printWindow.document.close();
                 };
 
                 const simpanTamu = () => {
@@ -1533,6 +1606,44 @@
                 const hitungKasSumbangan = (rt, rw) => {
                     return listSumbangan.value.filter(x => x.rt === rt && x.rw === rw).reduce((sum, item) => sum + Number(item.nominal), 0);
                 };
+
+                // KARTU KAS ADMIN UTAMA (GABUNGAN DARI PEJABAT + DATA SUMBANGAN)
+                const rekapKasAdmin = computed(() => {
+                    const map = {};
+                    listPejabat.value.forEach(p => {
+                        if(p.role === 'rt' || p.role === 'rw') {
+                            const key = `RT ${p.rt} / RW ${p.rw}`;
+                            if(!map[key]) map[key] = { wilayah: key, total: 0 };
+                        }
+                    });
+                    listSumbangan.value.forEach(s => {
+                        const key = `RT ${s.rt} / RW ${s.rw}`;
+                        if(!map[key]) map[key] = { wilayah: key, total: 0 };
+                        map[key].total += Number(s.nominal);
+                    });
+                    return Object.values(map);
+                });
+
+                // STATISTIK WARGA COMPUTE
+                const statistikGender = computed(() => {
+                    let l = 0, p = 0;
+                    listWarga.value.forEach(w => { if(w.kelamin === 'Laki-laki') l++; else p++; });
+                    return { l, p };
+                });
+
+                const statistikUsia = computed(() => {
+                    let cat = { balita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0 };
+                    listWarga.value.forEach(w => {
+                        if(!w.tgl_lahir) return;
+                        const age = new Date().getFullYear() - new Date(w.tgl_lahir).getFullYear();
+                        if(age <= 5) cat.balita++;
+                        else if(age <= 12) cat.anak++;
+                        else if(age <= 25) cat.remaja++;
+                        else if(age <= 59) cat.dewasa++;
+                        else cat.lansia++;
+                    });
+                    return cat;
+                });
 
                 const simpanArisan = () => {
                     if(!formArisan.value.nama) return showToast('Isi nama anggota', 'danger');
@@ -1633,7 +1744,6 @@
                 const simpanGaleri = () => { listGaleri.value.unshift({...formGaleri.value, id:Date.now()}); showToast('Foto diupload'); showFormGaleri.value=false; };
                 const simpanBursa = () => { listBursa.value.unshift({...formBursa.value, id:Date.now(), pengiklan:user.value.nama}); showToast('Iklan diposting'); showFormBursa.value=false; };
                 const simpanFasilitas = () => { listFasilitas.value.unshift({...formFasilitas.value, id:Date.now(), pelapor:user.value.nama, status:'Menunggu Perbaikan'}); showToast('Laporan Terkirim'); showFormFasilitas.value=false; formFasilitas.value={judul:'', lokasi:'', deskripsi:'', foto:null}; };
-                const simpanBansos = () => { listBansos.value.unshift({...formBansos.value, id:Date.now()}); showToast('Usulan Bansos disimpan'); formBansos.value={nama:'', jenis:'', rt:'', rw:'', foto:null}; };
                 const simpanAnggaran = () => { listAnggaran.value.unshift({...formAnggaran.value, id:Date.now()}); showToast('Data Anggaran disimpan'); };
                 const simpanSampah = () => { const tgl = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }); listSampah.value.unshift({...formSampah.value, id:Date.now(), tanggal: tgl}); showToast('Data Setoran Sampah Disimpan'); formSampah.value = { nama:'', jenis:'', berat:'' }; };
                 const simpanAgenda = () => { if(!formAgenda.value.judul || !formAgenda.value.isi) return showToast('Judul dan Isi harus diisi', 'danger'); listAgenda.value.unshift({...formAgenda.value, id:Date.now(), tanggal: formAgenda.value.tanggal || new Date().toLocaleDateString('id-ID') }); showToast('Agenda/Berita Diterbitkan'); formAgenda.value = { judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null }; };
@@ -1681,7 +1791,6 @@
 
                 const cetakSuratUsaha = (p) => {
                     const printWindow = window.open('', '_blank');
-                    
                     const ttdLurah = webSettings.value.ttd.aktif && webSettings.value.ttd.lurah ? `<img src="${webSettings.value.ttd.lurah}" style="max-height:60px; position:absolute; z-index:-1; margin-top:-10px; margin-left:30px;">` : '';
                     const stempelKelurahan = webSettings.value.ttd.aktif && webSettings.value.ttd.stempel ? `<img src="${webSettings.value.ttd.stempel}" style="max-height:80px; position:absolute; opacity:0.6; margin-left:-20px; margin-top:-20px; transform: rotate(-10deg);">` : '';
                     
@@ -1781,15 +1890,14 @@
                     if(tipe==='sampah') listSampah.value = listSampah.value.filter(x=>x.id!==id); 
                     if(tipe==='pejabat') listPejabat.value = listPejabat.value.filter(x=>x.id!==id); 
                     if(tipe==='fasilitas') listFasilitas.value = listFasilitas.value.filter(x=>x.id!==id); 
+                    if(tipe==='bendahara') listBendahara.value = listBendahara.value.filter(x=>x.id!==id); 
+                    if(tipe==='tamu') listTamu.value = listTamu.value.filter(x=>x.id!==id); 
                     showToast('Data berhasil dihapus dari sistem');
                 };
-
-                const downloadText = (txt) => { const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'Keperluan_Surat.txt'; a.click(); };
 
                 const downloadExcelData = (tipe) => {
                     let d = []; let n = tipe + '_data.csv';
                     if(tipe==='kependudukan') d = listWarga.value.map(x=>({ NIK:x.nik, No_KK:x.nokk, Nama:x.nama, Alamat:x.alamat, RT:x.rt, RW:x.rw, TTL:x.tempat_lahir+" "+x.tgl_lahir, Gender:x.kelamin, Pendidikan:x.pendidikan, Pekerjaan:x.pekerjaan, Usaha:x.usaha }));
-                    if(tipe==='surat') d = listSurat.value.map(x=>({ Pengaju:x.pengaju, Jenis_Surat:x.jenis, Keperluan:x.keperluan, Status:x.status }));
                     if(tipe==='sumbangan') d = listSumbangan.value.filter(x => x.rt === user.value.rt && x.rw === user.value.rw).map(x=>({ Tanggal:x.tanggal, Nama:x.nama, Jenis:x.jenis, Nominal:x.nominal }));
                     
                     if(!d || d.length === 0) return showToast('Belum ada data untuk didownload','danger');
@@ -1807,9 +1915,10 @@
                     formSampah, formAgenda, formAdmin, formPejabat, adminAccount, listPejabat, formUsahaLuar, formBendahara, formTamu, formSumbangan, formArisan, showFormTamu, showFormSumbangan,
                     listWarga, listWargaLuar, listAgenda, listSurat, listSuratPengantar, listUmkm, listGaleri, listBursa, listFasilitas, listBansos, listAnggaran, listLaporan, listSampah, listPengajuanUsaha, filteredPengajuanUsaha, getPejabatSetting,
                     listBendahara, listTamu, listSumbangan, listArisan, riwayatArisan, logAktivitas,
-                    handleLogin, handleRegister, handleRegisterLuar, logout, uploadFile, simpanSurat, simpanSuratPengantar, setujuiPengantar, cetakSuratPengantar, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanBansos, simpanAnggaran, simpanSampah, simpanAgenda, simpanPejabat, updateAdmin,
-                    hapus, downloadText, downloadExcelData, balasKomentar, simpanPengajuanUsaha, setujuiUsaha, cetakSuratUsaha,
-                    simpanBendahara, simpanTamu, simpanSumbangan, hitungKasSumbangan, simpanArisan, tambahIuranManual, hitungKasArisan, kocokArisan, cetakKartuArisan, downloadSumbanganPDF, simpanTtdWarga
+                    rekapKasAdmin, statistikGender, statistikUsia,
+                    handleLogin, handleRegister, handleRegisterLuar, logout, uploadFile, simpanSuratPengantar, setujuiPengantar, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanAnggaran, simpanSampah, simpanAgenda, simpanPejabat, updateAdmin,
+                    hapus, downloadExcelData, balasKomentar, simpanPengajuanUsaha, setujuiUsaha, cetakSuratUsaha,
+                    simpanBendahara, simpanTamu, simpanSumbangan, hitungKasSumbangan, simpanArisan, tambahIuranManual, hitungKasArisan, kocokArisan, cetakKartuArisan, downloadSumbanganPDF, simpanTtdWarga, simpanWebSettings
                 };
             }
         }).mount('#app');
