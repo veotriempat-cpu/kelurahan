@@ -425,14 +425,14 @@
                 </div>
                 
                 <nav class="p-4 space-y-1 text-sm pb-20">
-                    <a href="#" @click.prevent="menu='dashboard'" :class="['block px-3 py-2.5 rounded-lg font-bold transition border border-transparent', menu==='dashboard'?'bg-white/20 shadow border-white/30':'hover:bg-white/10']"><i class="fas fa-home w-5 text-center mr-1"></i> 1. Dashboard Induk</a>
+                    <a v-if="user.role !== 'babinsa'" href="#" @click.prevent="menu='dashboard'" :class="['block px-3 py-2.5 rounded-lg font-bold transition border border-transparent', menu==='dashboard'?'bg-white/20 shadow border-white/30':'hover:bg-white/10']"><i class="fas fa-home w-5 text-center mr-1"></i> 1. Dashboard Induk</a>
                     
                     <div v-if="user.role === 'warga_luar'" class="mt-4">
                         <p class="text-[10px] text-amber-300 font-bold uppercase px-2 mb-2">Layanan Warga Luar</p>
                         <a href="#" @click.prevent="menu='pengajuan-usaha'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200', menu==='pengajuan-usaha'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-file-signature w-5 text-center mr-1"></i> 2. Pengajuan Usaha</a>
                     </div>
 
-                    <div v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(user.role)" class="mt-4">
+                    <div v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" class="mt-4">
                         <p class="text-[10px] text-blue-200 font-bold uppercase px-2 mb-2">Administrasi Data</p>
                         <a href="#" @click.prevent="menu='kependudukan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='kependudukan'?'bg-white/20':'hover:bg-white/10']"><i class="fas fa-users w-5 text-center mr-1"></i> 2. Kependudukan</a>
                         <a href="#" @click.prevent="menu='statistik-warga'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='statistik-warga'?'bg-white/20':'hover:bg-white/10']"><i class="fas fa-chart-pie w-5 text-center mr-1"></i> 3. Statistik Warga</a>
@@ -445,8 +445,7 @@
                     </div>
 
                     <p v-if="user.role !== 'warga_luar'" class="text-[10px] text-amber-300 font-bold uppercase px-2 mt-4 mb-2">Layanan Publik</p>
-                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='surat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='surat'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-envelope-open-text w-5 text-center mr-1"></i> 7. E-Surat Warga</a>
-                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='bansos'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='bansos'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-hand-holding-heart w-5 text-center mr-1"></i> 8. Usulan Bansos</a>
+                    <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='surat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='surat'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-envelope-open-text w-5 text-center mr-1"></i> 7. E-Surat Warga</a>
                     <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='tamu'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='tamu'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-door-open w-5 text-center mr-1"></i> 9. Lapor Tamu</a>
                     <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='laporan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='laporan'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-exclamation-triangle w-5 text-center mr-1"></i> 10. Pengaduan Warga</a>
                     
@@ -454,14 +453,13 @@
                     <a v-if="['rt', 'rw', 'bendahara', 'warga'].includes(user.role)" href="#" @click.prevent="menu='arisan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-pink-200', menu==='arisan'?'bg-pink-600 shadow border border-pink-400':'hover:bg-white/10']"><i class="fas fa-sync-alt w-5 text-center mr-1"></i> 22. Arisan Warga</a>
                     <a v-if="['rt', 'rw', 'bendahara', 'warga'].includes(user.role)" href="#" @click.prevent="menu='sumbangan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-pink-200 mt-1', menu==='sumbangan'?'bg-pink-600 shadow border border-pink-400':'hover:bg-white/10']"><i class="fas fa-donate w-5 text-center mr-1"></i> 23. Sumbangan Warga</a>
 
-                    <p v-if="user.role !== 'warga_luar'" class="text-[10px] text-emerald-300 font-bold uppercase px-2 mt-4 mb-2">Transparansi & Ekonomi</p>
-                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='kas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='kas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-wallet w-5 text-center mr-1"></i> 11. Kas Lingkungan</a>
-                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='administrasi'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='administrasi'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-chart-line w-5 text-center mr-1"></i> 12. Realisasi Anggaran</a>
-                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='umkm'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-emerald-200', menu==='umkm'?'bg-emerald-600 shadow border border-emerald-400':'hover:bg-white/10']"><i class="fas fa-store w-5 text-center mr-1"></i> 13. Lapak UMKM</a>
-                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='fasilitas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='fasilitas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-tools w-5 text-center mr-1"></i> 14. Lapor Fasilitas</a>
-                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='bursa'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200', menu==='bursa'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-handshake w-5 text-center mr-1"></i> 15. Bursa Kerja & Jasa</a>
-                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='bank-sampah'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='bank-sampah'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-recycle w-5 text-center mr-1"></i> 16. Bank Sampah</a>
-                    <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='galeri'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200', menu==='galeri'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-images w-5 text-center mr-1"></i> 17. Galeri Lingkungan</a>
+                    <p v-if="!['warga_luar', 'babinsa'].includes(user.role)" class="text-[10px] text-emerald-300 font-bold uppercase px-2 mt-4 mb-2">Transparansi & Ekonomi</p>
+                    <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='kas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='kas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-wallet w-5 text-center mr-1"></i> 11. Kas Lingkungan</a>
+                    <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='administrasi'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='administrasi'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-chart-line w-5 text-center mr-1"></i> 12. Realisasi Anggaran</a>
+                    <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='umkm'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-emerald-200', menu==='umkm'?'bg-emerald-600 shadow border border-emerald-400':'hover:bg-white/10']"><i class="fas fa-store w-5 text-center mr-1"></i> 13. Lapak UMKM</a>
+                    <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='fasilitas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='fasilitas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-tools w-5 text-center mr-1"></i> 14. Lapor Fasilitas</a>
+                    <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='bursa'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200', menu==='bursa'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-handshake w-5 text-center mr-1"></i> 15. Bursa Kerja & Jasa</a>
+                    <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='galeri'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200', menu==='galeri'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-images w-5 text-center mr-1"></i> 17. Galeri Lingkungan</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='agenda'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='agenda'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-bullhorn w-5 text-center mr-1"></i> 18. Agenda & Berita</a>
 
                     <a href="#" @click.prevent="logout" class="block px-3 py-2.5 rounded-lg font-bold text-red-300 hover:bg-red-800 mt-8 border-t border-white/20 pt-4 transition"><i class="fas fa-sign-out-alt w-5 text-center mr-1"></i> Keluar Sistem</a>
@@ -844,38 +842,6 @@
                         </div>
                     </div>
 
-                    <!-- 8. USULAN BANSOS -->
-                    <div v-if="menu==='bansos'" class="space-y-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <div class="flex justify-between items-center mb-6 border-b pb-4">
-                                <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-hand-holding-heart text-pink-500 mr-2"></i>Usulan & Penerimaan Bantuan Sosial</h2>
-                                <button v-if="user.role === 'warga'" @click="showFormBansos=!showFormBansos" class="bg-pink-600 hover:bg-pink-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-plus mr-1"></i> Ajukan Bansos</button>
-                            </div>
-
-                            <div v-if="showFormBansos && user.role === 'warga'" class="bg-pink-50 p-6 rounded-2xl border border-pink-200 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-inner mb-6">
-                                <div><label class="block text-xs font-bold mb-1">Nama Pengusul</label><input v-model="formBansos.nama" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                                <div><label class="block text-xs font-bold mb-1">Jenis Bantuan yang Diharapkan</label><input v-model="formBansos.jenis" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                                <div><label class="block text-xs font-bold mb-1">RT</label><input v-model="formBansos.rt" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                                <div><label class="block text-xs font-bold mb-1">RW</label><input v-model="formBansos.rw" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                                <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Upload Foto Bukti Kondisi Rumah</label><input type="file" @change="e=>uploadFile(e,'bansos')" class="w-full border p-2.5 rounded-lg text-sm bg-white cursor-pointer"></div>
-                                <div class="md:col-span-2 text-right"><button @click="simpanBansos" class="bg-pink-600 text-white font-bold px-8 py-3 rounded-xl shadow-md transition">Kirim Usulan</button></div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div v-for="b in listBansos" :key="b.id" class="bg-white p-5 rounded-2xl shadow-sm border flex gap-4 items-start relative hover:shadow-md transition">
-                                    <img v-if="b.foto" :src="b.foto" @click="zoomedImage=b.foto" class="w-24 h-24 object-cover rounded-xl border cursor-pointer shrink-0">
-                                    <div>
-                                        <h4 class="font-black text-gray-800">{{ b.nama }}</h4>
-                                        <p class="text-xs text-gray-500 mt-1 mb-2">Wilayah: RT {{ b.rt }} / RW {{ b.rw }}</p>
-                                        <span class="bg-pink-100 text-pink-700 px-3 py-1 rounded-full text-[10px] font-black uppercase"><i class="fas fa-box-open mr-1"></i> Bantuan: {{ b.jenis }}</span>
-                                    </div>
-                                    <button v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" @click="hapus('bansos', b.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
-                                </div>
-                                <div v-if="listBansos.length === 0" class="col-span-2 text-center p-8 text-gray-400 italic">Belum ada data usulan bansos.</div>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- 9. LAPOR TAMU -->
                     <div v-if="menu==='tamu'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
@@ -884,10 +850,10 @@
                                     <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-door-open text-blue-500 mr-2"></i>Lapor Tamu Menginap (1x24 Jam)</h2>
                                     <p class="text-xs text-gray-500 mt-1">Sistem pelaporan tamu wajib bagi warga yang menerima tamu menginap.</p>
                                 </div>
-                                <button v-if="user.role !== 'admin_kelurahan'" @click="showFormTamu=!showFormTamu" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition shrink-0"><i class="fas fa-plus mr-1"></i> Lapor Tamu Baru</button>
+                                <button v-if="user.role === 'warga' || user.role === 'warga_luar'" @click="showFormTamu=!showFormTamu" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition shrink-0"><i class="fas fa-plus mr-1"></i> Lapor Tamu Baru</button>
                             </div>
                             
-                            <div v-if="showFormTamu && user.role !== 'admin_kelurahan'" class="bg-blue-50 p-6 rounded-2xl border border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-inner mb-6">
+                            <div v-if="showFormTamu && (user.role === 'warga' || user.role === 'warga_luar')" class="bg-blue-50 p-6 rounded-2xl border border-blue-200 grid grid-cols-1 md:grid-cols-2 gap-4 shadow-inner mb-6">
                                 <div><label class="block text-xs font-bold mb-1">Nama Lengkap Tamu</label><input v-model="formTamu.nama" type="text" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
                                 <div><label class="block text-xs font-bold mb-1">NIK Tamu</label><input v-model="formTamu.nik" type="number" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
                                 <div><label class="block text-xs font-bold mb-1">Alamat Asal Tamu</label><input v-model="formTamu.asal" type="text" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
@@ -925,10 +891,10 @@
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
                             <div class="flex justify-between items-center mb-6 border-b pb-4">
                                 <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>Pengaduan & Aspirasi Warga</h2>
-                                <button v-if="user.role !== 'admin_kelurahan' && user.role !== 'babinsa'" @click="showFormLaporan=!showFormLaporan" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-plus mr-1"></i> Buat Pengaduan</button>
+                                <button v-if="user.role === 'warga' || user.role === 'warga_luar'" @click="showFormLaporan=!showFormLaporan" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition"><i class="fas fa-plus mr-1"></i> Buat Pengaduan</button>
                             </div>
                             
-                            <div v-if="showFormLaporan && user.role !== 'admin_kelurahan' && user.role !== 'babinsa'" class="bg-red-50 p-6 rounded-2xl border border-red-200 grid grid-cols-1 gap-4 shadow-inner mb-6">
+                            <div v-if="showFormLaporan && (user.role === 'warga' || user.role === 'warga_luar')" class="bg-red-50 p-6 rounded-2xl border border-red-200 grid grid-cols-1 gap-4 shadow-inner mb-6">
                                 <div><label class="block text-xs font-bold mb-1">Judul Pengaduan</label><input v-model="formLaporan.judul" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
                                 <div><label class="block text-xs font-bold mb-1">Detail Keluhan / Aspirasi</label><textarea v-model="formLaporan.isi" rows="3" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></textarea></div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -981,6 +947,91 @@
                                     </div>
                                 </div>
                                 <div v-if="listLaporan.length === 0" class="text-center p-8 text-gray-400 italic font-bold">Belum ada pengaduan masuk.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 22. ARISAN WARGA (DITAMPILKAN KEMBALI) -->
+                    <div v-if="menu==='arisan'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-sync-alt text-pink-500 mr-2"></i>Sistem Arisan Warga RT {{ user.rt }} / RW {{ user.rw }}</h2>
+                            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 bg-pink-50 p-4 rounded-xl border border-pink-200">
+                                <div>
+                                    <p class="text-xs font-bold text-pink-600 uppercase">Total Kas Arisan Saat Ini</p>
+                                    <p class="text-2xl font-black text-gray-800">Rp {{ hitungKasArisan(user.rt, user.rw).toLocaleString('id-ID') }}</p>
+                                </div>
+                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="kocokArisan" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition flex items-center gap-2"><i class="fas fa-random"></i> Kocok Pemenang Arisan</button>
+                            </div>
+                            
+                            <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                <input v-model="formArisan.nama" placeholder="Nama Anggota Baru" class="border p-2.5 rounded-lg text-sm outline-none">
+                                <input v-model="formArisan.iuran" type="number" placeholder="Iuran Awal (Rp)" class="border p-2.5 rounded-lg text-sm outline-none">
+                                <button @click="simpanArisan" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg shadow transition">Tambah Anggota</button>
+                            </div>
+                            
+                            <div class="overflow-x-auto border rounded-xl">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">No. Anggota</th><th class="p-4">Nama</th><th class="p-4 text-right">Total Iuran Masuk</th><th class="p-4 text-center">Status Menang</th><th class="p-4 text-center">Aksi</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="a in listArisan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="a.id" class="border-b">
+                                            <td class="p-4 font-mono text-xs text-gray-500">{{ a.noAnggota }}</td>
+                                            <td class="p-4 font-bold">{{ a.nama }}</td>
+                                            <td class="p-4 text-right text-emerald-600 font-bold">Rp {{ Number(a.totalIuran || 0).toLocaleString('id-ID') }}</td>
+                                            <td class="p-4 text-center"><span :class="a.statusMenang ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-[10px] font-bold uppercase">{{ a.statusMenang ? 'Sudah Menang' : 'Belum' }}</span></td>
+                                            <td class="p-4 text-center">
+                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role) && !a.statusMenang" @click="customPrompt('Tambah Iuran', 'Masukkan nominal iuran untuk '+a.nama, '', (val) => tambahIuranManual(a, val))" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded text-xs font-bold mr-1">+ Iuran</button>
+                                                <button @click="cetakKartuArisan(a)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-bold mr-1"><i class="fas fa-print"></i></button>
+                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="hapus('arisan', a.id)" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="listArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0"><td colspan="5" class="p-4 text-center text-gray-400 italic">Belum ada anggota arisan.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <h3 class="font-bold text-gray-800 mt-8 mb-4 border-b pb-2"><i class="fas fa-trophy text-amber-500 mr-2"></i>Riwayat Pemenang Arisan</h3>
+                            <ul class="space-y-2">
+                                <li v-for="r in riwayatArisan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="r.id" class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm flex justify-between">
+                                    <span><strong>{{ r.nama }}</strong> menang pada {{ r.tanggal }}</span>
+                                    <span class="font-bold text-amber-700">Menarik: Rp {{ Number(r.nominal || 0).toLocaleString('id-ID') }}</span>
+                                </li>
+                                <li v-if="riwayatArisan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0" class="text-xs text-gray-400 italic">Belum ada riwayat pemenang.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 23. SUMBANGAN WARGA (DITAMPILKAN KEMBALI) -->
+                    <div v-if="menu==='sumbangan'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-donate text-pink-500 mr-2"></i>Pencatatan Sumbangan / Iuran Warga RT {{ user.rt }} / RW {{ user.rw }}</h2>
+                            <div class="flex justify-between items-center mb-6 bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                                <div>
+                                    <p class="text-xs font-bold text-emerald-600 uppercase">Total Kas Terkumpul</p>
+                                    <p class="text-3xl font-black text-gray-800">Rp {{ hitungKasSumbangan().toLocaleString('id-ID') }}</p>
+                                </div>
+                            </div>
+                            
+                            <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="bg-gray-50 p-4 rounded-xl border mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <input v-model="formSumbangan.nama" placeholder="Nama Penyumbang" class="border p-2.5 rounded-lg text-sm outline-none">
+                                <input v-model="formSumbangan.jenis" placeholder="Jenis / Keterangan" class="border p-2.5 rounded-lg text-sm outline-none md:col-span-1">
+                                <input v-model="formSumbangan.nominal" type="number" placeholder="Nominal (Rp)" class="border p-2.5 rounded-lg text-sm outline-none">
+                                <button @click="simpanSumbangan" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-lg shadow transition">Catat Kas Masuk</button>
+                            </div>
+                            
+                            <div class="overflow-x-auto border rounded-xl">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tanggal</th><th class="p-4">Nama Penyumbang</th><th class="p-4">Keterangan</th><th class="p-4 text-right">Nominal</th><th v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="p-4 text-center">Aksi</th></tr></thead>
+                                    <tbody>
+                                        <tr v-for="s in listSumbangan.filter(x => x.rt === user.rt && x.rw === user.rw)" :key="s.id" class="border-b hover:bg-gray-50">
+                                            <td class="p-4 text-xs text-gray-500">{{ s.tanggal }}</td>
+                                            <td class="p-4 font-bold">{{ s.nama }}</td>
+                                            <td class="p-4 text-xs">{{ s.jenis || '-' }}</td>
+                                            <td class="p-4 text-right font-bold text-emerald-600">Rp {{ Number(s.nominal || 0).toLocaleString('id-ID') }}</td>
+                                            <td v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="p-4 text-center"><button @click="hapus('sumbangan', s.id)" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded"><i class="fas fa-trash"></i></button></td>
+                                        </tr>
+                                        <tr v-if="listSumbangan.filter(x => x.rt === user.rt && x.rw === user.rw).length === 0"><td colspan="5" class="p-4 text-center text-gray-400 italic">Belum ada catatan sumbangan.</td></tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -1147,40 +1198,6 @@
                                     <button v-if="user.role === 'admin_kelurahan' || b.pengiklan === user.nama" @click="hapus('bursa', b.id)" class="absolute top-4 right-4 text-red-500 hover:bg-red-50 p-2 rounded-lg"><i class="fas fa-trash"></i></button>
                                 </div>
                                 <div v-if="listBursa.length === 0" class="col-span-2 text-center p-8 text-gray-400 italic font-bold">Belum ada Iklan / Jasa terdaftar.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 16. BANK SAMPAH -->
-                    <div v-if="menu==='bank-sampah'" class="space-y-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-recycle text-green-500 mr-2"></i>Bank Sampah Digital</h2>
-                            <div v-if="['rt', 'rw', 'admin_kelurahan'].includes(user.role)" class="bg-green-50 p-6 rounded-2xl border border-green-200 grid grid-cols-1 md:grid-cols-3 gap-4 shadow-inner mb-6">
-                                <div><label class="block text-xs font-bold mb-1">Nama Nasabah/Warga</label><input v-model="formSampah.nama" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                                <div>
-                                    <label class="block text-xs font-bold mb-1">Jenis Sampah</label>
-                                    <select v-model="formSampah.jenis" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none">
-                                        <option>Plastik Botol</option><option>Kardus/Kertas</option><option>Besi/Logam</option><option>Kaca</option>
-                                    </select>
-                                </div>
-                                <div><label class="block text-xs font-bold mb-1">Berat (Kg)</label><input v-model="formSampah.berat" type="number" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none"></div>
-                                <div class="md:col-span-3 text-right"><button @click="simpanSampah" class="bg-green-600 hover:bg-green-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition">Input Setoran</button></div>
-                            </div>
-                            
-                            <div class="overflow-x-auto border rounded-xl">
-                                <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tanggal</th><th class="p-4">Nama Nasabah</th><th class="p-4">Jenis & Berat</th><th class="p-4 text-center">Poin Didapat</th><th v-if="['rt', 'rw', 'admin_kelurahan'].includes(user.role)" class="p-4 text-center">Aksi</th></tr></thead>
-                                    <tbody>
-                                        <tr v-for="s in listSampah" :key="s.id" class="border-b hover:bg-gray-50">
-                                            <td class="p-4 text-xs font-bold text-gray-500">{{ s.tanggal }}</td>
-                                            <td class="p-4 font-black text-gray-800">{{ s.nama }}</td>
-                                            <td class="p-4 text-sm">{{ s.jenis }} ({{ s.berat }} Kg)</td>
-                                            <td class="p-4 text-center"><span class="bg-green-100 text-green-700 font-black px-3 py-1 rounded">{{ Number(s.berat) * 100 }} Pts</span></td>
-                                            <td v-if="['rt', 'rw', 'admin_kelurahan'].includes(user.role)" class="p-4 text-center"><button @click="hapus('sampah', s.id)" class="text-red-500 hover:bg-red-50 p-1.5 rounded"><i class="fas fa-trash"></i></button></td>
-                                        </tr>
-                                        <tr v-if="listSampah.length === 0"><td colspan="5" class="p-6 text-center text-gray-400 italic font-bold">Belum ada setoran sampah.</td></tr>
-                                    </tbody>
-                                </table>
                             </div>
                         </div>
                     </div>
@@ -1732,7 +1749,9 @@
                     const p = listPejabat.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
                     if (p) {
                         user.value = { nama: p.nama, role: p.role, rt: p.rt, rw: p.rw, username: p.username, ttd: p.ttd }; 
-                        isLoggedIn.value = true; return showToast(`Berhasil masuk sebagai ${p.role.toUpperCase()}`);
+                        isLoggedIn.value = true; 
+                        if (p.role === 'babinsa') menu.value = 'tamu'; // Otomatis masuk ke Tamu untuk Babinsa
+                        return showToast(`Berhasil masuk sebagai ${p.role.toUpperCase()}`);
                     }
                     const b = listBendahara.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
                     if (b) {
