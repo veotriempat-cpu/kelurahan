@@ -180,47 +180,85 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 </div>
 
                 
-                <!-- STATISTIK PUBLIK KEPENDUDUKAN -->
+                <!-- STATISTIK PUBLIK RINGKAS -->
                 <section class="mb-10 md:mb-14">
-                    <div class="flex items-end justify-between gap-4 mb-4">
-                        <div>
-                            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-blue-600">Data & Informasi</p>
-                            <h3 class="text-2xl md:text-3xl font-black text-gray-800">Statistik Warga Kelurahan</h3>
-                            <p class="text-sm text-gray-500 mt-1">Ringkasan jumlah warga yang aman ditampilkan secara publik.</p>
-                        </div>
+                    <div class="mb-4">
+                        <p class="text-[11px] font-black uppercase tracking-[0.2em] text-blue-600">Data & Informasi</p>
+                        <h3 class="text-2xl md:text-3xl font-black text-gray-800">Statistik Warga</h3>
+                        <p class="text-sm text-gray-500 mt-1">Klik kartu untuk melihat rincian.</p>
                     </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
-                        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 text-white shadow-lg">
-                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Total Warga</span><i class="fas fa-users text-xl opacity-80"></i></div>
-                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.totalWarga }}</p><p class="text-[10px] opacity-80">Jiwa</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- WARGA -->
+                        <div class="rounded-2xl shadow-lg overflow-hidden bg-white border border-blue-100">
+                            <button @click="showPublicWargaStats=!showPublicWargaStats"
+                                    class="w-full p-5 text-left bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-black uppercase tracking-widest opacity-90">Warga</p>
+                                    <p class="text-4xl font-black mt-1">{{ publicStats.totalWarga }}</p>
+                                    <p class="text-xs opacity-80 mt-1">Jumlah warga</p>
+                                </div>
+                                <i class="fas" :class="showPublicWargaStats?'fa-chevron-up':'fa-chevron-down'"></i>
+                            </button>
+
+                            <div v-if="showPublicWargaStats" class="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3 bg-slate-50">
+                                <div class="rounded-xl bg-white p-3 border">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase">Pria</p>
+                                    <p class="text-2xl font-black text-blue-700 mt-1">{{ publicStats.pria }}</p>
+                                </div>
+                                <div class="rounded-xl bg-white p-3 border">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase">Wanita</p>
+                                    <p class="text-2xl font-black text-pink-600 mt-1">{{ publicStats.wanita }}</p>
+                                </div>
+                                <div class="rounded-xl bg-white p-3 border">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase">Anak</p>
+                                    <p class="text-2xl font-black text-cyan-600 mt-1">{{ publicStats.anak }}</p>
+                                </div>
+                                <div class="rounded-xl bg-white p-3 border">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase">Remaja</p>
+                                    <p class="text-2xl font-black text-purple-600 mt-1">{{ publicStats.remaja }}</p>
+                                </div>
+                                <div class="rounded-xl bg-white p-3 border">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase">Dewasa</p>
+                                    <p class="text-2xl font-black text-orange-600 mt-1">{{ publicStats.dewasa }}</p>
+                                </div>
+                                <div class="rounded-xl bg-white p-3 border">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase">Lansia</p>
+                                    <p class="text-2xl font-black text-slate-700 mt-1">{{ publicStats.lansia }}</p>
+                                </div>
+                                <div class="col-span-2 sm:col-span-3 rounded-xl bg-white p-3 border flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[10px] font-bold text-gray-500 uppercase">Kepala Keluarga</p>
+                                        <p class="text-xl font-black text-gray-800 mt-1">{{ publicStats.kepalaKeluarga }}</p>
+                                    </div>
+                                    <i class="fas fa-house-user text-2xl text-gray-300"></i>
+                                </div>
+                            </div>
                         </div>
-                        <div class="bg-gradient-to-br from-sky-500 to-blue-500 rounded-2xl p-4 text-white shadow-lg">
-                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Pria</span><i class="fas fa-mars text-xl opacity-80"></i></div>
-                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.pria }}</p><p class="text-[10px] opacity-80">Jiwa</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-pink-500 to-rose-500 rounded-2xl p-4 text-white shadow-lg">
-                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Wanita</span><i class="fas fa-venus text-xl opacity-80"></i></div>
-                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.wanita }}</p><p class="text-[10px] opacity-80">Jiwa</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-cyan-500 to-teal-500 rounded-2xl p-4 text-white shadow-lg">
-                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Anak-Anak</span><i class="fas fa-child text-xl opacity-80"></i></div>
-                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.anak }}</p><p class="text-[10px] opacity-80">0–12 tahun</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl p-4 text-white shadow-lg">
-                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Remaja</span><i class="fas fa-user-graduate text-xl opacity-80"></i></div>
-                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.remaja }}</p><p class="text-[10px] opacity-80">13–25 tahun</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-lg">
-                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Dewasa</span><i class="fas fa-user-tie text-xl opacity-80"></i></div>
-                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.dewasa }}</p><p class="text-[10px] opacity-80">26–59 tahun</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-slate-600 to-gray-700 rounded-2xl p-4 text-white shadow-lg">
-                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Lansia</span><i class="fas fa-heartbeat text-xl opacity-80"></i></div>
-                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.lansia }}</p><p class="text-[10px] opacity-80">60+ tahun</p>
-                        </div>
-                        <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-4 text-white shadow-lg">
-                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Jenis Pekerjaan</span><i class="fas fa-briefcase text-xl opacity-80"></i></div>
-                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.jenisPekerjaan }}</p><p class="text-[10px] opacity-80">Kategori pekerjaan</p>
+
+                        <!-- JENIS PEKERJAAN -->
+                        <div class="rounded-2xl shadow-lg overflow-hidden bg-white border border-emerald-100">
+                            <button @click="showPublicPekerjaanStats=!showPublicPekerjaanStats"
+                                    class="w-full p-5 text-left bg-gradient-to-r from-emerald-500 to-green-600 text-white flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-black uppercase tracking-widest opacity-90">Jenis Pekerjaan</p>
+                                    <p class="text-4xl font-black mt-1">{{ publicStats.jenisPekerjaan }}</p>
+                                    <p class="text-xs opacity-80 mt-1">Kategori pekerjaan</p>
+                                </div>
+                                <i class="fas" :class="showPublicPekerjaanStats?'fa-chevron-up':'fa-chevron-down'"></i>
+                            </button>
+
+                            <div v-if="showPublicPekerjaanStats" class="p-4 bg-slate-50">
+                                <div class="space-y-2 max-h-80 overflow-auto pr-1">
+                                    <div v-for="item in publicPekerjaanStats" :key="item[0]" class="bg-white border rounded-xl p-3 flex items-center justify-between gap-3">
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-gray-800 truncate">{{ item[0] }}</p>
+                                        </div>
+                                        <span class="shrink-0 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-black">{{ item[1] }} warga</span>
+                                    </div>
+                                    <p v-if="publicPekerjaanStats.length===0" class="text-center text-gray-400 py-6">Belum ada data pekerjaan.</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -1611,6 +1649,8 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const layananMandiriTab = ref('ringkasan');
                 const SAVED_USER_KEY = 'kelurahan_user_session';
                 const restoreSavedUser = () => { try { const raw = localStorage.getItem(SAVED_USER_KEY); return raw ? JSON.parse(raw) : null; } catch(e) { return null; } };
+                const showPublicWargaStats = ref(false);
+                const showPublicPekerjaanStats = ref(false);
                 const user = ref(restoreSavedUser() || { nama: '', role: '', rt: '', rw: '', username: '', ttd: '' });
                 const persistUser = () => localStorage.setItem(SAVED_USER_KEY, JSON.stringify(user.value));
                 watch(menu, (value) => localStorage.setItem('kelurahan_last_view', value));
@@ -2576,6 +2616,14 @@ const downloadExcelData = (type) => {
                 const asetBaikInventaris = computed(() => listInventarisAset.value.filter(a=>String(a.kondisi||'').toLowerCase()==='baik').reduce((n,a)=>n+Number(a.jumlah||0),0));
                 const asetRusakInventaris = computed(() => listInventarisAset.value.filter(a=>['rusak ringan','rusak berat','rusak'].includes(String(a.kondisi||'').toLowerCase())).reduce((n,a)=>n+Number(a.jumlah||0),0));
 
+                const publicPekerjaanStats = computed(() => {
+                    const out = {};
+                    (listWarga.value || []).forEach(w => {
+                        const p = String(w.pekerjaan || w.pekerjaanUtama || 'Belum diisi').trim() || 'Belum diisi';
+                        out[p] = (out[p] || 0) + 1;
+                    });
+                    return Object.entries(out).sort((a,b) => b[1]-a[1]);
+                });
 const filteredPengajuanUsaha = computed(() => {
                     if(user.value.role === 'rt') return listPengajuanUsaha.value.filter(x => x.rt == user.value.rt);
                     if(user.value.role === 'rw') return listPengajuanUsaha.value.filter(x => x.rw == user.value.rw);
@@ -2585,7 +2633,7 @@ const filteredPengajuanUsaha = computed(() => {
 
                 return {
                     isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user, layananMandiriTab,
-                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, adminAccount,
+                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, showPublicWargaStats, showPublicPekerjaanStats, publicPekerjaanStats, adminAccount,
                     showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
                     showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormInventarisAset,
                     showPassLogin, showPassReg, showPassRegRep, showPassRegLuar, showPassAdmin, showPassPejabat,
