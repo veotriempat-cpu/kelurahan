@@ -513,7 +513,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                             <div class="flex gap-4 items-end flex-wrap">
                                 <div class="flex-1 min-w-[250px]">
                                     <label class="block text-xs font-bold mb-1">Kolom URL Tanda Tangan Warga (Online)</label>
-                                    <input v-model="formWargaTtd.url" placeholder="https://contohgambar.com/ttd-saya.png" class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500">
+                                    <input v-model="formWargaTtd.url" placeholder="https://contohgambar.com/ttd-saya.png" class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 outline-none focus:ring-2 focus:ring-blue-500"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 200 px</b> (PNG transparan). <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div>
                                 </div>
                                 <button @click="simpanTtdWarga" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-bold transition shadow"><i class="fas fa-save mr-1"></i> Simpan TTD</button>
                             </div>
@@ -529,7 +529,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-4">
                                     <div class="flex items-center gap-4">
-                                        <div class="flex-1"><label class="block text-xs font-bold mb-1">Logo Website (URL Gambar)</label><input v-model="webSettings.logo" placeholder="https://..." class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 outline-none"></div>
+                                        <div class="flex-1"><label class="block text-xs font-bold mb-1">Logo Website (URL Gambar)</label><input v-model="webSettings.logo" placeholder="https://..." class="w-full border p-2.5 rounded-lg text-sm bg-gray-50 outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>512 x 512 px</b>. <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
                                         <img v-if="webSettings.logo" :src="webSettings.logo" class="w-12 h-12 rounded-full border shadow-sm object-cover mt-4">
                                     </div>
                                     <div><label class="block text-xs font-bold mb-1">Pilih Warna Utama Website</label><input type="color" v-model="webSettings.warnaUtama" class="w-full h-10 p-1 border rounded-lg cursor-pointer"></div>
@@ -545,7 +545,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                             <div class="flex-1"><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.walikota.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
                                             <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.walikota.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
                                         </div>
-                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.walikota.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.walikota.foto" class="w-full border p-2 text-xs rounded outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 600 px</b>. <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
                                         <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.walikota.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
                                     </div>
                                     <div class="border p-4 rounded-xl bg-gray-50 shadow-inner space-y-2">
@@ -554,7 +554,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                             <div class="flex-1"><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.wakil.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
                                             <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.wakil.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
                                         </div>
-                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.wakil.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.wakil.foto" class="w-full border p-2 text-xs rounded outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 600 px</b>. <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
                                         <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.wakil.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
                                     </div>
                                     <div class="border p-4 rounded-xl bg-gray-50 shadow-inner space-y-2">
@@ -563,7 +563,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                             <div class="flex-1"><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.camat.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
                                             <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.camat.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
                                         </div>
-                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.camat.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.camat.foto" class="w-full border p-2 text-xs rounded outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 600 px</b>. <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
                                         <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.camat.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
                                     </div>
                                     <div class="border p-4 rounded-xl bg-gray-50 shadow-inner space-y-2">
@@ -572,7 +572,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                             <div class="flex-1"><label class="text-[10px] font-bold">Nama</label><input v-model="webSettings.lurah.nama" class="w-full border p-2 text-xs rounded outline-none"></div>
                                             <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.lurah.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
                                         </div>
-                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.lurah.foto" class="w-full border p-2 text-xs rounded outline-none"></div>
+                                        <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.lurah.foto" class="w-full border p-2 text-xs rounded outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 600 px</b>. <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
                                         <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.lurah.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
                                     </div>
                                 </div>
@@ -593,9 +593,9 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                         </label>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div><label class="block text-xs font-bold mb-1 text-gray-700">URL TTD Lurah</label><input v-model="webSettings.ttd.lurah" class="w-full border p-2 text-xs rounded-lg outline-none"></div>
-                                        <div><label class="block text-xs font-bold mb-1 text-gray-700">URL TTD Sekretaris</label><input v-model="webSettings.ttd.sekretaris" class="w-full border p-2 text-xs rounded-lg outline-none"></div>
-                                        <div><label class="block text-xs font-bold mb-1 text-gray-700">URL Stempel Kelurahan</label><input v-model="webSettings.ttd.stempel" class="w-full border p-2 text-xs rounded-lg outline-none"></div>
+                                        <div><label class="block text-xs font-bold mb-1 text-gray-700">URL TTD Lurah</label><input v-model="webSettings.ttd.lurah" class="w-full border p-2 text-xs rounded-lg outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 200 px</b> (PNG transparan). <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
+                                        <div><label class="block text-xs font-bold mb-1 text-gray-700">URL TTD Sekretaris</label><input v-model="webSettings.ttd.sekretaris" class="w-full border p-2 text-xs rounded-lg outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 200 px</b> (PNG transparan). <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
+                                        <div><label class="block text-xs font-bold mb-1 text-gray-700">URL Stempel Kelurahan</label><input v-model="webSettings.ttd.stempel" class="w-full border p-2 text-xs rounded-lg outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>512 x 512 px</b> (PNG transparan). <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
                                     </div>
                                 </div>
                             </div>
