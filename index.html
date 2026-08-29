@@ -179,7 +179,53 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     </div>
                 </div>
 
-                <!-- WIDGET ULANG TAHUN WARGA BULAN INI -->
+                
+                <!-- STATISTIK PUBLIK KEPENDUDUKAN -->
+                <section class="mb-10 md:mb-14">
+                    <div class="flex items-end justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-blue-600">Data & Informasi</p>
+                            <h3 class="text-2xl md:text-3xl font-black text-gray-800">Statistik Warga Kelurahan</h3>
+                            <p class="text-sm text-gray-500 mt-1">Ringkasan jumlah warga yang aman ditampilkan secara publik.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+                        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Total Warga</span><i class="fas fa-users text-xl opacity-80"></i></div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.totalWarga }}</p><p class="text-[10px] opacity-80">Jiwa</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-sky-500 to-blue-500 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Pria</span><i class="fas fa-mars text-xl opacity-80"></i></div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.pria }}</p><p class="text-[10px] opacity-80">Jiwa</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-pink-500 to-rose-500 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Wanita</span><i class="fas fa-venus text-xl opacity-80"></i></div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.wanita }}</p><p class="text-[10px] opacity-80">Jiwa</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-cyan-500 to-teal-500 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Anak-Anak</span><i class="fas fa-child text-xl opacity-80"></i></div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.anak }}</p><p class="text-[10px] opacity-80">0–12 tahun</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Remaja</span><i class="fas fa-user-graduate text-xl opacity-80"></i></div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.remaja }}</p><p class="text-[10px] opacity-80">13–25 tahun</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Dewasa</span><i class="fas fa-user-tie text-xl opacity-80"></i></div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.dewasa }}</p><p class="text-[10px] opacity-80">26–59 tahun</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-slate-600 to-gray-700 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Lansia</span><i class="fas fa-heartbeat text-xl opacity-80"></i></div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.lansia }}</p><p class="text-[10px] opacity-80">60+ tahun</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between"><span class="text-xs font-bold uppercase opacity-90">Jenis Pekerjaan</span><i class="fas fa-briefcase text-xl opacity-80"></i></div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.jenisPekerjaan }}</p><p class="text-[10px] opacity-80">Kategori pekerjaan</p>
+                        </div>
+                    </div>
+                </section>
+
+<!-- WIDGET ULANG TAHUN WARGA BULAN INI -->
                 <div v-if="wargaUlangTahun.length > 0" class="bg-gradient-to-r from-pink-500 to-rose-500 rounded-[2rem] p-6 shadow-xl mb-12 text-white flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
                     <div class="absolute -bottom-10 -right-10 text-9xl text-white/10"><i class="fas fa-birthday-cake"></i></div>
                     <div class="flex-shrink-0 bg-white/20 p-5 rounded-full z-10">
@@ -1386,7 +1432,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 
     <!-- FIREBASE MODULES (PERSISTENCE) MENGGUNAKAN IMPORTMAP STANDARD -->
     <script type="module">
-        import { createApp, ref, computed, onMounted } from 'vue';
+        import { createApp, ref, computed, onMounted, watch } from 'vue';
         import { initializeApp } from 'firebase/app';
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signInWithEmailAndPassword, signOut } from 'firebase/auth';
         import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
@@ -1437,8 +1483,9 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const isRegisteringLuar = ref(false); 
                 const regStep = ref(1);
                 const sidebarOpen = ref(false);
-                const menu = ref('dashboard');
+                const menu = ref(localStorage.getItem('kelurahan_last_view') || 'dashboard');
                 const user = ref({ nama: '', role: '', rt: '', rw: '', username: '', ttd: '' });
+                watch(menu, (value) => localStorage.setItem('kelurahan_last_view', value));
                 const publicTab = ref('agenda'); 
                 
                 const showPassLogin = ref(false);
@@ -1517,7 +1564,11 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const listFasilitas = ref([]);
                 const listBansos = ref([]);
                 const listAnggaran = ref([]);
-                const listSampah = ref([]);
+                const listSampah = ref([]);                const publicStats = ref({
+                    totalWarga: 0, pria: 0, wanita: 0, anak: 0, remaja: 0,
+                    dewasa: 0, lansia: 0, jenisPekerjaan: 0, kepalaKeluarga: 0, updatedAt: null
+                });
+
 
                 const getColRef = (cName) => collection(db, 'artifacts', appId, 'public', 'data', cName);
                 const getDocRef = (cName, dId) => doc(db, 'artifacts', appId, 'public', 'data', cName, dId);
@@ -1526,6 +1577,10 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 // Public realtime listeners: published public content must be visible on every device
                 // without requiring the visitor to sign in. Sensitive resident data remains protected by Rules.
                 const setupPublicListeners = () => {
+                        onSnapshot(getDocRef('publicStats', 'summary'), (d) => {
+                            if (d.exists()) publicStats.value = { ...publicStats.value, ...d.data() };
+                        }, (err) => console.warn('Public stats sync:', err));
+
                     onSnapshot(getDocRef('settings', 'webSettings'), (snap) => {
                         if (!snap.exists()) return;
                         const data = snap.data();
@@ -1589,7 +1644,45 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     'fasilitas': listFasilitas, 'bansos': listBansos, 'anggaran': listAnggaran, 'sampah': listSampah, 'agenda': listAgenda
                 });
 
-                const setupListeners = () => {
+                
+                let publicStatsTimer = null;
+                const publishPublicStats = (docs) => {
+                    if (!fbUser.value) return;
+                    clearTimeout(publicStatsTimer);
+                    publicStatsTimer = setTimeout(async () => {
+                        try {
+                            const rows = docs.map(d => d.data ? d.data() : d);
+                            const totalWarga = rows.length;
+                            const pria = rows.filter(w => w.kelamin === 'Laki-laki').length;
+                            const wanita = rows.filter(w => w.kelamin === 'Perempuan').length;
+                            const year = new Date().getFullYear();
+                            let anak = 0, remaja = 0, dewasa = 0, lansia = 0;
+                            const pekerjaan = new Set(), kk = new Set();
+                            rows.forEach(w => {
+                                const p = String(w.pekerjaan || '').trim().toLowerCase();
+                                if (p) pekerjaan.add(p);
+                                if (w.nokk) kk.add(String(w.nokk).trim());
+                                if (w.tgl_lahir) {
+                                    const y = parseInt(String(w.tgl_lahir).split('-')[0], 10);
+                                    if (Number.isFinite(y)) {
+                                        const age = Math.max(0, year - y);
+                                        if (age <= 12) anak++;
+                                        else if (age <= 25) remaja++;
+                                        else if (age <= 59) dewasa++;
+                                        else lansia++;
+                                    }
+                                }
+                            });
+                            await setDoc(getDocRef('publicStats', 'summary'),
+                                { totalWarga, pria, wanita, anak, remaja, dewasa, lansia,
+                                  jenisPekerjaan: pekerjaan.size, kepalaKeluarga: kk.size,
+                                  updatedAt: new Date().toISOString() },
+                                { merge: true });
+                        } catch(e) { console.warn('Public stats update:', e?.code || e); }
+                    }, 400);
+                };
+
+const setupListeners = () => {
                     if(!fbUser.value) return;
                     const sync = (cName, refVar) => {
                         onSnapshot(getColRef(cName), (snap) => {
@@ -1843,7 +1936,7 @@ if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username ===
                     regLuar.value = { nama: '', nik: '', alamat: '', hp: '', username: '', password: '', ttd:'' };
                 };
 
-                const logout = () => { isLoggedIn.value=false; currentAuthView.value='landing'; menu.value='dashboard'; showToast('Berhasil Logout'); };
+                const logout = () => { localStorage.removeItem('kelurahan_last_view'); isLoggedIn.value=false; currentAuthView.value='landing'; menu.value='dashboard'; showToast('Berhasil Logout'); };
 
                 const getPejabatSetting = () => { return listPejabat.value.find(x => x.username === user.value.username) || { ttd:'', stempel:'' }; };
                 
@@ -2244,7 +2337,7 @@ body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-h
 
                 return {
                     isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user,
-                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, adminAccount,
+                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, adminAccount,
                     showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
                     showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan,
                     showPassLogin, showPassReg, showPassRegRep, showPassRegLuar, showPassAdmin, showPassPejabat,
