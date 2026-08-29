@@ -129,48 +129,52 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 </div>
 
                 <!-- TAMPILAN PROFIL PEJABAT (WALIKOTA, WAKIL, CAMAT, LURAH) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-16">
                     <!-- Walikota -->
-                    <div class="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
-                        <div :style="{ backgroundColor: webSettings.warnaUtama + '20' }" class="absolute top-0 right-0 w-32 h-32 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
-                        <img :src="webSettings.walikota.foto" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.walikota.foto">
-                        <div class="z-10 text-center md:text-left">
-                            <h3 class="font-black text-2xl text-gray-800">{{ webSettings.walikota.nama }}</h3>
-                            <p :style="{ color: webSettings.warnaUtama, backgroundColor: webSettings.warnaUtama + '10' }" class="text-xs font-black uppercase tracking-widest mb-3 inline-block px-3 py-1 rounded-full">{{ webSettings.walikota.jabatan }}</p>
-                            <p class="text-gray-600 text-sm italic font-medium leading-relaxed">"{{ webSettings.walikota.pesan }}"</p>
+                    <div :style="{ background: webSettings.walikota.warnaKartu || '#2563eb' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                        <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
+                        <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
+                        <img :src="webSettings.walikota.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.walikota.foto">
+                        <div class="z-10 mt-4 w-full">
+                            <h3 class="font-black text-xl leading-tight">{{ webSettings.walikota.nama }}</h3>
+                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.walikota.jabatan }}</p>
+                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.walikota.pesan }}"</p>
                         </div>
                     </div>
-                    <!-- Wakil Walikota -->
-                    <div class="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
-                        <img :src="webSettings.wakil.foto" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.wakil.foto">
-                        <div class="z-10 text-center md:text-left">
-                            <h3 class="font-black text-2xl text-gray-800">{{ webSettings.wakil.nama }}</h3>
-                            <p class="text-xs font-black uppercase tracking-widest text-emerald-600 mb-3 bg-emerald-50 inline-block px-3 py-1 rounded-full">{{ webSettings.wakil.jabatan }}</p>
-                            <p class="text-gray-600 text-sm italic font-medium leading-relaxed">"{{ webSettings.wakil.pesan }}"</p>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-                    <!-- Camat -->
-                    <div class="bg-white rounded-[2rem] p-8 shadow-xl border border-gray-100 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 w-32 h-32 bg-purple-50 rounded-bl-full -z-10 group-hover:scale-110 transition duration-500"></div>
-                        <img :src="webSettings.camat.foto" class="w-32 h-32 rounded-full border-4 border-white shadow-xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.camat.foto">
-                        <div class="z-10 text-center md:text-left">
-                            <h3 class="font-black text-2xl text-gray-800">{{ webSettings.camat.nama }}</h3>
-                            <p class="text-xs font-black uppercase tracking-widest text-purple-600 mb-3 bg-purple-50 inline-block px-3 py-1 rounded-full">{{ webSettings.camat.jabatan }}</p>
-                            <p class="text-gray-600 text-sm italic font-medium leading-relaxed">"{{ webSettings.camat.pesan }}"</p>
+                    <!-- Wakil Walikota -->
+                    <div :style="{ background: webSettings.wakil.warnaKartu || '#16a34a' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                        <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
+                        <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
+                        <img :src="webSettings.wakil.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.wakil.foto">
+                        <div class="z-10 mt-4 w-full">
+                            <h3 class="font-black text-xl leading-tight">{{ webSettings.wakil.nama }}</h3>
+                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.wakil.jabatan }}</p>
+                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.wakil.pesan }}"</p>
                         </div>
                     </div>
+
+                    <!-- Camat -->
+                    <div :style="{ background: webSettings.camat.warnaKartu || '#7c3aed' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                        <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
+                        <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
+                        <img :src="webSettings.camat.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.camat.foto">
+                        <div class="z-10 mt-4 w-full">
+                            <h3 class="font-black text-xl leading-tight">{{ webSettings.camat.nama }}</h3>
+                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.camat.jabatan }}</p>
+                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.camat.pesan }}"</p>
+                        </div>
+                    </div>
+
                     <!-- Lurah -->
-                    <div :style="{ backgroundColor: webSettings.warnaUtama }" class="rounded-[2rem] p-8 shadow-xl text-white flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
-                        <div class="absolute -top-20 -right-20 w-48 h-48 bg-white opacity-10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.lurah.foto" class="w-32 h-32 rounded-full border-4 border-white/20 object-cover shadow-2xl shrink-0 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.lurah.foto">
-                        <div class="text-center md:text-left z-10">
-                            <h3 class="font-black text-2xl mb-1">{{ webSettings.lurah.nama }}</h3>
-                            <p class="text-white/70 font-bold mb-3 uppercase tracking-widest text-xs">{{ webSettings.lurah.jabatan }}</p>
-                            <p class="text-gray-100 text-sm italic leading-relaxed font-medium">"{{ webSettings.lurah.pesan }}"</p>
+                    <div :style="{ background: webSettings.lurah.warnaKartu || '#f97316' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                        <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
+                        <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
+                        <img :src="webSettings.lurah.foto" class="w-28 h-28 rounded-full border-4 border-white/80 shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.lurah.foto">
+                        <div class="z-10 mt-4 w-full">
+                            <h3 class="font-black text-xl leading-tight">{{ webSettings.lurah.nama }}</h3>
+                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.lurah.jabatan }}</p>
+                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.lurah.pesan }}"</p>
                         </div>
                     </div>
                 </div>
@@ -541,6 +545,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                             <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.walikota.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
                                         </div>
                                         <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.walikota.foto" class="w-full border p-2 text-xs rounded outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 600 px</b>. <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
+                                        <div class="flex items-center gap-3"><div class="flex-1"><label class="text-[10px] font-bold">Warna Kotak</label><input type="color" v-model="webSettings.walikota.warnaKartu" class="w-full h-9 p-1 border rounded cursor-pointer"></div><div class="w-28"><label class="text-[10px] font-bold">Kode HEX</label><input v-model="webSettings.walikota.warnaKartu" maxlength="7" class="w-full border p-2 text-xs rounded outline-none uppercase" placeholder="#2563EB"></div></div>
                                         <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.walikota.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
                                     </div>
                                     <div class="border p-4 rounded-xl bg-gray-50 shadow-inner space-y-2">
@@ -550,6 +555,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                             <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.wakil.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
                                         </div>
                                         <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.wakil.foto" class="w-full border p-2 text-xs rounded outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 600 px</b>. <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
+                                        <div class="flex items-center gap-3"><div class="flex-1"><label class="text-[10px] font-bold">Warna Kotak</label><input type="color" v-model="webSettings.wakil.warnaKartu" class="w-full h-9 p-1 border rounded cursor-pointer"></div><div class="w-28"><label class="text-[10px] font-bold">Kode HEX</label><input v-model="webSettings.wakil.warnaKartu" maxlength="7" class="w-full border p-2 text-xs rounded outline-none uppercase" placeholder="#16A34A"></div></div>
                                         <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.wakil.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
                                     </div>
                                     <div class="border p-4 rounded-xl bg-gray-50 shadow-inner space-y-2">
@@ -559,6 +565,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                             <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.camat.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
                                         </div>
                                         <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.camat.foto" class="w-full border p-2 text-xs rounded outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 600 px</b>. <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
+                                        <div class="flex items-center gap-3"><div class="flex-1"><label class="text-[10px] font-bold">Warna Kotak</label><input type="color" v-model="webSettings.camat.warnaKartu" class="w-full h-9 p-1 border rounded cursor-pointer"></div><div class="w-28"><label class="text-[10px] font-bold">Kode HEX</label><input v-model="webSettings.camat.warnaKartu" maxlength="7" class="w-full border p-2 text-xs rounded outline-none uppercase" placeholder="#7C3AED"></div></div>
                                         <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.camat.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
                                     </div>
                                     <div class="border p-4 rounded-xl bg-gray-50 shadow-inner space-y-2">
@@ -568,6 +575,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                             <div class="flex-1"><label class="text-[10px] font-bold">Jabatan</label><input v-model="webSettings.lurah.jabatan" class="w-full border p-2 text-xs rounded outline-none"></div>
                                         </div>
                                         <div><label class="text-[10px] font-bold">URL Foto Online</label><input v-model="webSettings.lurah.foto" class="w-full border p-2 text-xs rounded outline-none"><div class="mt-1 text-[10px] text-gray-500">Ukuran disarankan: <b>600 x 600 px</b>. <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div></div>
+                                        <div class="flex items-center gap-3"><div class="flex-1"><label class="text-[10px] font-bold">Warna Kotak</label><input type="color" v-model="webSettings.lurah.warnaKartu" class="w-full h-9 p-1 border rounded cursor-pointer"></div><div class="w-28"><label class="text-[10px] font-bold">Kode HEX</label><input v-model="webSettings.lurah.warnaKartu" maxlength="7" class="w-full border p-2 text-xs rounded outline-none uppercase" placeholder="#F97316"></div></div>
                                         <div><label class="text-[10px] font-bold">Pesan Sambutan</label><textarea v-model="webSettings.lurah.pesan" rows="2" class="w-full border p-2 text-xs rounded outline-none"></textarea></div>
                                     </div>
                                 </div>
@@ -1457,10 +1465,10 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 
                 const webSettings = ref({
                     warnaUtama: '#1e3a8a', logo: '', namaWebsite: 'Portal Kelurahan Digital', headerText: 'Layanan Digital Terpadu', footerText: '© 2026 Sistem Informasi Kelurahan Digital. Semua Hak Dilindungi.',
-                    walikota: { nama: 'Bapak Walikota', jabatan: 'Walikota', foto: 'https://via.placeholder.com/150', pesan: 'Wujudkan kota cerdas dengan pelayanan publik digital.' },
-                    wakil: { nama: 'Bapak Wakil Walikota', jabatan: 'Wakil Walikota', foto: 'https://via.placeholder.com/150', pesan: 'Kolaborasi bersama membangun daerah.' },
-                    camat: { nama: 'Bapak Camat', jabatan: 'Camat', foto: 'https://via.placeholder.com/150', pesan: 'Bersinergi membangun wilayah kecamatan.' },
-                    lurah: { nama: 'Bapak Lurah', jabatan: 'Kepala Kelurahan', foto: 'https://via.placeholder.com/200', pesan: 'Selamat datang di portal resmi kelurahan digital.' },
+                    walikota: { nama: 'Bapak Walikota', jabatan: 'Walikota', foto: 'https://via.placeholder.com/150', warnaKartu: '#2563eb', pesan: 'Wujudkan kota cerdas dengan pelayanan publik digital.' },
+                    wakil: { nama: 'Bapak Wakil Walikota', jabatan: 'Wakil Walikota', foto: 'https://via.placeholder.com/150', warnaKartu: '#16a34a', pesan: 'Kolaborasi bersama membangun daerah.' },
+                    camat: { nama: 'Bapak Camat', jabatan: 'Camat', foto: 'https://via.placeholder.com/150', warnaKartu: '#7c3aed', pesan: 'Bersinergi membangun wilayah kecamatan.' },
+                    lurah: { nama: 'Bapak Lurah', jabatan: 'Kepala Kelurahan', foto: 'https://via.placeholder.com/200', warnaKartu: '#f97316', pesan: 'Selamat datang di portal resmi kelurahan digital.' },
                     ttd: { lurah: '', sekretaris: '', stempel: '', aktif: true }
                 });
 
@@ -1577,7 +1585,14 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     onSnapshot(getDocRef('settings', 'webSettings'), (d) => {
                         if(d.exists()) {
                             const data = d.data();
-                            if(!data.camat) data.camat = { nama: 'Bapak Camat', jabatan: 'Camat', foto: 'https://via.placeholder.com/150', pesan: 'Bersinergi membangun wilayah kecamatan yang maju.' };
+                            data.walikota = { ...webSettings.value.walikota, ...(data.walikota || {}) };
+                            data.wakil = { ...webSettings.value.wakil, ...(data.wakil || {}) };
+                            data.camat = { ...webSettings.value.camat, ...(data.camat || {}) };
+                            data.lurah = { ...webSettings.value.lurah, ...(data.lurah || {}) };
+                            if(!data.walikota.warnaKartu) data.walikota.warnaKartu = '#2563eb';
+                            if(!data.wakil.warnaKartu) data.wakil.warnaKartu = '#16a34a';
+                            if(!data.camat.warnaKartu) data.camat.warnaKartu = '#7c3aed';
+                            if(!data.lurah.warnaKartu) data.lurah.warnaKartu = '#f97316';
                             webSettings.value = data;
                         }
                     }, (err) => console.error(err));
