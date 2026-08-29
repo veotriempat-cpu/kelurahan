@@ -5,53 +5,60 @@ service cloud.firestore {
 
     // ==========================================================
     // ADMIN AUTHORIZATION
-    // /admins/{UID}
     // ==========================================================
     match /admins/{uid} {
-      // Admin hanya boleh membaca dokumen admin miliknya sendiri.
-      allow read: if request.auth != null
-                  && request.auth.uid == uid;
-
-      // Tidak boleh membuat/mengubah/menghapus dari client.
+      allow read: if request.auth != null && request.auth.uid == uid;
       allow create, update, delete: if false;
     }
 
     // ==========================================================
-    // PUBLIC WEBSITE SETTINGS
-    // Logo, foto Walikota/Wakil/Camat/Lurah,
-    // warna kartu, nama website, header, footer, TTD, stempel.
+    // PUBLIC WEBSITE CONFIGURATION
+    // Semua perangkat boleh membaca. Hanya user authenticated
+    // yang boleh menulis dari aplikasi.
     // ==========================================================
     match /artifacts/{appId}/public/data/settings/webSettings {
-
-      // Semua perangkat boleh membaca konfigurasi website.
       allow read: if true;
-
-      // Hanya user yang sudah login yang boleh menyimpan.
       allow write: if request.auth != null;
     }
 
     // ==========================================================
-    // SETTINGS LAIN
+    // PUBLIC CONTENT
+    // Agenda, UMKM, Bursa, Fasilitas, dan Galeri dibaca publik.
+    // Penulisan tetap hanya user authenticated.
     // ==========================================================
-    match /artifacts/{appId}/public/data/settings/{document} {
+    match /artifacts/{appId}/public/data/agenda/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
 
-      // Hanya user authenticated.
-      allow read, write: if request.auth != null;
+    match /artifacts/{appId}/public/data/umkm/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /artifacts/{appId}/public/data/bursa/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /artifacts/{appId}/public/data/fasilitas/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /artifacts/{appId}/public/data/galeri/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
     // ==========================================================
-    // DATA APLIKASI
+    // LEGACY / PRIVATE DATA
     // ==========================================================
     match /artifacts/{appId}/public/data/{collection}/{document} {
-
       allow read, write: if request.auth != null;
     }
 
-    // ==========================================================
-    // SUBCOLLECTION
-    // ==========================================================
     match /artifacts/{appId}/public/data/{collection}/{document}/{subcollection}/{subdocument} {
-
       allow read, write: if request.auth != null;
     }
   }
