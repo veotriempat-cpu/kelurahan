@@ -924,49 +924,68 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                             <option>Infrastruktur</option><option>Keamanan</option><option>Lingkungan & Sampah</option><option>Lainnya</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <label class="block text-xs font-bold mb-1">Privasi Laporan</label>
-                                        <select v-model="formLaporan.privasi" class="w-full border p-2.5 rounded-lg text-sm bg-white outline-none">
-                                            <option>Publik (Bisa dilihat warga lain)</option><option>Rahasia (Hanya RT/RW/Admin)</option>
-                                        </select>
+                                    <div class="bg-white border border-red-200 rounded-lg p-3">
+                                        <p class="text-xs font-black text-red-700"><i class="fas fa-lock mr-1"></i> Laporan Bersifat Terbatas</p>
+                                        <p class="text-[10px] text-gray-500 mt-1">Hanya dapat dilihat oleh Admin Utama, RT/RW setempat, Babinsa, dan warga yang membuat laporan.</p>
                                     </div>
                                 </div>
-                                <div><label class="block text-xs font-bold mb-1">Upload Foto Bukti (Opsional)</label><input type="file" @change="e=>uploadFile(e,'laporan')" class="w-full border p-2.5 rounded-lg text-sm bg-white"></div>
-                                <div class="text-right"><button @click="simpanLaporan" class="bg-red-600 text-white font-bold px-8 py-3 rounded-xl shadow-md transition">Kirim Pengaduan</button></div>
+                                <div>
+                                    <label class="block text-xs font-bold mb-1">Upload Foto Bukti (Opsional)</label>
+                                    <input type="file" accept="image/*" @change="e=>uploadFile(e,'laporan')" class="w-full border p-2.5 rounded-lg text-sm bg-white">
+                                    <p class="text-[10px] text-gray-500 mt-1"><i class="fas fa-compress-alt mr-1"></i>Foto otomatis dikompres agar ukuran data sangat kecil. Klik foto pada laporan untuk memperbesar.</p>
+                                    <div v-if="formLaporan.foto" class="mt-2 flex items-center gap-3">
+                                        <img :src="formLaporan.foto" @click="zoomedImage=formLaporan.foto" class="w-20 h-20 object-cover rounded-lg border cursor-pointer">
+                                        <span class="text-[10px] text-green-700 font-bold">Foto siap dikirim</span>
+                                    </div>
+                                </div>
+                                <div class="text-right"><button @click="simpanLaporan" class="bg-red-600 text-white font-bold px-8 py-3 rounded-xl shadow-md transition"><i class="fas fa-paper-plane mr-1"></i> Kirim Pengaduan</button></div>
                             </div>
                             
                             <div class="space-y-4">
-                                <div v-for="l in listLaporan.filter(x => user.role === 'admin_kelurahan' || user.role === 'babinsa' || x.privasi === 'Publik' || String(x.username) === String(user.username) || (['rt','rw'].includes(user.role) && x.rt == user.rt && x.rw == user.rw))" :key="l.id" class="bg-gray-50 p-5 rounded-2xl border hover:shadow-md transition">
-                                    <div class="flex justify-between items-start mb-3">
+                                <div v-for="l in listLaporan.filter(x => laporanBisaDilihat(x))" :key="l.id" class="bg-gray-50 p-5 rounded-2xl border hover:shadow-md transition">
+                                    <div class="flex justify-between items-start mb-3 gap-3">
                                         <div>
                                             <h4 class="font-black text-gray-800 text-lg">{{ l.judul }}</h4>
                                             <p class="text-[10px] text-gray-500 font-bold mt-1"><i class="fas fa-user-circle mr-1"></i> {{ l.pelapor }} (RT {{ l.rt }} / RW {{ l.rw }}) | {{ l.tanggal }}</p>
                                         </div>
-                                        <span :class="l.status === 'Selesai' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'" class="px-3 py-1 rounded-full text-[10px] font-black uppercase">{{ l.status }}</span>
+                                        <span :class="statusLaporanClass(l.status)" class="px-3 py-1 rounded-full text-[10px] font-black uppercase whitespace-nowrap">{{ l.status || 'Diterima' }}</span>
                                     </div>
                                     <p class="text-sm text-gray-600 mb-4">{{ l.isi }}</p>
-                                    <img v-if="l.foto" :src="l.foto" @click="zoomedImage=l.foto" class="w-32 h-32 object-cover rounded-xl border mb-4 cursor-pointer">
+                                    <div v-if="l.foto" class="mb-4">
+                                        <img :src="l.foto" @click="zoomedImage=l.foto" class="w-32 h-32 object-cover rounded-xl border cursor-pointer hover:opacity-90 transition" title="Klik untuk memperbesar">
+                                        <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-search-plus mr-1"></i> Klik foto untuk melihat ukuran besar</p>
+                                    </div>
                                     
+                                    <!-- Aksi Status -->
+                                    <div v-if="bolehKelolaLaporan(l)" class="bg-white border p-3 rounded-xl mt-4">
+                                        <p class="text-[10px] font-black uppercase text-gray-500 mb-2">Status Laporan</p>
+                                        <div class="flex flex-wrap gap-2">
+                                            <button @click="ubahStatusLaporan(l, 'Diterima')" :class="l.status === 'Diterima' ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-700 hover:bg-blue-100'" class="px-3 py-2 rounded-lg text-xs font-bold transition"><i class="fas fa-inbox mr-1"></i> Diterima</button>
+                                            <button @click="ubahStatusLaporan(l, 'Diproses')" :class="l.status === 'Diproses' ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'" class="px-3 py-2 rounded-lg text-xs font-bold transition"><i class="fas fa-spinner mr-1"></i> Diproses</button>
+                                            <button @click="ubahStatusLaporan(l, 'Selesai')" :class="l.status === 'Selesai' ? 'bg-green-600 text-white' : 'bg-green-50 text-green-700 hover:bg-green-100'" class="px-3 py-2 rounded-lg text-xs font-bold transition"><i class="fas fa-check-circle mr-1"></i> Selesai</button>
+                                        </div>
+                                    </div>
+
                                     <!-- Bagian Komentar / Tanggapan -->
                                     <div class="bg-white border p-4 rounded-xl mt-4">
                                         <h5 class="text-xs font-bold text-gray-800 mb-3 border-b pb-2"><i class="fas fa-comments text-blue-500 mr-1"></i> Tanggapan Pejabat</h5>
                                         <div class="space-y-3 mb-4 max-h-40 overflow-y-auto">
                                             <div v-for="(k, idx) in (l.komentar || [])" :key="idx" class="bg-gray-50 p-3 rounded-lg border text-sm">
-                                                <p class="font-bold text-blue-800 text-[10px] uppercase mb-1">{{ k.nama }}</p>
+                                                <p class="font-bold text-blue-800 text-[10px] uppercase mb-1">{{ k.nama }} <span class="text-gray-400 font-normal">• {{ k.waktu || '' }}</span></p>
                                                 <p class="text-gray-700">{{ k.isi }}</p>
                                             </div>
                                             <p v-if="!l.komentar || l.komentar.length === 0" class="text-xs text-gray-400 italic">Belum ada tanggapan.</p>
                                         </div>
-                                        <div v-if="['admin_kelurahan', 'rt', 'rw', 'babinsa'].includes(user.role)" class="flex gap-2">
+                                        <div v-if="bolehBalasLaporan(l)" class="flex gap-2">
                                             <input type="text" v-model="l.inputBalasan" placeholder="Ketik tanggapan / solusi di sini..." class="flex-1 border p-2 rounded-lg text-sm bg-gray-50 outline-none">
-                                            <button @click="balasKomentar(l)" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition">Balas</button>
+                                            <button @click="balasKomentar(l)" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow transition"><i class="fas fa-reply mr-1"></i> Balas</button>
                                         </div>
                                     </div>
                                     <div class="mt-4 text-right" v-if="user.role === 'admin_kelurahan' || String(l.username) === String(user.username)">
                                         <button @click="hapus('laporan', l.id)" class="text-red-500 hover:text-red-700 text-xs font-bold"><i class="fas fa-trash"></i> Hapus Pengaduan</button>
                                     </div>
                                 </div>
-                                <div v-if="listLaporan.length === 0" class="text-center p-8 text-gray-400 italic font-bold">Belum ada pengaduan masuk.</div>
+                                <div v-if="listLaporan.filter(x => laporanBisaDilihat(x)).length === 0" class="text-center p-8 text-gray-400 italic font-bold">Belum ada pengaduan yang dapat Anda lihat.</div>
                             </div>
                         </div>
                     </div>
@@ -1595,7 +1614,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const formTamu = ref({ nama:'', nik:'', asal:'', lama:'', tujuan:'', foto:null });
                 const listTamu = ref([]);
 
-                const formLaporan = ref({ judul:'', isi:'', kategori:'Infrastruktur', privasi:'Publik', foto:null });
+                const formLaporan = ref({ judul:'', isi:'', kategori:'Infrastruktur', privasi:'Rahasia', foto:null });
                 const listLaporan = ref([]);
 
                 const formSumbangan = ref({ nama:'', nominal:'', jenis:'' });
@@ -1775,8 +1794,47 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     await saveData('logAktivitas', { rt: user.value.rt, rw: user.value.rw, waktu: now, user: user.value.nama, aksi: aksiStr });
                 };
 
-                const uploadFile = (e, target) => {
+                const compressImageFile = (file, maxSize = 720, quality = 0.45) => {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onerror = () => reject(new Error('Gagal membaca foto'));
+                        reader.onload = () => {
+                            const img = new Image();
+                            img.onload = () => {
+                                let w = img.naturalWidth || img.width;
+                                let h = img.naturalHeight || img.height;
+                                const scale = Math.min(1, maxSize / Math.max(w, h));
+                                w = Math.max(1, Math.round(w * scale));
+                                h = Math.max(1, Math.round(h * scale));
+                                const canvas = document.createElement('canvas');
+                                canvas.width = w;
+                                canvas.height = h;
+                                const ctx = canvas.getContext('2d', { alpha: false });
+                                ctx.drawImage(img, 0, 0, w, h);
+                                // JPEG kualitas rendah + dimensi maksimal 720px agar data sangat kecil.
+                                resolve(canvas.toDataURL('image/jpeg', quality));
+                            };
+                            img.onerror = () => reject(new Error('File bukan gambar yang valid'));
+                            img.src = reader.result;
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                };
+
+                const uploadFile = async (e, target) => {
                     const f = e.target.files[0]; if(!f) return;
+                    if(target === 'laporan') {
+                        if(!f.type.startsWith('image/')) { e.target.value = ''; return showToast('File laporan harus berupa foto/gambar.', 'danger'); }
+                        try {
+                            showToast('Foto sedang dikompres...', 'warning');
+                            formLaporan.value.foto = await compressImageFile(f, 720, 0.45);
+                            showToast('Foto berhasil dikompres dan siap dikirim.');
+                        } catch(err) {
+                            console.error(err);
+                            showToast('Foto gagal diproses.', 'danger');
+                        }
+                        return;
+                    }
                     const r = new FileReader(); r.readAsDataURL(f);
                     r.onload = (evt) => { 
                         if(target==='umkm1') formUmkm.value.foto1 = evt.target.result; 
@@ -1786,7 +1844,6 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         if(target==='agenda') formAgenda.value.foto = evt.target.result;
                         if(target==='fasilitas') formFasilitas.value.foto = evt.target.result;
                         if(target==='tamu') formTamu.value.foto = evt.target.result; 
-                        if(target==='laporan') formLaporan.value.foto = evt.target.result;
                         if(target==='ktpLuar') formUsahaLuar.value.fotoKtp = evt.target.result; 
                         if(target==='fotoUsaha') formUsahaLuar.value.fotoUsaha = evt.target.result; 
                         if(target==='pengantarKtp') formSuratPengantar.value.fotoKtp = evt.target.result; 
@@ -2155,30 +2212,81 @@ body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-h
                     });
                 };
 
+                const laporanBisaDilihat = (l) => {
+                    if(!l || !user.value || !user.value.role) return false;
+                    const role = user.value.role;
+                    // Admin Utama dapat melihat seluruh laporan.
+                    if(role === 'admin_kelurahan') return true;
+                    // Babinsa diberi akses melihat seluruh laporan pengaduan.
+                    if(role === 'babinsa') return true;
+                    // RT setempat: harus cocok RT dan RW.
+                    if(role === 'rt') return String(l.rt || '') === String(user.value.rt || '') && String(l.rw || '') === String(user.value.rw || '');
+                    // RW setempat: semua laporan di RW yang sama.
+                    if(role === 'rw') return String(l.rw || '') === String(user.value.rw || '');
+                    // Pelapor tetap dapat melihat laporan miliknya sendiri untuk memantau status/tanggapan.
+                    if(['warga','warga_luar'].includes(role)) return String(l.username || '') === String(user.value.username || '');
+                    return false;
+                };
+
+                const bolehKelolaLaporan = (l) => {
+                    if(!laporanBisaDilihat(l)) return false;
+                    return ['admin_kelurahan','rt','rw'].includes(user.value.role);
+                };
+
+                const bolehBalasLaporan = (l) => {
+                    if(!laporanBisaDilihat(l)) return false;
+                    // Sesuai permintaan: Admin Utama, RT setempat dan RW setempat dapat membalas.
+                    return ['admin_kelurahan','rt','rw'].includes(user.value.role);
+                };
+
+                const statusLaporanClass = (status) => {
+                    if(status === 'Selesai') return 'bg-green-100 text-green-700';
+                    if(status === 'Diproses') return 'bg-amber-100 text-amber-700';
+                    return 'bg-blue-100 text-blue-700';
+                };
+
                 const simpanLaporan = async () => {
                     if(!formLaporan.value.judul || !formLaporan.value.isi) return showToast('Judul dan isi laporan wajib diisi', 'danger');
+                    if(!user.value.rt || !user.value.rw) return showToast('Data RT/RW Anda belum terisi. Laporan tidak dapat dikirim.', 'danger');
                     const tglNow = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
                     await saveData('laporan', { 
-                        ...formLaporan.value, 
+                        judul: formLaporan.value.judul,
+                        isi: formLaporan.value.isi,
+                        kategori: formLaporan.value.kategori,
+                        foto: formLaporan.value.foto || null,
                         pelapor: user.value.nama, 
                         username: user.value.username, 
                         rt: user.value.rt, 
                         rw: user.value.rw,
                         tanggal: tglNow,
-                        status: 'Menunggu',
-                        komentar: []
+                        status: 'Diterima',
+                        komentar: [],
+                        statusTerakhirOleh: user.value.nama,
+                        statusTerakhirWaktu: new Date().toLocaleString('id-ID')
                     });
                     showToast('Pengaduan Berhasil Dikirim');
-                    formLaporan.value = { judul:'', isi:'', kategori:'Infrastruktur', privasi:'Publik', foto:null };
+                    formLaporan.value = { judul:'', isi:'', kategori:'Infrastruktur', privasi:'Rahasia', foto:null };
                     showFormLaporan.value = false;
                 };
 
+                const ubahStatusLaporan = async (l, statusBaru) => {
+                    if(!bolehKelolaLaporan(l)) return showToast('Anda tidak memiliki akses mengubah laporan ini.', 'danger');
+                    if(!['Diterima','Diproses','Selesai'].includes(statusBaru)) return;
+                    const payload = { ...l, status: statusBaru, statusTerakhirOleh: user.value.nama, statusTerakhirWaktu: new Date().toLocaleString('id-ID') };
+                    delete payload.inputBalasan;
+                    await updateData('laporan', payload);
+                    showToast('Status laporan diubah menjadi ' + statusBaru);
+                };
+
                 const balasKomentar = async (l) => {
-                    if(!l.inputBalasan) return;
-                    if(!l.komentar) l.komentar = [];
-                    l.komentar.push({ nama: user.value.nama, isi: l.inputBalasan });
-                    l.status = 'Diproses'; 
-                    await updateData('laporan', l);
+                    if(!bolehBalasLaporan(l)) return showToast('Anda tidak memiliki akses membalas laporan ini.', 'danger');
+                    const teks = String(l.inputBalasan || '').trim();
+                    if(!teks) return showToast('Tanggapan belum diisi', 'danger');
+                    const komentar = Array.isArray(l.komentar) ? [...l.komentar] : [];
+                    komentar.push({ nama: user.value.nama, role: user.value.role, isi: teks, waktu: new Date().toLocaleString('id-ID') });
+                    const payload = { ...l, komentar, status: l.status === 'Selesai' ? 'Selesai' : 'Diproses', statusTerakhirOleh: user.value.nama, statusTerakhirWaktu: new Date().toLocaleString('id-ID') };
+                    delete payload.inputBalasan;
+                    await updateData('laporan', payload);
                     l.inputBalasan = '';
                     showToast('Tanggapan berhasil dikirim');
                 };
