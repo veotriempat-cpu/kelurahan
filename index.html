@@ -22,13 +22,21 @@
 
     <!-- KEAMANAN SCRIPT BLOCKER -->
     <script>
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123) return false;
-            if(e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) return false;
-            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
-            if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) return false;
-        };
+        // Browser deterrence: blokir menu konteks dan shortcut umum DevTools.
+        // Catatan: ini bukan pengganti Firebase Security Rules.
+        (function(){
+            const block = (e) => { e.preventDefault(); e.stopPropagation(); return false; };
+            window.addEventListener('contextmenu', block, true);
+            document.addEventListener('contextmenu', block, true);
+            document.addEventListener('keydown', function(e) {
+                const key = String(e.key || '').toUpperCase();
+                const code = e.keyCode || e.which;
+                if (code === 123 || key === 'F12') return block(e);
+                if (e.ctrlKey && e.shiftKey && ['I','J','C','K'].includes(key)) return block(e);
+                if (e.ctrlKey && ['U','S'].includes(key)) return block(e);
+                if (e.metaKey && e.altKey && ['I','J','C'].includes(key)) return block(e);
+            }, true);
+        })();
     </script>
 
     <style>
@@ -1634,14 +1642,19 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 onMounted(() => {
                     const initAuth = async () => {
                         try {
+                            if (auth.currentUser) return;
                             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                                 await signInWithCustomToken(auth, __initial_auth_token);
                             } else {
-                                await signInAnonymously(auth);
+                                // Anonymous hanya dipakai untuk mempertahankan alur lama
+                                // (warga/pejabat/bendahara). Kegagalan di sini TIDAK boleh
+                                // menganggap aplikasi sebagai "mode lokal" dan TIDAK boleh
+                                // menghalangi login Admin Email/Password.
+                                try { await signInAnonymously(auth); }
+                                catch (e) { console.warn('Anonymous auth unavailable; waiting for explicit login.', e?.code || e); }
                             }
-                        } catch (e) { 
-                            console.error("Auth error", e); 
-                            showToast("Berjalan dalam Mode Lokal (Data akan hilang saat direfresh karena tidak ada database cloud sungguhan yang tersambung).", "warning");
+                        } catch (e) {
+                            console.error('Firebase initialization error:', e);
                         }
                     };
                     initAuth();
@@ -1790,45 +1803,65 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     const passInput = String(loginForm.value.password || '');
                     if (!emailInput || !passInput) return showToast('Harap isi Email dan Password!', 'danger');
 
-                    // ADMIN: autentikasi wajib melalui Firebase Authentication.
+                    // ADMIN: jika input berupa email, autentikasi langsung ke Firebase Authentication.
                     // Setelah berhasil, UID diverifikasi terhadap /admins/{UID}.
-                    if (emailInput.toLowerCase() === 'veotriempat@gmail.com') {
+                    if (emailInput.includes('@')) {
                         try {
+                            // Pastikan sesi anonymous lama tidak mengganggu sesi email/password.
+                            if (auth.currentUser && auth.currentUser.isAnonymous) {
+                                await signOut(auth);
+                            }
+
                             const credential = await signInWithEmailAndPassword(auth, emailInput, passInput);
                             const uid = credential.user.uid;
-                            // UID Admin Utama yang telah didaftarkan di Firestore /admins/{UID}.
-                            // UID bukan password/secret; password tetap diverifikasi Firebase Authentication.
-                            const ADMIN_UID = 'VsARuIPF6wTjeKQBAEOOfjWcbgB3';
-                            if (uid !== ADMIN_UID) {
+                            const adminRef = doc(db, 'admins', uid);
+                            const adminSnap = await getDoc(adminRef);
+
+                            if (!adminSnap.exists()) {
                                 await signOut(auth);
-                                return showToast('Akun Firebase ini tidak terdaftar sebagai Admin Utama.', 'danger');
+                                return showToast('Email berhasil login, tetapi UID ini belum terdaftar di collection admins.', 'danger');
                             }
-                            let adminData = { nama: 'Administrator', username: 'admin', role: 'admin_kelurahan', aktif: true };
-                            try {
-                                const adminSnap = await getDoc(doc(db, 'admins', uid));
-                                if (adminSnap.exists()) adminData = { ...adminData, ...adminSnap.data() };
-                            } catch (ruleError) {
-                                // Tetap izinkan Admin UID yang valid. Rules /admins dapat diperketat kemudian.
-                                console.warn('Admin profile read skipped:', ruleError);
-                            }
+
+                            const adminData = adminSnap.data() || {};
                             if (adminData.aktif !== true || adminData.role !== 'admin_kelurahan') {
                                 await signOut(auth);
                                 return showToast('Akun Admin tidak aktif atau role tidak valid.', 'danger');
                             }
-                            user.value = { nama: adminData.nama || 'Administrator', role: 'admin_kelurahan', rt:'', rw:'', username: adminData.username || emailInput, ttd:'' };
+
+                            user.value = {
+                                nama: adminData.nama || 'Administrator',
+                                role: 'admin_kelurahan',
+                                rt: adminData.rt || '',
+                                rw: adminData.rw || '',
+                                username: adminData.username || emailInput,
+                                ttd: adminData.ttd || ''
+                            };
                             isLoggedIn.value = true;
                             currentAuthView.value = 'landing';
                             menu.value = 'dashboard';
+                            loginForm.value = { email: '', password: '' };
                             return showToast('Login Admin Berhasil');
                         } catch (e) {
-                            console.error('Admin login error:', e);
+                            console.error('Admin/Email login error:', e);
                             const code = e?.code || '';
-                            const msg = code.includes('invalid-credential') || code.includes('wrong-password') || code.includes('user-not-found')
-                                ? 'Email atau password Admin salah.'
-                                : 'Login Admin gagal. Periksa Authentication dan koneksi Firebase.';
+                            let msg = 'Login gagal. Periksa email, password, dan koneksi Firebase.';
+                            if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+                                msg = 'Email atau password salah.';
+                            } else if (code === 'auth/operation-not-allowed') {
+                                msg = 'Login Email/Password belum diaktifkan di Firebase Authentication.';
+                            } else if (code === 'auth/invalid-api-key') {
+                                msg = 'Firebase API Key tidak valid.';
+                            } else if (code === 'auth/network-request-failed') {
+                                msg = 'Koneksi ke Firebase gagal. Periksa internet/domain.';
+                            } else if (code === 'auth/too-many-requests') {
+                                msg = 'Terlalu banyak percobaan login. Coba beberapa saat lagi.';
+                            } else if (code === 'permission-denied') {
+                                msg = 'Firestore Rules menolak akses ke admins/{UID}.';
+                            }
                             return showToast(msg, 'danger');
                         }
                     }
+
                     const p = listPejabat.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
                     if (p) {
                         user.value = { nama: p.nama, role: p.role, rt: p.rt, rw: p.rw, username: p.username, ttd: p.ttd }; 
