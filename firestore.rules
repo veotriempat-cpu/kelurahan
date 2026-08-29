@@ -3,28 +3,55 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ==========================================================
     // ADMIN AUTHORIZATION
-    // Root collection: /admins/{UID}
-    // Document ID must equal the Firebase Authentication UID.
+    // /admins/{UID}
+    // ==========================================================
     match /admins/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
+      // Admin hanya boleh membaca dokumen admin miliknya sendiri.
+      allow read: if request.auth != null
+                  && request.auth.uid == uid;
+
+      // Tidak boleh membuat/mengubah/menghapus dari client.
       allow create, update, delete: if false;
     }
 
-    // Public website configuration may be read before login so that
-    // logo, photos and card colors appear on every device. Only an
-    // authenticated user may write it.
+    // ==========================================================
+    // PUBLIC WEBSITE SETTINGS
+    // Logo, foto Walikota/Wakil/Camat/Lurah,
+    // warna kartu, nama website, header, footer, TTD, stempel.
+    // ==========================================================
     match /artifacts/{appId}/public/data/settings/webSettings {
+
+      // Semua perangkat boleh membaca konfigurasi website.
       allow read: if true;
+
+      // Hanya user yang sudah login yang boleh menyimpan.
       allow write: if request.auth != null;
     }
 
-    // All other application data requires an authenticated Firebase user.
-    match /artifacts/{appId}/public/data/{collection}/{document} {
+    // ==========================================================
+    // SETTINGS LAIN
+    // ==========================================================
+    match /artifacts/{appId}/public/data/settings/{document} {
+
+      // Hanya user authenticated.
       allow read, write: if request.auth != null;
     }
 
+    // ==========================================================
+    // DATA APLIKASI
+    // ==========================================================
+    match /artifacts/{appId}/public/data/{collection}/{document} {
+
+      allow read, write: if request.auth != null;
+    }
+
+    // ==========================================================
+    // SUBCOLLECTION
+    // ==========================================================
     match /artifacts/{appId}/public/data/{collection}/{document}/{subcollection}/{subdocument} {
+
       allow read, write: if request.auth != null;
     }
   }
