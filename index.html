@@ -1434,7 +1434,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
     <script type="module">
         import { createApp, ref, computed, onMounted, watch } from 'vue';
         import { initializeApp } from 'firebase/app';
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+        import { getAuth, setPersistence, browserLocalPersistence, signInAnonymously, onAuthStateChanged, signInWithCustomToken, signInWithEmailAndPassword, signOut } from 'firebase/auth';
         import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 
         // =========================================================================
@@ -1484,7 +1484,10 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const regStep = ref(1);
                 const sidebarOpen = ref(false);
                 const menu = ref(localStorage.getItem('kelurahan_last_view') || 'dashboard');
-                const user = ref({ nama: '', role: '', rt: '', rw: '', username: '', ttd: '' });
+                const SAVED_USER_KEY = 'kelurahan_user_session';
+                const restoreSavedUser = () => { try { const raw = localStorage.getItem(SAVED_USER_KEY); return raw ? JSON.parse(raw) : null; } catch(e) { return null; } };
+                const user = ref(restoreSavedUser() || { nama: '', role: '', rt: '', rw: '', username: '', ttd: '' });
+                const persistUser = () => localStorage.setItem(SAVED_USER_KEY, JSON.stringify(user.value));
                 watch(menu, (value) => localStorage.setItem('kelurahan_last_view', value));
                 const publicTab = ref('agenda'); 
                 
@@ -1614,34 +1617,63 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 onMounted(() => {
                     const initAuth = async () => {
                         try {
-                            if (auth.currentUser) return;
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                            await setPersistence(auth, browserLocalPersistence);
+                            if (!auth.currentUser && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                                 await signInWithCustomToken(auth, __initial_auth_token);
-                            } else {
-                                // Anonymous hanya dipakai untuk mempertahankan alur lama
-                                // (warga/pejabat/bendahara). Kegagalan di sini TIDAK boleh
-                                // menganggap aplikasi sebagai "mode lokal" dan TIDAK boleh
-                                // menghalangi login Admin Email/Password.
-                                try { await signInAnonymously(auth); }
-                                catch (e) { console.warn('Anonymous auth unavailable; waiting for explicit login.', e?.code || e); }
                             }
+                            // Do not force anonymous sign-in immediately. saveData() will create it when needed.
                         } catch (e) {
                             console.error('Firebase initialization error:', e);
                         }
                     };
                     initAuth();
-                    
-                    onAuthStateChanged(auth, (u) => {
-                        fbUser.value = u;
-                        if(u) { setupListeners(); }
-                    });
-                });
 
-                const getListMap = () => ({
-                    'pejabat': listPejabat, 'warga': listWarga, 'wargaLuar': listWargaLuar, 'bendahara': listBendahara, 
-                    'tamu': listTamu, 'laporan': listLaporan, 'logAktivitas': logAktivitas, 'pengajuanUsaha': listPengajuanUsaha,
-                    'suratPengantar': listSuratPengantar, 'umkm': listUmkm, 'galeri': listGaleri, 'bursa': listBursa, 
-                    'fasilitas': listFasilitas, 'bansos': listBansos, 'anggaran': listAnggaran, 'sampah': listSampah, 'agenda': listAgenda
+                    onAuthStateChanged(auth, async (u) => {
+                        fbUser.value = u;
+                        if (!u) {
+                            // Keep the cached app profile so a refresh does not jump out of the current page.
+                            const cached = restoreSavedUser();
+                            if (cached && cached.role) user.value = cached;
+                            return;
+                        }
+
+                        // Admin session: verify the UID against /admins/{UID} before restoring admin UI.
+                        if (!u.isAnonymous) {
+                            try {
+                                const adminSnap = await getDoc(doc(db, 'admins', u.uid));
+                                if (adminSnap.exists()) {
+                                    const adminData = adminSnap.data() || {};
+                                    if (adminData.aktif === true && adminData.role === 'admin_kelurahan') {
+                                        user.value = {
+                                            nama: adminData.nama || 'Administrator',
+                                            role: 'admin_kelurahan',
+                                            rt: adminData.rt || '',
+                                            rw: adminData.rw || '',
+                                            username: adminData.username || u.email || '',
+                                            ttd: adminData.ttd || ''
+                                        };
+                                        isLoggedIn.value = true;
+                                        persistUser();
+                                        currentAuthView.value = 'dashboard';
+                                    } else {
+                                        await signOut(auth);
+                                        return;
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn('Admin restore error:', e);
+                            }
+                        } else {
+                            // Legacy role: restore profile cached at the time of login.
+                            const cached = restoreSavedUser();
+                            if (cached && cached.role) {
+                                user.value = cached;
+                                isLoggedIn.value = true;
+                            }
+                        }
+
+                        setupListeners();
+                    });
                 });
 
                 
@@ -1682,8 +1714,10 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     }, 400);
                 };
 
-const setupListeners = () => {
-                    if(!fbUser.value) return;
+let listenersStarted = false;
+                const setupListeners = () => {
+                    if(!fbUser.value || listenersStarted) return;
+                    listenersStarted = true;
                     const sync = (cName, refVar) => {
                         onSnapshot(getColRef(cName), (snap) => {
                             refVar.value = snap.docs.map(d => ({ ...d.data(), id: d.id }));
@@ -1708,64 +1742,60 @@ const setupListeners = () => {
                     }, (err) => console.error(err));
                 };
 
-                const saveData = async (colName, data) => {
-                    const id = data.id || Date.now().toString();
-                    const payload = { ...data, id: id.toString() };
-                    
-                    if(fbUser.value) {
-                        try {
-                            await setDoc(getDocRef(colName, id.toString()), payload);
-                            return; 
-                        } catch (e) {
-                            console.error("Firebase Save Error:", e);
-                            showToast("Gagal menyimpan: " + (e?.code || e?.message || 'Firebase error'), "danger");
-                            throw e;
+                const ensureFirebaseSession = async () => {
+                    if (auth.currentUser) return auth.currentUser;
+                    try {
+                        const cred = await signInAnonymously(auth);
+                        fbUser.value = cred.user;
+                        return cred.user;
+                    } catch (e) {
+                        console.error('Firebase session error:', e);
+                        const code = e?.code || '';
+                        if (code === 'auth/operation-not-allowed') {
+                            showToast('Firebase Anonymous Authentication belum diaktifkan. Aktifkan di Authentication → Sign-in method → Anonymous.', 'danger');
+                        } else {
+                            showToast('Tidak dapat terhubung ke Firebase: ' + code, 'danger');
                         }
+                        throw e;
                     }
-                    
-                    // FALLBACK
-                    const map = getListMap();
-                    if(map[colName]) {
-                        const list = map[colName].value;
-                        const idx = list.findIndex(x => x.id === payload.id);
-                        if(idx >= 0) list[idx] = payload;
-                        else list.push(payload);
+                };
+
+                const saveData = async (colName, data) => {
+                    const session = await ensureFirebaseSession();
+                    const id = data?.id ? String(data.id) : String(Date.now()) + '-' + Math.random().toString(36).slice(2, 8);
+                    const payload = { ...(data || {}), id };
+                    try {
+                        await setDoc(getDocRef(colName, id), payload);
+                        return payload;
+                    } catch (e) {
+                        console.error('Firebase Save Error [' + colName + ']:', e);
+                        showToast('Gagal menyimpan ' + colName + ': ' + (e?.code || e?.message || 'Firebase error'), 'danger');
+                        throw e;
                     }
                 };
 
                 const updateData = async (colName, data) => {
-                    if(fbUser.value) {
-                        try {
-                            await setDoc(getDocRef(colName, data.id.toString()), data, { merge: true });
-                            return;
-                        } catch (e) {
-                            console.error("Firebase Update Error:", e);
-                            showToast("Gagal memperbarui: " + (e?.code || e?.message || 'Firebase error'), "danger");
-                            throw e;
-                        }
-                    }
-                    const map = getListMap();
-                    if(map[colName]) {
-                        const list = map[colName].value;
-                        const idx = list.findIndex(x => x.id === data.id);
-                        if(idx >= 0) list[idx] = { ...list[idx], ...data };
+                    await ensureFirebaseSession();
+                    if (!data?.id) throw new Error('MISSING_DOCUMENT_ID');
+                    try {
+                        await setDoc(getDocRef(colName, String(data.id)), data, { merge: true });
+                        return data;
+                    } catch (e) {
+                        console.error('Firebase Update Error [' + colName + ']:', e);
+                        showToast('Gagal memperbarui ' + colName + ': ' + (e?.code || e?.message || 'Firebase error'), 'danger');
+                        throw e;
                     }
                 };
 
                 const deleteData = async (colName, id) => {
-                    if(fbUser.value) {
-                        try {
-                            await deleteDoc(getDocRef(colName, id.toString()));
-                            return;
-                        } catch (e) {
-                            console.error("Firebase Delete Error:", e);
-                            showToast("Gagal menghapus: " + (e?.code || e?.message || 'Firebase error'), "danger");
-                            throw e;
-                        }
-                    }
-                    const map = getListMap();
-                    if(map[colName]) {
-                        map[colName].value = map[colName].value.filter(x => x.id !== id);
+                    await ensureFirebaseSession();
+                    if (!id) throw new Error('MISSING_DOCUMENT_ID');
+                    try {
+                        await deleteDoc(getDocRef(colName, String(id)));
+                    } catch (e) {
+                        console.error('Firebase Delete Error [' + colName + ']:', e);
+                        showToast('Gagal menghapus ' + colName + ': ' + (e?.code || e?.message || 'Firebase error'), 'danger');
+                        throw e;
                     }
                 };
 
@@ -1873,7 +1903,8 @@ if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username ===
                                 ttd: adminData.ttd || ''
                             };
                             isLoggedIn.value = true;
-                            currentAuthView.value = 'landing';
+                            persistUser();
+                            currentAuthView.value = 'dashboard';
                             menu.value = 'dashboard';
                             loginForm.value = { email: '', password: '' };
                             return showToast('Login Admin Berhasil');
@@ -1901,30 +1932,31 @@ if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username ===
                     const p = listPejabat.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
                     if (p) {
                         user.value = { nama: p.nama, role: p.role, rt: p.rt, rw: p.rw, username: p.username, ttd: p.ttd }; 
-                        isLoggedIn.value = true; 
+                        isLoggedIn.value = true; persistUser();
                         if (p.role === 'babinsa') menu.value = 'tamu'; 
                         return showToast(`Berhasil masuk sebagai ${p.role.toUpperCase()}`);
                     }
                     const b = listBendahara.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
                     if (b) {
                         user.value = { nama: b.nama, role: 'bendahara', rt: b.rt, rw: b.rw, username: b.username, ttd:'' }; 
-                        isLoggedIn.value = true; return showToast(`Berhasil masuk sebagai BENDAHARA RT ${b.rt} / RW ${b.rw}`);
+                        isLoggedIn.value = true; persistUser(); return showToast(`Berhasil masuk sebagai BENDAHARA RT ${b.rt} / RW ${b.rw}`);
                     }
                     const w = listWarga.value.find(x => (String(x.username) === emailInput || String(x.nik) === emailInput) && String(x.password) === passInput);
                     if (w) { 
                         user.value = { nama: w.nama, role: 'warga', rt: w.rt, rw: w.rw, username: w.username, ttd: w.ttd }; 
-                        formWargaTtd.value.url = w.ttd || ''; isLoggedIn.value = true; return showToast('Login Warga Sukses'); 
+                        formWargaTtd.value.url = w.ttd || ''; isLoggedIn.value = true; persistUser(); return showToast('Login Warga Sukses'); 
                     }
                     const wLuar = listWargaLuar.value.find(x => String(x.username) === emailInput && String(x.password) === passInput);
                     if (wLuar) {
                         user.value = { nama: wLuar.nama, role: 'warga_luar', rt: '', rw: '', username: wLuar.username, ttd: wLuar.ttd }; 
-                        formWargaTtd.value.url = wLuar.ttd || ''; isLoggedIn.value = true; menu.value = 'pengajuan-usaha'; return showToast('Login Warga Luar Sukses');
+                        formWargaTtd.value.url = wLuar.ttd || ''; isLoggedIn.value = true; persistUser(); menu.value = 'pengajuan-usaha'; return showToast('Login Warga Luar Sukses');
                     }
                     showToast('Username/NIK atau Password SALAH! Akses ditolak.', 'danger');
                 };
 
                 const handleRegister = async () => {
                     if(reg.value.password !== reg.value.repeatPassword) return showToast('Password tidak sama!', 'danger');
+                    if(!reg.value.username || !reg.value.password || !reg.value.nama) return showToast('Nama, username dan password wajib diisi!', 'danger');
                     await saveData('warga', { ...reg.value });
                     isRegistering.value = false; showToast('Pendaftaran Berhasil! Silakan Login.');
                 };
@@ -1936,7 +1968,16 @@ if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username ===
                     regLuar.value = { nama: '', nik: '', alamat: '', hp: '', username: '', password: '', ttd:'' };
                 };
 
-                const logout = () => { localStorage.removeItem('kelurahan_last_view'); isLoggedIn.value=false; currentAuthView.value='landing'; menu.value='dashboard'; showToast('Berhasil Logout'); };
+                const logout = async () => {
+                    localStorage.removeItem(SAVED_USER_KEY);
+                    localStorage.removeItem('kelurahan_last_view');
+                    try { await signOut(auth); } catch (e) { console.warn('Logout auth:', e); }
+                    isLoggedIn.value = false;
+                    currentAuthView.value = 'landing';
+                    menu.value = 'dashboard';
+                    user.value = { nama:'', role:'', rt:'', rw:'', username:'', ttd:'' };
+                    showToast('Berhasil Logout');
+                };
 
                 const getPejabatSetting = () => { return listPejabat.value.find(x => x.username === user.value.username) || { ttd:'', stempel:'' }; };
                 
