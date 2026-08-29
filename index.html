@@ -263,6 +263,32 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     </div>
                 </section>
 
+
+                <!-- DOKUMEN PUBLIK -->
+                <section class="mb-10 md:mb-14">
+                    <div class="flex items-end justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-sky-600">Informasi Resmi</p>
+                            <h3 class="text-2xl md:text-3xl font-black text-gray-800">Dokumen & Regulasi</h3>
+                            <p class="text-sm text-gray-500 mt-1">Dokumen resmi kelurahan yang dapat diakses warga.</p>
+                        </div>
+                        <span class="text-xs font-black px-3 py-1 rounded-full bg-sky-50 text-sky-700">{{ jumlahDokumenRegulasiAktif }} aktif</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a v-for="d in dokumenRegulasiAktif.slice(0,6)" :key="d.id" :href="d.fileUrl" target="_blank" rel="noopener noreferrer" class="bg-white border rounded-2xl p-5 shadow-sm hover:shadow-lg transition block">
+                            <div class="flex items-start gap-3">
+                                <div class="w-11 h-11 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center shrink-0"><i class="fas fa-file-pdf text-lg"></i></div>
+                                <div class="min-w-0">
+                                    <p class="font-black text-gray-800 line-clamp-2">{{ d.judul }}</p>
+                                    <p class="text-xs text-gray-500 mt-1">{{ d.kategori || 'Dokumen' }} · {{ d.tanggal || '-' }}</p>
+                                    <p class="text-xs text-sky-600 font-bold mt-2">Buka Dokumen →</p>
+                                </div>
+                            </div>
+                        </a>
+                        <div v-if="dokumenRegulasiAktif.length===0" class="md:col-span-3 p-8 text-center bg-white border rounded-2xl text-gray-400">Belum ada dokumen resmi yang diterbitkan.</div>
+                    </div>
+                </section>
+
 <!-- WIDGET ULANG TAHUN WARGA BULAN INI -->
                 <div v-if="wargaUlangTahun.length > 0" class="bg-gradient-to-r from-pink-500 to-rose-500 rounded-[2rem] p-6 shadow-xl mb-12 text-white flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
                     <div class="absolute -bottom-10 -right-10 text-9xl text-white/10"><i class="fas fa-birthday-cake"></i></div>
@@ -540,6 +566,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         <a v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-usaha'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200 mt-2', menu==='verifikasi-usaha'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-stamp w-5 text-center mr-1"></i> 19. Verifikasi Usaha Warga Luar</a>
                         <a v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-pengantar'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-blue-200 mt-2', menu==='verifikasi-pengantar'?'bg-blue-600 shadow border border-blue-400':'hover:bg-white/10']"><i class="fas fa-file-signature w-5 text-center mr-1"></i> 20. Verifikasi E-Surat Warga</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='bansos'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-emerald-200', menu==='bansos'?'bg-emerald-600 shadow border border-emerald-400':'hover:bg-white/10']"><i class="fas fa-hand-holding-heart w-5 text-center mr-1"></i> Bantuan Sosial</a>
+                    <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='dokumen-regulasi'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-sky-200', menu==='dokumen-regulasi'?'bg-sky-600 shadow border border-sky-400':'hover:bg-white/10']"><i class="fas fa-file-shield w-5 text-center mr-1"></i> Dokumen & Regulasi</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='inventaris-aset'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-orange-200', menu==='inventaris-aset'?'bg-orange-600 shadow border border-orange-400':'hover:bg-white/10']"><i class="fas fa-boxes-stacked w-5 text-center mr-1"></i> Inventaris Aset Kelurahan</a>
                         <a v-if="['rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='pengaturan-pejabat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200 mt-2', menu==='pengaturan-pejabat'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-signature w-5 text-center mr-1"></i> 21. Pengaturan TTD & Stempel</a>
                     </div>
@@ -1557,7 +1584,96 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     </div>
 
 <!-- PRIORITAS 1: INVENTARIS ASET KELURAHAN -->
-                    <div v-if="menu==='inventaris-aset' && user.role==='admin_kelurahan'" class="space-y-6">
+                                        <!-- PRIORITAS 6: DOKUMEN & REGULASI -->
+                    <div v-if="menu==='dokumen-regulasi' && user.role==='admin_kelurahan'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b pb-4 mb-6">
+                                <div>
+                                    <h2 class="text-xl font-black text-gray-800"><i class="fas fa-file-shield text-sky-500 mr-2"></i>Dokumen & Regulasi</h2>
+                                    <p class="text-sm text-gray-500 mt-1">Kelola dokumen resmi, peraturan, SK, SOP, formulir, dan surat edaran.</p>
+                                </div>
+                                <button @click="showFormDokumenRegulasi=!showFormDokumenRegulasi" class="bg-sky-600 hover:bg-sky-700 text-white px-5 py-2.5 rounded-xl font-bold shadow">
+                                    <i class="fas fa-plus mr-1"></i> Tambah Dokumen
+                                </button>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                                <div class="rounded-2xl p-4 bg-sky-50 border border-sky-100">
+                                    <p class="text-[10px] font-black uppercase text-sky-600">Dokumen Aktif</p>
+                                    <p class="text-2xl font-black text-gray-800 mt-1">{{ jumlahDokumenRegulasiAktif }}</p>
+                                </div>
+                                <div class="rounded-2xl p-4 bg-gray-50 border">
+                                    <p class="text-[10px] font-black uppercase text-gray-500">Total Arsip</p>
+                                    <p class="text-2xl font-black text-gray-800 mt-1">{{ listDokumenRegulasi.length }}</p>
+                                </div>
+                            </div>
+
+                            <div v-if="showFormDokumenRegulasi" class="bg-sky-50 rounded-2xl border border-sky-100 p-5 mb-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Judul Dokumen *</label>
+                                        <input v-model="formDokumenRegulasi.judul" class="w-full border p-2.5 rounded-lg text-sm bg-white" placeholder="Contoh: SOP Pelayanan Administrasi">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Nomor Dokumen</label>
+                                        <input v-model="formDokumenRegulasi.nomor" class="w-full border p-2.5 rounded-lg text-sm bg-white" placeholder="Nomor / kode">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Tanggal</label>
+                                        <input v-model="formDokumenRegulasi.tanggal" type="date" class="w-full border p-2.5 rounded-lg text-sm bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Kategori</label>
+                                        <select v-model="formDokumenRegulasi.kategori" class="w-full border p-2.5 rounded-lg text-sm bg-white">
+                                            <option>Peraturan</option><option>SK</option><option>SOP</option><option>Formulir</option><option>Surat Edaran</option><option>Dokumen Publik</option><option>Lainnya</option>
+                                        </select>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold mb-1">Deskripsi</label>
+                                        <textarea v-model="formDokumenRegulasi.deskripsi" rows="3" class="w-full border p-2.5 rounded-lg text-sm bg-white" placeholder="Ringkasan isi dokumen"></textarea>
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold mb-1">URL File PDF / Dokumen *</label>
+                                        <input v-model="formDokumenRegulasi.fileUrl" class="w-full border p-2.5 rounded-lg text-sm bg-white" placeholder="https://.../dokumen.pdf">
+                                        <p class="text-[10px] text-gray-500 mt-1">Gunakan URL langsung ke file PDF/dokumen agar dapat dibuka dari perangkat lain.</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Status</label>
+                                        <select v-model="formDokumenRegulasi.status" class="w-full border p-2.5 rounded-lg text-sm bg-white"><option>Aktif</option><option>Arsip</option></select>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end gap-2 mt-5">
+                                    <button @click="resetFormDokumenRegulasi" class="px-4 py-2 rounded-xl border font-bold">Batal</button>
+                                    <button @click="simpanDokumenRegulasi" class="px-5 py-2 rounded-xl bg-sky-600 text-white font-bold shadow"><i class="fas fa-save mr-1"></i> Simpan Dokumen</button>
+                                </div>
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead><tr class="border-b text-left">
+                                        <th class="p-2">Judul</th><th class="p-2">Nomor</th><th class="p-2">Kategori</th><th class="p-2">Tanggal</th><th class="p-2">Status</th><th class="p-2">Aksi</th>
+                                    </tr></thead>
+                                    <tbody>
+                                        <tr v-for="d in listDokumenRegulasi" :key="d.id" class="border-b hover:bg-gray-50">
+                                            <td class="p-2 font-bold">{{ d.judul }}<div class="text-[10px] text-gray-500">{{ d.deskripsi || '' }}</div></td>
+                                            <td class="p-2">{{ d.nomor || '-' }}</td>
+                                            <td class="p-2">{{ d.kategori || '-' }}</td>
+                                            <td class="p-2">{{ d.tanggal || '-' }}</td>
+                                            <td class="p-2"><span class="px-2 py-1 rounded-full bg-sky-50 text-sky-700 text-[10px] font-black">{{ d.status || 'Aktif' }}</span></td>
+                                            <td class="p-2 whitespace-nowrap">
+                                                <a :href="d.fileUrl" target="_blank" rel="noopener noreferrer" class="inline-block px-2 py-1 rounded-lg bg-green-50 text-green-700 mr-1"><i class="fas fa-eye"></i></a>
+                                                <button @click="editDokumenRegulasi(d)" class="px-2 py-1 rounded-lg bg-blue-50 text-blue-700 mr-1"><i class="fas fa-edit"></i></button>
+                                                <button @click="hapusDokumenRegulasi(d.id)" class="px-2 py-1 rounded-lg bg-red-50 text-red-700"><i class="fas fa-trash"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr v-if="listDokumenRegulasi.length===0"><td colspan="6" class="py-10 text-center text-gray-400 italic">Belum ada dokumen/regulasi.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+<div v-if="menu==='inventaris-aset' && user.role==='admin_kelurahan'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b pb-4 mb-6">
                                 <div><h2 class="text-xl font-black text-gray-800"><i class="fas fa-boxes-stacked text-orange-500 mr-2"></i>Inventaris Aset Kelurahan</h2><p class="text-sm text-gray-500 mt-1">Pendataan seluruh aset/barang milik kelurahan.</p></div>
@@ -1768,6 +1884,9 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const listAnggaran = ref([]);
                 const listSampah = ref([]);
                 const listNotifikasi = ref([]);
+                const listDokumenRegulasi = ref([]);
+                const showFormDokumenRegulasi = ref(false);
+                const formDokumenRegulasi = ref({ id:'', judul:'', nomor:'', tanggal:'', kategori:'Peraturan', deskripsi:'', fileUrl:'', status:'Aktif' });
                 const showNotifications = ref(false);
 
                 const listInventarisAset = ref([]);
@@ -1815,6 +1934,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     publicSync('bursa', listBursa);
                     publicSync('fasilitas', listFasilitas);
                     publicSync('galeri', listGaleri);
+                    publicSync('dokumenRegulasi', listDokumenRegulasi);
                 };
                 setupPublicListeners();
 
@@ -2253,7 +2373,42 @@ if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username ===
                     regLuar.value = { nama: '', nik: '', alamat: '', hp: '', username: '', password: '', ttd:'' };
                 };
 
-                                const buatNotifikasi = async ({ title, message, type='info', target='all', targetRole='', targetUsername='', targetUid='', rt='', rw='', relatedMenu='' }) => {
+                                                const resetFormDokumenRegulasi = () => {
+                    formDokumenRegulasi.value = { id:'', judul:'', nomor:'', tanggal:'', kategori:'Peraturan', deskripsi:'', fileUrl:'', status:'Aktif' };
+                    showFormDokumenRegulasi.value = false;
+                };
+
+                const editDokumenRegulasi = (item) => {
+                    formDokumenRegulasi.value = { ...item };
+                    showFormDokumenRegulasi.value = true;
+                };
+
+                const simpanDokumenRegulasi = async () => {
+                    const f = formDokumenRegulasi.value;
+                    if (!String(f.judul || '').trim()) return showToast('Judul dokumen wajib diisi', 'danger');
+                    if (!String(f.fileUrl || '').trim()) return showToast('URL dokumen wajib diisi', 'danger');
+                    await saveData('dokumenRegulasi', {
+                        ...f,
+                        judul: String(f.judul).trim(),
+                        nomor: String(f.nomor || '').trim(),
+                        tanggal: f.tanggal || '',
+                        deskripsi: String(f.deskripsi || '').trim(),
+                        status: f.status || 'Aktif',
+                        updatedAt: new Date().toISOString(),
+                        updatedBy: user.value.username || user.value.nama || 'admin'
+                    });
+                    resetFormDokumenRegulasi();
+                    showToast('Dokumen & regulasi berhasil disimpan');
+                };
+
+                const hapusDokumenRegulasi = async (id) => {
+                    customConfirm('Hapus Dokumen', 'Dokumen/regulasi ini akan dihapus. Lanjutkan?', async () => {
+                        await deleteData('dokumenRegulasi', id);
+                        showToast('Dokumen berhasil dihapus');
+                    });
+                };
+
+const buatNotifikasi = async ({ title, message, type='info', target='all', targetRole='', targetUsername='', targetUid='', rt='', rw='', relatedMenu='' }) => {
                     try {
                         await saveData('notifikasi', {
                             title, message, type, target, targetRole, targetUsername, targetUid, rt, rw,
@@ -2727,6 +2882,11 @@ const downloadExcelData = (type) => {
                 const jumlahNotifikasiBelumDibaca = computed(() =>
                     notifikasiSaya.value.filter(n => n.read !== true).length
                 );
+                const dokumenRegulasiAktif = computed(() => (listDokumenRegulasi.value || [])
+                    .filter(d => String(d.status || 'Aktif') === 'Aktif')
+                    .sort((a,b) => String(b.tanggal || '').localeCompare(String(a.tanggal || '')))
+                );
+                const jumlahDokumenRegulasiAktif = computed(() => dokumenRegulasiAktif.value.length);
 const publicPekerjaanStats = computed(() => {
                     const out = {};
                     (listWarga.value || []).forEach(w => {
@@ -2746,20 +2906,20 @@ const filteredPengajuanUsaha = computed(() => {
                     isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user, layananMandiriTab,
                     publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, showPublicWargaStats, showPublicPekerjaanStats, publicPekerjaanStats, notifikasiSaya, jumlahNotifikasiBelumDibaca, adminAccount,
                     showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
-                    showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormInventarisAset, showNotifications,
+                    showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormInventarisAset, showNotifications, showFormDokumenRegulasi,
                     showPassLogin, showPassReg, showPassRegRep, showPassRegLuar, showPassAdmin, showPassPejabat,
                     loginForm, reg, regLuar, formWargaTtd, formAdmin, formPejabat, formBendahara, formTamu, formLaporan,
                     formUsahaLuar, formSuratPengantar, formUmkm, formGaleri,
-                    formBursa, formFasilitas, formBansos, formAnggaran, formSampah, formAgenda, formInventarisAset,
+                    formBursa, formFasilitas, formBansos, formAnggaran, formSampah, formAgenda, formInventarisAset, formDokumenRegulasi,
                     listPejabat, listBendahara, listTamu, listLaporan, logAktivitas,
                     listWarga, listWargaLuar, listPengajuanUsaha, listSuratPengantar, listUmkm, listGaleri, listBursa,
-                    listFasilitas, listBansos, listAnggaran, listSampah, listAgenda, listInventarisAset, listNotifikasi,
-                    statistikGender, statistikUsia, rekapPekerjaan, wargaUlangTahun, filteredPengajuanUsaha, totalAsetInventaris, totalNilaiInventaris, asetBaikInventaris, asetRusakInventaris,
+                    listFasilitas, listBansos, listAnggaran, listSampah, listAgenda, listInventarisAset, listNotifikasi, listDokumenRegulasi,
+                    statistikGender, statistikUsia, rekapPekerjaan, wargaUlangTahun, filteredPengajuanUsaha, totalAsetInventaris, totalNilaiInventaris, asetBaikInventaris, asetRusakInventaris, dokumenRegulasiAktif, jumlahDokumenRegulasiAktif,
                     handleLogin, handleRegister, handleRegisterLuar, logout, getPejabatSetting, simpanPengaturanPejabat,
                     simpanWebSettings, updateAdmin, simpanTtdWarga, simpanSuratPengantar, setujuiPengantar, cetakPengantarWarga,
                     simpanTamu, simpanBendahara, simpanBansos, prosesBansos,
                     simpanAnggaran, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanAgenda, simpanPengajuanUsaha,
-                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, resetFormInventarisAset, editInventarisAset, simpanInventarisAset, hapusInventarisAset, buatNotifikasi, tandaiNotifikasiDibaca, bukaNotifikasi,
+                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, resetFormInventarisAset, editInventarisAset, simpanInventarisAset, hapusInventarisAset, buatNotifikasi, tandaiNotifikasiDibaca, bukaNotifikasi, resetFormDokumenRegulasi, editDokumenRegulasi, simpanDokumenRegulasi, hapusDokumenRegulasi,
                     downloadExcelData, getNamaBulan, formatTgl, customConfirm, customPrompt, uploadFile
                 };
             }
