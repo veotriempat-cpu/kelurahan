@@ -141,55 +141,141 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 </div>
 
                 <!-- TAMPILAN PROFIL PEJABAT (WALIKOTA, WAKIL, CAMAT, LURAH) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-16">
+                <div class="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-10 md:mb-16">
                     <!-- Walikota -->
-                    <div :style="{ background: webSettings.walikota.warnaKartu || '#2563eb' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.walikota.warnaKartu || '#2563eb' }" class="rounded-2xl md:rounded-[2rem] p-3 sm:p-4 md:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[220px] sm:min-h-[245px] md:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.walikota.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.walikota.foto">
-                        <div class="z-10 mt-4 w-full">
-                            <h3 class="font-black text-xl leading-tight">{{ webSettings.walikota.nama }}</h3>
-                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.walikota.jabatan }}</p>
-                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.walikota.pesan }}"</p>
+                        <img :src="webSettings.walikota.foto" class="w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 aspect-square rounded-full border-3 md:border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.walikota.foto">
+                        <div class="z-10 mt-2 md:mt-4 w-full">
+                            <h3 class="font-black text-sm sm:text-base md:text-xl leading-tight">{{ webSettings.walikota.nama }}</h3>
+                            <p class="text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 mb-2 md:mb-3 bg-white/20 inline-block px-2 sm:px-3 py-1 rounded-full">{{ webSettings.walikota.jabatan }}</p>
+                            <p class="text-white/90 text-[10px] sm:text-xs md:text-sm italic font-medium leading-relaxed">"{{ webSettings.walikota.pesan }}"</p>
                         </div>
                     </div>
 
                     <!-- Wakil Walikota -->
-                    <div :style="{ background: webSettings.wakil.warnaKartu || '#16a34a' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.wakil.warnaKartu || '#16a34a' }" class="rounded-2xl md:rounded-[2rem] p-3 sm:p-4 md:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[220px] sm:min-h-[245px] md:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.wakil.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.wakil.foto">
-                        <div class="z-10 mt-4 w-full">
-                            <h3 class="font-black text-xl leading-tight">{{ webSettings.wakil.nama }}</h3>
-                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.wakil.jabatan }}</p>
-                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.wakil.pesan }}"</p>
+                        <img :src="webSettings.wakil.foto" class="w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 aspect-square rounded-full border-3 md:border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.wakil.foto">
+                        <div class="z-10 mt-2 md:mt-4 w-full">
+                            <h3 class="font-black text-sm sm:text-base md:text-xl leading-tight">{{ webSettings.wakil.nama }}</h3>
+                            <p class="text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 mb-2 md:mb-3 bg-white/20 inline-block px-2 sm:px-3 py-1 rounded-full">{{ webSettings.wakil.jabatan }}</p>
+                            <p class="text-white/90 text-[10px] sm:text-xs md:text-sm italic font-medium leading-relaxed">"{{ webSettings.wakil.pesan }}"</p>
                         </div>
                     </div>
 
                     <!-- Camat -->
-                    <div :style="{ background: webSettings.camat.warnaKartu || '#7c3aed' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.camat.warnaKartu || '#7c3aed' }" class="rounded-2xl md:rounded-[2rem] p-3 sm:p-4 md:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[220px] sm:min-h-[245px] md:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.camat.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.camat.foto">
-                        <div class="z-10 mt-4 w-full">
-                            <h3 class="font-black text-xl leading-tight">{{ webSettings.camat.nama }}</h3>
-                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.camat.jabatan }}</p>
-                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.camat.pesan }}"</p>
+                        <img :src="webSettings.camat.foto" class="w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 aspect-square rounded-full border-3 md:border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.camat.foto">
+                        <div class="z-10 mt-2 md:mt-4 w-full">
+                            <h3 class="font-black text-sm sm:text-base md:text-xl leading-tight">{{ webSettings.camat.nama }}</h3>
+                            <p class="text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 mb-2 md:mb-3 bg-white/20 inline-block px-2 sm:px-3 py-1 rounded-full">{{ webSettings.camat.jabatan }}</p>
+                            <p class="text-white/90 text-[10px] sm:text-xs md:text-sm italic font-medium leading-relaxed">"{{ webSettings.camat.pesan }}"</p>
                         </div>
                     </div>
 
                     <!-- Lurah -->
-                    <div :style="{ background: webSettings.lurah.warnaKartu || '#f97316' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.lurah.warnaKartu || '#f97316' }" class="rounded-2xl md:rounded-[2rem] p-3 sm:p-4 md:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[220px] sm:min-h-[245px] md:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.lurah.foto" class="w-28 h-28 rounded-full border-4 border-white/80 shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.lurah.foto">
-                        <div class="z-10 mt-4 w-full">
-                            <h3 class="font-black text-xl leading-tight">{{ webSettings.lurah.nama }}</h3>
-                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.lurah.jabatan }}</p>
-                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.lurah.pesan }}"</p>
+                        <img :src="webSettings.lurah.foto" class="w-16 h-16 sm:w-20 sm:h-20 md:w-28 md:h-28 aspect-square rounded-full border-3 md:border-4 border-white/80 shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.lurah.foto">
+                        <div class="z-10 mt-2 md:mt-4 w-full">
+                            <h3 class="font-black text-sm sm:text-base md:text-xl leading-tight">{{ webSettings.lurah.nama }}</h3>
+                            <p class="text-[8px] sm:text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 mb-2 md:mb-3 bg-white/20 inline-block px-2 sm:px-3 py-1 rounded-full">{{ webSettings.lurah.jabatan }}</p>
+                            <p class="text-white/90 text-[10px] sm:text-xs md:text-sm italic font-medium leading-relaxed">"{{ webSettings.lurah.pesan }}"</p>
                         </div>
                     </div>
                 </div>
+
+                <!-- STATISTIK PUBLIK KEPENDUDUKAN -->
+                <section class="mb-10 md:mb-14">
+                    <div class="flex items-end justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-blue-600">Data & Informasi</p>
+                            <h3 class="text-2xl md:text-3xl font-black text-gray-800">Statistik Warga Kelurahan</h3>
+                            <p class="text-sm text-gray-500 mt-1">Ringkasan jumlah warga yang aman ditampilkan secara publik.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+                        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase opacity-90">Total Warga</span>
+                                <i class="fas fa-users text-xl opacity-80"></i>
+                            </div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.totalWarga }}</p>
+                            <p class="text-[10px] opacity-80">Jiwa</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-sky-500 to-blue-500 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase opacity-90">Pria</span>
+                                <i class="fas fa-mars text-xl opacity-80"></i>
+                            </div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.pria }}</p>
+                            <p class="text-[10px] opacity-80">Jiwa</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-pink-500 to-rose-500 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase opacity-90">Wanita</span>
+                                <i class="fas fa-venus text-xl opacity-80"></i>
+                            </div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.wanita }}</p>
+                            <p class="text-[10px] opacity-80">Jiwa</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-cyan-500 to-teal-500 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase opacity-90">Anak-Anak</span>
+                                <i class="fas fa-child text-xl opacity-80"></i>
+                            </div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.anak }}</p>
+                            <p class="text-[10px] opacity-80">0–12 tahun</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase opacity-90">Remaja</span>
+                                <i class="fas fa-user-graduate text-xl opacity-80"></i>
+                            </div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.remaja }}</p>
+                            <p class="text-[10px] opacity-80">13–25 tahun</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase opacity-90">Dewasa</span>
+                                <i class="fas fa-user-tie text-xl opacity-80"></i>
+                            </div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.dewasa }}</p>
+                            <p class="text-[10px] opacity-80">26–59 tahun</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-slate-600 to-gray-700 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase opacity-90">Lansia</span>
+                                <i class="fas fa-heartbeat text-xl opacity-80"></i>
+                            </div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.lansia }}</p>
+                            <p class="text-[10px] opacity-80">60+ tahun</p>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl p-4 text-white shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold uppercase opacity-90">Jenis Pekerjaan</span>
+                                <i class="fas fa-briefcase text-xl opacity-80"></i>
+                            </div>
+                            <p class="text-2xl md:text-3xl font-black mt-3">{{ publicStats.jenisPekerjaan }}</p>
+                            <p class="text-[10px] opacity-80">Kategori pekerjaan</p>
+                        </div>
+                    </div>
+                </section>
+
 
                 <!-- WIDGET ULANG TAHUN WARGA BULAN INI -->
                 <div v-if="wargaUlangTahun.length > 0" class="bg-gradient-to-r from-pink-500 to-rose-500 rounded-[2rem] p-6 shadow-xl mb-12 text-white flex flex-col md:flex-row items-center gap-6 relative overflow-hidden">
@@ -489,7 +575,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
             <!-- MAIN CONTENT AREA -->
             <main class="flex-1 flex flex-col h-full overflow-hidden">
                 <header class="bg-white border-b px-6 py-4 flex justify-between items-center shadow-sm z-10">
-                    <button @click="sidebarOpen=true" class="md:hidden text-gray-600"><i class="fas fa-bars text-xl"></i></button>
+                    <button @click="sidebarOpen=true" aria-label="Buka menu" class="md:hidden w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center shadow-sm border border-gray-200"><i class="fas fa-bars text-lg"></i></button>
                     <h2 class="hidden md:block text-xl font-black text-gray-800 capitalize">{{ menu.replace('-', ' ') }}</h2>
                     <div class="flex items-center gap-3">
                         <div class="text-right">
@@ -1530,6 +1616,19 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const listBansos = ref([]);
                 const listAnggaran = ref([]);
                 const listSampah = ref([]);
+                const publicStats = ref({
+                    totalWarga: 0,
+                    pria: 0,
+                    wanita: 0,
+                    anak: 0,
+                    remaja: 0,
+                    dewasa: 0,
+                    lansia: 0,
+                    jenisPekerjaan: 0,
+                    kepalaKeluarga: 0,
+                    updatedAt: null
+                });
+
 
                 // INIT FIREBASE
                 onMounted(() => {
@@ -1554,6 +1653,11 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         onSnapshot(getColRef('agenda'), (snap) => {
                             listAgenda.value = snap.docs.map(d => ({ ...d.data(), id: d.id }));
                         }, (err) => console.error('Public agenda sync error:', err));
+
+                        // Aggregate-only public statistics. No individual resident data is exposed.
+                        onSnapshot(getDocRef('publicStats', 'summary'), (d) => {
+                            if (d.exists()) publicStats.value = { ...publicStats.value, ...d.data() };
+                        }, (err) => console.error('Public stats sync error:', err));
                     };
                     setupPublicListeners();
 
@@ -1592,7 +1696,51 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     'fasilitas': listFasilitas, 'bansos': listBansos, 'anggaran': listAnggaran, 'sampah': listSampah, 'agenda': listAgenda
                 });
 
-                const setupListeners = () => {
+                
+                let publicStatsTimer = null;
+                const publishPublicStats = (docs) => {
+                    if (!fbUser.value) return;
+                    clearTimeout(publicStatsTimer);
+                    publicStatsTimer = setTimeout(async () => {
+                        try {
+                            const rows = docs.map(d => d.data ? d.data() : d);
+                            const totalWarga = rows.length;
+                            const pria = rows.filter(w => w.kelamin === 'Laki-laki').length;
+                            const wanita = rows.filter(w => w.kelamin === 'Perempuan').length;
+                            const currentYear = new Date().getFullYear();
+                            let anak = 0, remaja = 0, dewasa = 0, lansia = 0;
+                            const pekerjaan = new Set();
+                            const kk = new Set();
+
+                            rows.forEach(w => {
+                                const pk = String(w.pekerjaan || '').trim().toLowerCase();
+                                if (pk) pekerjaan.add(pk);
+                                if (w.nokk) kk.add(String(w.nokk).trim());
+                                if (w.tgl_lahir) {
+                                    const year = parseInt(String(w.tgl_lahir).split('-')[0], 10);
+                                    if (Number.isFinite(year)) {
+                                        const age = Math.max(0, currentYear - year);
+                                        if (age <= 12) anak++;
+                                        else if (age <= 25) remaja++;
+                                        else if (age <= 59) dewasa++;
+                                        else lansia++;
+                                    }
+                                }
+                            });
+
+                            await setDoc(getDocRef('publicStats', 'summary'), {
+                                totalWarga, pria, wanita, anak, remaja, dewasa, lansia,
+                                jenisPekerjaan: pekerjaan.size,
+                                kepalaKeluarga: kk.size,
+                                updatedAt: new Date().toISOString()
+                            }, { merge: true });
+                        } catch (e) {
+                            console.warn('Public stats update gagal:', e?.code || e);
+                        }
+                    }, 500);
+                };
+
+const setupListeners = () => {
                     if(!fbUser.value) return;
                     const sync = (cName, refVar) => {
                         onSnapshot(getColRef(cName), (snap) => {
@@ -2243,7 +2391,7 @@ body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-h
 
                 return {
                     isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user,
-                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, adminAccount,
+                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, adminAccount, publicStats,
                     showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
                     showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan,
                     showPassLogin, showPassReg, showPassRegRep, showPassRegLuar, showPassAdmin, showPassPejabat,
