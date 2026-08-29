@@ -640,6 +640,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='fasilitas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='fasilitas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-tools w-5 text-center mr-1"></i> 14. Lapor Fasilitas</a>
                     <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='bursa'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200', menu==='bursa'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-handshake w-5 text-center mr-1"></i> 15. Bursa Kerja & Jasa</a>
                     <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='galeri'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200', menu==='galeri'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-images w-5 text-center mr-1"></i> 17. Galeri Lingkungan</a>
+                    <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='audit-log'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-rose-200', menu==='audit-log'?'bg-rose-600 shadow border border-rose-400':'hover:bg-white/10']"><i class="fas fa-clipboard-list w-5 text-center mr-1"></i> Audit & Log Sistem</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='kalender'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-indigo-200', menu==='kalender'?'bg-indigo-600 shadow border border-indigo-400':'hover:bg-white/10']"><i class="fas fa-calendar-days w-5 text-center mr-1"></i> Kalender Kegiatan</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='agenda'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='agenda'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-bullhorn w-5 text-center mr-1"></i> 18. Agenda & Berita</a>
 
@@ -1432,7 +1433,47 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 
                     <!-- 18. AGENDA & BERITA -->
                                         <!-- PRIORITAS 9: KALENDER KEGIATAN -->
-                    <div v-if="menu==='kalender' && user.role==='admin_kelurahan'" class="space-y-6">
+                                        <!-- PRIORITAS 10: AUDIT & LOG SISTEM -->
+                    <div v-if="menu==='audit-log' && user.role==='admin_kelurahan'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                            <div class="border-b pb-4 mb-6">
+                                <h2 class="text-xl font-black text-gray-800"><i class="fas fa-clipboard-list text-rose-500 mr-2"></i>Audit & Log Sistem</h2>
+                                <p class="text-sm text-gray-500 mt-1">Jejak aktivitas pengurus dan perubahan data penting.</p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                                <select v-model="auditFilter.role" class="w-full border p-2.5 rounded-lg bg-white text-sm">
+                                    <option value="">Semua Role</option><option>admin_kelurahan</option><option>rt</option><option>rw</option><option>bendahara</option><option>babinsa</option><option>warga</option><option>warga_luar</option>
+                                </select>
+                                <select v-model="auditFilter.aksi" class="w-full border p-2.5 rounded-lg bg-white text-sm">
+                                    <option value="">Semua Aksi</option><option>CREATE</option><option>UPDATE</option><option>DELETE</option><option>LOGIN</option><option>LOGOUT</option>
+                                </select>
+                                <input v-model="auditFilter.tanggal" type="date" class="w-full border p-2.5 rounded-lg text-sm">
+                            </div>
+
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead><tr class="border-b text-left">
+                                        <th class="p-2">Waktu</th><th class="p-2">Pengguna</th><th class="p-2">Role</th><th class="p-2">Aksi</th><th class="p-2">Modul</th><th class="p-2">Detail</th>
+                                    </tr></thead>
+                                    <tbody>
+                                        <tr v-for="a in auditLogTersaring.slice(0,500)" :key="a.id" class="border-b hover:bg-gray-50">
+                                            <td class="p-2 whitespace-nowrap">{{ a.waktu ? new Date(a.waktu).toLocaleString('id-ID') : '-' }}</td>
+                                            <td class="p-2 font-bold">{{ a.nama || a.username || '-' }}</td>
+                                            <td class="p-2">{{ a.role || '-' }}</td>
+                                            <td class="p-2"><span class="px-2 py-1 rounded-full text-[10px] font-black"
+                                                :class="a.aksi==='DELETE'?'bg-red-50 text-red-700':a.aksi==='CREATE'?'bg-green-50 text-green-700':'bg-blue-50 text-blue-700'">{{ a.aksi }}</span></td>
+                                            <td class="p-2">{{ a.modul || '-' }}</td>
+                                            <td class="p-2">{{ a.detail || '-' }}</td>
+                                        </tr>
+                                        <tr v-if="auditLogTersaring.length===0"><td colspan="6" class="py-10 text-center text-gray-400">Belum ada aktivitas yang tercatat.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+<div v-if="menu==='kalender' && user.role==='admin_kelurahan'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
                             <div class="border-b pb-4 mb-6">
                                 <h2 class="text-xl font-black text-gray-800"><i class="fas fa-calendar-days text-indigo-500 mr-2"></i>Kalender Kegiatan</h2>
@@ -2137,6 +2178,8 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const listAnggaran = ref([]);
                 const listSampah = ref([]);
                 const listNotifikasi = ref([]);
+                const listAuditLog = ref([]);
+                const auditFilter = ref({ role:'', aksi:'', tanggal:'' });
                 const listDokumenRegulasi = ref([]);
                 const listPolling = ref([]);
                 const listKontakPenting = ref([]);
@@ -2409,6 +2452,7 @@ const setupListeners = () => {
 
                     sync('inventarisAset', listInventarisAset);
                     sync('notifikasi', listNotifikasi);
+                    sync('auditLog', listAuditLog);
                     sync('warga', listWarga, (snap) => publishPublicStats(snap.docs));
                     sync('wargaLuar', listWargaLuar);
                     sync('pejabat', listPejabat);
@@ -2451,6 +2495,7 @@ const setupListeners = () => {
                     const payload = { ...(data || {}), id };
                     try {
                         await setDoc(getDocRef(colName, id), payload);
+                        if (colName !== 'auditLog') await catatAudit('CREATE', colName, 'Membuat data baru', id);
                         return payload;
                     } catch (e) {
                         console.error('Firebase Save Error [' + colName + ']:', e);
@@ -2464,6 +2509,7 @@ const setupListeners = () => {
                     if (!data?.id) throw new Error('MISSING_DOCUMENT_ID');
                     try {
                         await setDoc(getDocRef(colName, String(data.id)), data, { merge: true });
+                        if (colName !== 'auditLog') await catatAudit('UPDATE', colName, 'Memperbarui data', String(data.id));
                         return data;
                     } catch (e) {
                         console.error('Firebase Update Error [' + colName + ']:', e);
@@ -2477,6 +2523,7 @@ const setupListeners = () => {
                     if (!id) throw new Error('MISSING_DOCUMENT_ID');
                     try {
                         await deleteDoc(getDocRef(colName, String(id)));
+                        if (colName !== 'auditLog') await catatAudit('DELETE', colName, 'Menghapus data', String(id));
                     } catch (e) {
                         console.error('Firebase Delete Error [' + colName + ']:', e);
                         showToast('Gagal menghapus ' + colName + ': ' + (e?.code || e?.message || 'Firebase error'), 'danger');
@@ -2782,6 +2829,23 @@ const resetFormDokumenRegulasi = () => {
                         await deleteData('dokumenRegulasi', id);
                         showToast('Dokumen berhasil dihapus');
                     });
+                };
+
+                const catatAudit = async (aksi, modul, detail='', targetId='') => {
+                    try {
+                        const u = user.value || {};
+                        await saveData('auditLog', {
+                            aksi, modul, detail, targetId,
+                            role: u.role || '',
+                            nama: u.nama || '',
+                            username: u.username || '',
+                            rt: u.rt || '',
+                            rw: u.rw || '',
+                            waktu: new Date().toISOString()
+                        });
+                    } catch (e) {
+                        console.warn('Audit log gagal:', e?.code || e);
+                    }
                 };
 
 const buatNotifikasi = async ({ title, message, type='info', target='all', targetRole='', targetUsername='', targetUid='', rt='', rw='', relatedMenu='' }) => {
@@ -3258,7 +3322,15 @@ const downloadExcelData = (type) => {
                 const jumlahNotifikasiBelumDibaca = computed(() =>
                     notifikasiSaya.value.filter(n => n.read !== true).length
                 );
-                                                const kontakPentingAktif = computed(() => (listKontakPenting.value || [])
+                                                                const auditLogTersaring = computed(() => {
+                    const f = auditFilter.value || {};
+                    return (listAuditLog.value || [])
+                        .filter(x => !f.role || x.role === f.role)
+                        .filter(x => !f.aksi || x.aksi === f.aksi)
+                        .filter(x => !f.tanggal || String(x.waktu || '').slice(0,10) === f.tanggal)
+                        .sort((a,b) => String(b.waktu || '').localeCompare(String(a.waktu || '')));
+                });
+const kontakPentingAktif = computed(() => (listKontakPenting.value || [])
                     .filter(k => String(k.status || 'Aktif') === 'Aktif')
                     .sort((a,b) => Number(a.urutan || 0) - Number(b.urutan || 0)));
 const pollingAktif = computed(() => (listPolling.value || [])
@@ -3303,13 +3375,13 @@ const filteredPengajuanUsaha = computed(() => {
                     formBursa, formFasilitas, formBansos, formAnggaran, formSampah, formAgenda, formInventarisAset, formDokumenRegulasi, formPolling, formKontakPenting,
                     listPejabat, listBendahara, listTamu, listLaporan, logAktivitas,
                     listWarga, listWargaLuar, listPengajuanUsaha, listSuratPengantar, listUmkm, listGaleri, listBursa,
-                    listFasilitas, listBansos, listAnggaran, listSampah, listAgenda, listInventarisAset, listNotifikasi, listDokumenRegulasi, listKontakPenting, kalenderBulan, kalenderTanggalDipilih, listPolling,
+                    listFasilitas, listBansos, listAnggaran, listSampah, listAgenda, listInventarisAset, listNotifikasi, listAuditLog, listDokumenRegulasi, listKontakPenting, kalenderBulan, kalenderTanggalDipilih, listPolling,
                     statistikGender, statistikUsia, rekapPekerjaan, wargaUlangTahun, filteredPengajuanUsaha, totalAsetInventaris, totalNilaiInventaris, asetBaikInventaris, asetRusakInventaris, dokumenRegulasiAktif, jumlahDokumenRegulasiAktif, pollingAktif, totalPollingAktif, kontakPentingAktif, agendaKalenderHariIni, agendaKalenderBulan,
                     handleLogin, handleRegister, handleRegisterLuar, logout, getPejabatSetting, simpanPengaturanPejabat,
                     simpanWebSettings, updateAdmin, simpanTtdWarga, simpanSuratPengantar, setujuiPengantar, cetakPengantarWarga,
                     simpanTamu, simpanBendahara, simpanBansos, prosesBansos,
                     simpanAnggaran, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanAgenda, simpanPengajuanUsaha,
-                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, resetFormInventarisAset, editInventarisAset, simpanInventarisAset, hapusInventarisAset, buatNotifikasi, tandaiNotifikasiDibaca, bukaNotifikasi, resetFormDokumenRegulasi, editDokumenRegulasi, simpanDokumenRegulasi, hapusDokumenRegulasi, tambahOpsiPolling, hapusOpsiPolling, resetFormPolling, editPolling, simpanPolling, pilihPolling, tutupPolling, resetFormKontakPenting, editKontakPenting, simpanKontakPenting, hapusKontakPenting,
+                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, resetFormInventarisAset, editInventarisAset, simpanInventarisAset, hapusInventarisAset, buatNotifikasi, tandaiNotifikasiDibaca, bukaNotifikasi, catatAudit, resetFormDokumenRegulasi, editDokumenRegulasi, simpanDokumenRegulasi, hapusDokumenRegulasi, tambahOpsiPolling, hapusOpsiPolling, resetFormPolling, editPolling, simpanPolling, pilihPolling, tutupPolling, resetFormKontakPenting, editKontakPenting, simpanKontakPenting, hapusKontakPenting,
                     downloadExcelData, getNamaBulan, formatTgl, customConfirm, customPrompt, uploadFile
                 };
             }
