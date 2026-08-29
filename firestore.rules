@@ -3,30 +3,23 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ============================================================
     // ADMIN AUTHORIZATION
     // Root collection: /admins/{UID}
-    // Document ID HARUS sama dengan Firebase Authentication UID.
-    // Password TIDAK disimpan di Firestore.
-    // ============================================================
+    // Document ID must equal the Firebase Authentication UID.
     match /admins/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow create, update, delete: if false;
     }
 
-    // ============================================================
-    // PUBLIC WEBSITE BRANDING
-    // Logo, foto pimpinan, warna kartu, teks landing, TTD/stempel config.
-    // Visitor harus dapat MEMBACA agar landing page tampil di PC/HP lain.
-    // Hanya user terautentikasi yang dapat menulis.
-    // ============================================================
+    // Public website configuration may be read before login so that
+    // logo, photos and card colors appear on every device. Only an
+    // authenticated user may write it.
     match /artifacts/{appId}/public/data/settings/webSettings {
       allow read: if true;
       allow write: if request.auth != null;
     }
 
-    // Data aplikasi lama tetap berada di namespace artifacts.
-    // Akses hanya untuk user yang sudah authenticated.
+    // All other application data requires an authenticated Firebase user.
     match /artifacts/{appId}/public/data/{collection}/{document} {
       allow read, write: if request.auth != null;
     }
