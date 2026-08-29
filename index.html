@@ -48,8 +48,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .hide-scroll::-webkit-scrollbar { display: none; }
-    #app{pointer-events:auto;} #app *{pointer-events:auto;}
-#app{pointer-events:auto!important;} #app button,#app a,#app input,#app select,#app textarea{pointer-events:auto!important;}
+#app { position: relative; z-index: 1; }
 </style>
 </head>
 
@@ -656,7 +655,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 
             <!-- MAIN CONTENT AREA -->
             
-        <div v-if="showNotifications && isLoggedIn" class="fixed top-16 right-3 md:right-6 z-[80] w-[calc(100vw-1.5rem)] max-w-md bg-white rounded-2xl shadow-2xl border overflow-hidden pointer-events-auto">
+        <div v-if="showNotifications && isLoggedIn" class="fixed top-16 right-3 md:right-6 z-[30] w-[calc(100vw-1.5rem)] max-w-md bg-white rounded-2xl shadow-2xl border overflow-hidden pointer-events-auto">
             <div class="p-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center justify-between">
                 <div>
                     <p class="text-xs uppercase tracking-widest font-bold opacity-80">Pemberitahuan</p>
@@ -2216,7 +2215,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const showFormInventarisAset = ref(false);
                 const formInventarisAset = ref({ id:'', kodeAset:'', namaAset:'', kategori:'', jumlah:1, kondisi:'Baik', tahunPerolehan:'', lokasi:'', nilaiAset:0, penanggungJawab:'', status:'Aktif', foto:'' });                const publicStats = ref({
                     totalWarga: 0, pria: 0, wanita: 0, anak: 0, remaja: 0,
-                    dewasa: 0, lansia: 0, jenisPekerjaan: 0, kepalaKeluarga: 0, updatedAt: null
+                    dewasa: 0, lansia: 0, jenisPekerjaan: 0, kepalaKeluarga: 0, pekerjaanRinci: {}, updatedAt: null
                 });
 
 
@@ -2305,6 +2304,8 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                         isLoggedIn.value = true;
                                         persistUser();
                                         currentAuthView.value = 'dashboard';
+                                        sidebarOpen.value = false;
+                                        showNotifications.value = false;
                                     } else {
                                         await signOut(auth);
                                         return;
@@ -2339,10 +2340,10 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                             const wanita = rows.filter(w => w.kelamin === 'Perempuan').length;
                             const year = new Date().getFullYear();
                             let anak = 0, remaja = 0, dewasa = 0, lansia = 0;
-                            const pekerjaan = new Set(), kk = new Set();
+                            const pekerjaan = {}, kk = new Set();
                             rows.forEach(w => {
                                 const p = String(w.pekerjaan || '').trim().toLowerCase();
-                                if (p) pekerjaan.add(p);
+                                if (p) pekerjaan[p] = (pekerjaan[p] || 0) + 1;
                                 if (w.nokk) kk.add(String(w.nokk).trim());
                                 if (w.tgl_lahir) {
                                     const y = parseInt(String(w.tgl_lahir).split('-')[0], 10);
@@ -2357,7 +2358,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                             });
                             await setDoc(getDocRef('publicStats', 'summary'),
                                 { totalWarga, pria, wanita, anak, remaja, dewasa, lansia,
-                                  jenisPekerjaan: pekerjaan.size, kepalaKeluarga: kk.size,
+                                  jenisPekerjaan: Object.keys(pekerjaan).length, kepalaKeluarga: kk.size, pekerjaanRinci: pekerjaan,
                                   updatedAt: new Date().toISOString() },
                                 { merge: true });
                         } catch(e) { console.warn('Public stats update:', e?.code || e); }
@@ -2376,14 +2377,14 @@ let listenersStarted = false;
                             jenisPekerjaan: 0, kepalaKeluarga: 0,
                             updatedAt: new Date().toISOString()
                         };
-                        const jobs = new Set();
+                        const jobs = {}; 
                         const kk = new Set();
                         rows.forEach(w => {
                             const sex = String(w.kelamin || w.jenisKelamin || '').trim().toLowerCase();
                             if (sex === 'laki-laki' || sex === 'laki laki' || sex === 'pria' || sex === 'l') result.pria++;
                             if (sex === 'perempuan' || sex === 'wanita' || sex === 'p') result.wanita++;
                             const job = String(w.pekerjaan || w.pekerjaanUtama || '').trim().toLowerCase();
-                            if (job) jobs.add(job);
+                            if (job) jobs[job] = (jobs[job] || 0) + 1;
                             const kkid = String(w.nokk || w.noKK || w.kk || '').trim();
                             if (kkid) kk.add(kkid);
                             const rawDob = w.tgl_lahir || w.tanggalLahir || w.dob || '';
@@ -2404,7 +2405,8 @@ let listenersStarted = false;
                                 }
                             }
                         });
-                        result.jenisPekerjaan = jobs.size;
+                        result.jenisPekerjaan = Object.keys(jobs).length;
+                        result.pekerjaanRinci = jobs;
                         result.kepalaKeluarga = kk.size;
                         await setDoc(getDocRef('publicStats', 'summary'), result, { merge: true });
                     } catch (e) {
@@ -2454,7 +2456,7 @@ const setupListeners = () => {
 
                     sync('inventarisAset', listInventarisAset);
                     sync('notifikasi', listNotifikasi);
-                    try { sync('auditLog', listAuditLog); } catch(e) { console.warn('Audit listener:', e); }
+                    sync('auditLog', listAuditLog);
                     sync('warga', listWarga, (snap) => publishPublicStats(snap.docs));
                     sync('wargaLuar', listWargaLuar);
                     sync('pejabat', listPejabat);
@@ -2497,7 +2499,7 @@ const setupListeners = () => {
                     const payload = { ...(data || {}), id };
                     try {
                         await setDoc(getDocRef(colName, id), payload);
-                        if (colName !== 'auditLog') { try { if (typeof catatAudit === 'function') await catatAudit('CREATE', colName, 'Membuat data baru', id); } catch(e) { console.warn(e); } }
+                        if (colName !== 'auditLog' && typeof catatAudit === 'function') { try { await catatAudit('CREATE', colName, 'Membuat data baru', id); } catch(e) { console.warn(e); } }
                         return payload;
                     } catch (e) {
                         console.error('Firebase Save Error [' + colName + ']:', e);
@@ -2511,7 +2513,7 @@ const setupListeners = () => {
                     if (!data?.id) throw new Error('MISSING_DOCUMENT_ID');
                     try {
                         await setDoc(getDocRef(colName, String(data.id)), data, { merge: true });
-                        if (colName !== 'auditLog') { try { if (typeof catatAudit === 'function') await catatAudit('UPDATE', colName, 'Memperbarui data', String(data.id)); } catch(e) { console.warn(e); } }
+                        if (colName !== 'auditLog' && typeof catatAudit === 'function') { try { await catatAudit('UPDATE', colName, 'Memperbarui data', String(data.id)); } catch(e) { console.warn(e); } }
                         return data;
                     } catch (e) {
                         console.error('Firebase Update Error [' + colName + ']:', e);
@@ -2525,7 +2527,7 @@ const setupListeners = () => {
                     if (!id) throw new Error('MISSING_DOCUMENT_ID');
                     try {
                         await deleteDoc(getDocRef(colName, String(id)));
-                        if (colName !== 'auditLog') { try { if (typeof catatAudit === 'function') await catatAudit('DELETE', colName, 'Menghapus data', String(id)); } catch(e) { console.warn(e); } }
+                        if (colName !== 'auditLog' && typeof catatAudit === 'function') { try { await catatAudit('DELETE', colName, 'Menghapus data', String(id)); } catch(e) { console.warn(e); } }
                     } catch (e) {
                         console.error('Firebase Delete Error [' + colName + ']:', e);
                         showToast('Gagal menghapus ' + colName + ': ' + (e?.code || e?.message || 'Firebase error'), 'danger');
@@ -3352,12 +3354,8 @@ const dokumenRegulasiAktif = computed(() => (listDokumenRegulasi.value || [])
                 );
                 const jumlahDokumenRegulasiAktif = computed(() => dokumenRegulasiAktif.value.length);
 const publicPekerjaanStats = computed(() => {
-                    const out = {};
-                    (listWarga.value || []).forEach(w => {
-                        const p = String(w.pekerjaan || w.pekerjaanUtama || 'Belum diisi').trim() || 'Belum diisi';
-                        out[p] = (out[p] || 0) + 1;
-                    });
-                    return Object.entries(out).sort((a,b) => b[1]-a[1]);
+                    const detail = publicStats.value?.pekerjaanRinci || {};
+                    return Object.entries(detail).sort((a,b) => Number(b[1]) - Number(a[1]));
                 });
 const filteredPengajuanUsaha = computed(() => {
                     if(user.value.role === 'rt') return listPengajuanUsaha.value.filter(x => x.rt == user.value.rt);
