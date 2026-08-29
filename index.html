@@ -105,20 +105,20 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 
         <!-- ================= LANDING PAGE & LOGIN ================= -->
         <div v-if="!isLoggedIn" class="min-h-screen bg-gray-50 flex flex-col font-sans relative overflow-y-auto">
-            <nav class="bg-white/95 backdrop-blur shadow-sm px-6 py-4 flex justify-between items-center fixed w-full z-50 border-b border-gray-100">
-                <div class="flex items-center gap-4">
-                    <img v-if="webSettings.logo" :src="webSettings.logo" @click="zoomedImage=webSettings.logo" class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md cursor-pointer">
+            <nav class="bg-white/95 backdrop-blur shadow-sm px-3 sm:px-6 py-3 sm:py-4 flex justify-between items-center fixed w-full z-50 border-b border-gray-100 gap-2">
+                <div class="flex items-center gap-2 sm:gap-4 min-w-0">
+                    <img v-if="webSettings.logo" :src="webSettings.logo" @click="zoomedImage=webSettings.logo" class="w-11 h-11 sm:w-12 sm:h-12 aspect-square rounded-full object-cover object-center overflow-hidden border-2 border-white shadow-md cursor-pointer shrink-0">
                     <div v-else :style="{ backgroundColor: webSettings.warnaUtama }" class="w-12 h-12 rounded-full flex items-center justify-center text-white font-black shadow-md border-2 border-white"><i class="fas fa-city text-xl"></i></div>
                     
                     <div>
-                        <h1 :style="{ color: webSettings.warnaUtama }" class="font-black text-xl leading-tight uppercase tracking-wide">{{ webSettings.namaWebsite }}</h1>
-                        <p class="text-[10px] font-bold uppercase tracking-widest text-gray-500">{{ webSettings.headerText }}</p>
+                        <h1 :style="{ color: webSettings.warnaUtama }" class="font-black text-sm sm:text-xl leading-tight uppercase tracking-wide truncate">{{ webSettings.namaWebsite }}</h1>
+                        <p class="hidden sm:block text-[10px] font-bold uppercase tracking-widest text-gray-500 truncate">{{ webSettings.headerText }}</p>
                     </div>
                 </div>
-                <button v-if="currentAuthView === 'landing'" @click="currentAuthView = 'auth'" :style="{ backgroundColor: webSettings.warnaUtama }" class="text-white px-6 py-2.5 rounded-full font-bold shadow-lg transition-transform hover:-translate-y-0.5 flex items-center gap-2">
+                <button v-if="currentAuthView === 'landing'" @click="currentAuthView = 'auth'" :style="{ backgroundColor: webSettings.warnaUtama }" class="text-white px-4 sm:px-6 py-2.5 rounded-full font-bold shadow-lg transition-transform hover:-translate-y-0.5 flex items-center gap-2 shrink-0 text-sm sm:text-base">
                     <i class="fas fa-sign-in-alt"></i> Masuk / Daftar
                 </button>
-                <button v-else @click="currentAuthView = 'landing'" class="text-gray-500 hover:text-gray-900 font-bold bg-gray-100 px-4 py-2 rounded-full"><i class="fas fa-arrow-left"></i> Kembali</button>
+                <button v-else @click="currentAuthView = 'landing'" class="text-gray-500 hover:text-gray-900 font-bold bg-gray-100 px-3 sm:px-4 py-2 rounded-full text-sm shrink-0"><i class="fas fa-arrow-left"></i> Kembali</button>
             </nav>
 
             <!-- TAMPILAN BERANDA -->
@@ -129,12 +129,12 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 </div>
 
                 <!-- TAMPILAN PROFIL PEJABAT (WALIKOTA, WAKIL, CAMAT, LURAH) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-16">
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 sm:gap-6 mb-12 sm:mb-16">
                     <!-- Walikota -->
-                    <div :style="{ background: webSettings.walikota.warnaKartu || '#2563eb' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.walikota.warnaKartu || '#2563eb' }" class="rounded-[2rem] p-5 sm:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[300px] sm:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.walikota.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.walikota.foto">
+                        <img :src="webSettings.walikota.foto" @error="$event.target.style.visibility='hidden'" class="w-28 h-28 aspect-square rounded-full border-4 border-white shadow-2xl object-cover object-center overflow-hidden shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.walikota.foto">
                         <div class="z-10 mt-4 w-full">
                             <h3 class="font-black text-xl leading-tight">{{ webSettings.walikota.nama }}</h3>
                             <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.walikota.jabatan }}</p>
@@ -143,10 +143,10 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     </div>
 
                     <!-- Wakil Walikota -->
-                    <div :style="{ background: webSettings.wakil.warnaKartu || '#16a34a' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.wakil.warnaKartu || '#16a34a' }" class="rounded-[2rem] p-5 sm:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[300px] sm:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.wakil.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.wakil.foto">
+                        <img :src="webSettings.wakil.foto" @error="$event.target.style.visibility='hidden'" class="w-28 h-28 aspect-square rounded-full border-4 border-white shadow-2xl object-cover object-center overflow-hidden shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.wakil.foto">
                         <div class="z-10 mt-4 w-full">
                             <h3 class="font-black text-xl leading-tight">{{ webSettings.wakil.nama }}</h3>
                             <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.wakil.jabatan }}</p>
@@ -155,10 +155,10 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     </div>
 
                     <!-- Camat -->
-                    <div :style="{ background: webSettings.camat.warnaKartu || '#7c3aed' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.camat.warnaKartu || '#7c3aed' }" class="rounded-[2rem] p-5 sm:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[300px] sm:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.camat.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.camat.foto">
+                        <img :src="webSettings.camat.foto" @error="$event.target.style.visibility='hidden'" class="w-28 h-28 aspect-square rounded-full border-4 border-white shadow-2xl object-cover object-center overflow-hidden shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.camat.foto">
                         <div class="z-10 mt-4 w-full">
                             <h3 class="font-black text-xl leading-tight">{{ webSettings.camat.nama }}</h3>
                             <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.camat.jabatan }}</p>
@@ -167,10 +167,10 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     </div>
 
                     <!-- Lurah -->
-                    <div :style="{ background: webSettings.lurah.warnaKartu || '#f97316' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.lurah.warnaKartu || '#f97316' }" class="rounded-[2rem] p-5 sm:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[300px] sm:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.lurah.foto" class="w-28 h-28 rounded-full border-4 border-white/80 shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.lurah.foto">
+                        <img :src="webSettings.lurah.foto" @error="$event.target.style.visibility='hidden'" class="w-28 h-28 aspect-square rounded-full border-4 border-white/80 shadow-2xl object-cover object-center overflow-hidden shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.lurah.foto">
                         <div class="z-10 mt-4 w-full">
                             <h3 class="font-black text-xl leading-tight">{{ webSettings.lurah.nama }}</h3>
                             <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.lurah.jabatan }}</p>
@@ -278,12 +278,12 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 
             <!-- LOGIN & REGISTER FORM -->
             <div v-if="currentAuthView === 'auth'" class="pt-24 flex justify-center px-4 pb-12 w-full">
-                <div :class="['bg-white p-8 rounded-[2rem] shadow-2xl border w-full transition-all duration-300', isRegistering || isRegisteringLuar ? 'max-w-4xl' : 'max-w-md']">
+                <div :class="['bg-white p-5 sm:p-8 rounded-[2rem] shadow-2xl border border-gray-100 w-full transition-all duration-300', isRegistering || isRegisteringLuar ? 'max-w-4xl' : 'max-w-md']">
                     <div class="text-center mb-8">
-                        <img v-if="webSettings.logo" :src="webSettings.logo" class="w-20 h-20 rounded-full mx-auto mb-4 object-cover shadow-lg border">
+                        <img v-if="webSettings.logo" :src="webSettings.logo" class="w-20 h-20 aspect-square rounded-full mx-auto mb-4 object-cover object-center overflow-hidden shadow-lg border-4 border-white ring-2 ring-gray-100">
                         <div v-else :style="{ backgroundColor: webSettings.warnaUtama }" class="w-20 h-20 text-white rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-lg"><i class="fas fa-shield-alt"></i></div>
                         
-                        <h2 class="text-3xl font-black text-gray-800">Sistem Kelurahan</h2>
+                        <h2 class="text-2xl sm:text-3xl font-black text-gray-800">Sistem Kelurahan</h2>
                         <p class="text-gray-500 text-sm mt-1">Layanan Terpadu Terproteksi (Cloud)</p>
                     </div>
                     
@@ -299,7 +299,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                 <button type="button" @click="showPassLogin = !showPassLogin" class="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 focus:outline-none"><i :class="['fas', showPassLogin ? 'fa-eye-slash' : 'fa-eye']"></i></button>
                             </div>
                         </div>
-                        <button type="submit" :style="{ backgroundColor: webSettings.warnaUtama }" class="w-full text-white font-bold py-4 rounded-xl shadow-lg transition-all mt-6 text-base">Masuk Sistem Aman</button>
+                        <button type="submit" :style="{ backgroundColor: webSettings.warnaUtama }" class="w-full text-white font-bold py-3.5 sm:py-4 rounded-xl shadow-lg transition-all mt-6 text-base">Masuk Sistem Aman</button>
                         
                         <div class="text-center text-sm text-gray-600 mt-6 flex flex-col gap-2">
                             <p>Belum terdaftar? <a href="#" @click.prevent="isRegistering = true; isRegisteringLuar = false; regStep = 1" :style="{ color: webSettings.warnaUtama }" class="font-black hover:underline">Daftar Akun Warga</a></p>
@@ -431,7 +431,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
             <!-- SIDEBAR -->
             <aside :class="['text-white w-64 flex-shrink-0 transition-transform h-full fixed md:relative z-40 shadow-xl overflow-y-auto', sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']" :style="{ backgroundColor: webSettings.warnaUtama }">
                 <div class="p-5 border-b border-white/20 flex justify-between items-center" :style="{ backgroundColor: webSettings.warnaUtama }">
-                    <img v-if="webSettings.logo" :src="webSettings.logo" class="w-8 h-8 rounded-full border border-white mr-2 object-cover">
+                    <img v-if="webSettings.logo" :src="webSettings.logo" class="w-9 h-9 aspect-square rounded-full border-2 border-white mr-2 object-cover object-center overflow-hidden shrink-0">
                     <i v-else class="fas fa-shield-alt mr-2 text-blue-200 text-xl"></i>
                     <h1 class="font-bold text-sm tracking-wide">{{ webSettings.namaWebsite }}</h1>
                     <button @click="sidebarOpen=false" class="md:hidden"><i class="fas fa-times text-xl"></i></button>
@@ -1539,6 +1539,26 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         }
                     };
                     initAuth();
+
+                    // Public landing must be able to load website branding/photos
+                    // even when the visitor has not logged in yet.
+                    onSnapshot(
+                        doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'webSettings'),
+                        (d) => {
+                            if (!d.exists()) return;
+                            const data = d.data() || {};
+                            data.walikota = { ...webSettings.value.walikota, ...(data.walikota || {}) };
+                            data.wakil = { ...webSettings.value.wakil, ...(data.wakil || {}) };
+                            data.camat = { ...webSettings.value.camat, ...(data.camat || {}) };
+                            data.lurah = { ...webSettings.value.lurah, ...(data.lurah || {}) };
+                            data.walikota.warnaKartu = data.walikota.warnaKartu || '#2563eb';
+                            data.wakil.warnaKartu = data.wakil.warnaKartu || '#16a34a';
+                            data.camat.warnaKartu = data.camat.warnaKartu || '#7c3aed';
+                            data.lurah.warnaKartu = data.lurah.warnaKartu || '#f97316';
+                            webSettings.value = data;
+                        },
+                        (err) => console.warn('Public webSettings read:', err?.code || err)
+                    );
                     
                     onAuthStateChanged(auth, (u) => {
                         fbUser.value = u;
@@ -1821,7 +1841,7 @@ if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username ===
                     regLuar.value = { nama: '', nik: '', alamat: '', hp: '', username: '', password: '', ttd:'' };
                 };
 
-                const logout = () => { isLoggedIn.value=false; currentAuthView.value='landing'; menu.value='dashboard'; showToast('Berhasil Logout'); };
+                const logout = async () => { try { await signOut(auth); } catch(e) { console.warn('Logout Firebase:', e); } isLoggedIn.value=false; currentAuthView.value='landing'; menu.value='dashboard'; showToast('Berhasil Logout'); };
 
                 const getPejabatSetting = () => { return listPejabat.value.find(x => x.username === user.value.username) || { ttd:'', stempel:'' }; };
                 
