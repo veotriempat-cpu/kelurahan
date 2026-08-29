@@ -129,52 +129,52 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 </div>
 
                 <!-- TAMPILAN PROFIL PEJABAT (WALIKOTA, WAKIL, CAMAT, LURAH) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-16">
+                <div class="grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-6 mb-10 md:mb-16">
                     <!-- Walikota -->
-                    <div :style="{ background: webSettings.walikota.warnaKartu || '#2563eb' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.walikota.warnaKartu || '#2563eb' }" class="rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[220px] md:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.walikota.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.walikota.foto">
+                        <img :src="webSettings.walikota.foto" class="w-16 h-16 md:w-28 md:h-28 aspect-square rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.walikota.foto">
                         <div class="z-10 mt-4 w-full">
-                            <h3 class="font-black text-xl leading-tight">{{ webSettings.walikota.nama }}</h3>
-                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.walikota.jabatan }}</p>
-                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.walikota.pesan }}"</p>
+                            <h3 class="font-black text-sm md:text-xl leading-tight">{{ webSettings.walikota.nama }}</h3>
+                            <p class="text-[8px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 mb-2 md:mb-3 bg-white/20 inline-block px-2 md:px-3 py-1 rounded-full">{{ webSettings.walikota.jabatan }}</p>
+                            <p class="text-white/90 text-[10px] md:text-sm italic font-medium leading-relaxed">"{{ webSettings.walikota.pesan }}"</p>
                         </div>
                     </div>
 
                     <!-- Wakil Walikota -->
-                    <div :style="{ background: webSettings.wakil.warnaKartu || '#16a34a' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.wakil.warnaKartu || '#16a34a' }" class="rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[220px] md:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.wakil.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.wakil.foto">
+                        <img :src="webSettings.wakil.foto" class="w-16 h-16 md:w-28 md:h-28 aspect-square rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.wakil.foto">
                         <div class="z-10 mt-4 w-full">
-                            <h3 class="font-black text-xl leading-tight">{{ webSettings.wakil.nama }}</h3>
-                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.wakil.jabatan }}</p>
-                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.wakil.pesan }}"</p>
+                            <h3 class="font-black text-sm md:text-xl leading-tight">{{ webSettings.wakil.nama }}</h3>
+                            <p class="text-[8px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 mb-2 md:mb-3 bg-white/20 inline-block px-2 md:px-3 py-1 rounded-full">{{ webSettings.wakil.jabatan }}</p>
+                            <p class="text-white/90 text-[10px] md:text-sm italic font-medium leading-relaxed">"{{ webSettings.wakil.pesan }}"</p>
                         </div>
                     </div>
 
                     <!-- Camat -->
-                    <div :style="{ background: webSettings.camat.warnaKartu || '#7c3aed' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.camat.warnaKartu || '#7c3aed' }" class="rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[220px] md:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.camat.foto" class="w-28 h-28 rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.camat.foto">
+                        <img :src="webSettings.camat.foto" class="w-16 h-16 md:w-28 md:h-28 aspect-square rounded-full border-4 border-white shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.camat.foto">
                         <div class="z-10 mt-4 w-full">
-                            <h3 class="font-black text-xl leading-tight">{{ webSettings.camat.nama }}</h3>
-                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.camat.jabatan }}</p>
-                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.camat.pesan }}"</p>
+                            <h3 class="font-black text-sm md:text-xl leading-tight">{{ webSettings.camat.nama }}</h3>
+                            <p class="text-[8px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 mb-2 md:mb-3 bg-white/20 inline-block px-2 md:px-3 py-1 rounded-full">{{ webSettings.camat.jabatan }}</p>
+                            <p class="text-white/90 text-[10px] md:text-sm italic font-medium leading-relaxed">"{{ webSettings.camat.pesan }}"</p>
                         </div>
                     </div>
 
                     <!-- Lurah -->
-                    <div :style="{ background: webSettings.lurah.warnaKartu || '#f97316' }" class="rounded-[2rem] p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[330px]">
+                    <div :style="{ background: webSettings.lurah.warnaKartu || '#f97316' }" class="rounded-2xl md:rounded-[2rem] p-3 md:p-6 shadow-xl text-white flex flex-col items-center text-center relative overflow-hidden group min-h-[220px] md:min-h-[330px]">
                         <div class="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition duration-500"></div>
                         <div class="absolute -bottom-12 -left-12 w-36 h-36 bg-white/10 rounded-full blur-2xl"></div>
-                        <img :src="webSettings.lurah.foto" class="w-28 h-28 rounded-full border-4 border-white/80 shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.lurah.foto">
+                        <img :src="webSettings.lurah.foto" class="w-16 h-16 md:w-28 md:h-28 aspect-square rounded-full border-4 border-white/80 shadow-2xl object-cover shrink-0 z-10 bg-gray-100 cursor-pointer" @click="zoomedImage=webSettings.lurah.foto">
                         <div class="z-10 mt-4 w-full">
-                            <h3 class="font-black text-xl leading-tight">{{ webSettings.lurah.nama }}</h3>
-                            <p class="text-[10px] font-black uppercase tracking-widest mt-2 mb-3 bg-white/20 inline-block px-3 py-1 rounded-full">{{ webSettings.lurah.jabatan }}</p>
-                            <p class="text-white/90 text-sm italic font-medium leading-relaxed">"{{ webSettings.lurah.pesan }}"</p>
+                            <h3 class="font-black text-sm md:text-xl leading-tight">{{ webSettings.lurah.nama }}</h3>
+                            <p class="text-[8px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 mb-2 md:mb-3 bg-white/20 inline-block px-2 md:px-3 py-1 rounded-full">{{ webSettings.lurah.jabatan }}</p>
+                            <p class="text-white/90 text-[10px] md:text-sm italic font-medium leading-relaxed">"{{ webSettings.lurah.pesan }}"</p>
                         </div>
                     </div>
                 </div>
