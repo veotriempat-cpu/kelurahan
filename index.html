@@ -457,13 +457,8 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='surat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='surat'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-envelope-open-text w-5 text-center mr-1"></i> 7. E-Surat Warga</a>
                     <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='tamu'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='tamu'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-door-open w-5 text-center mr-1"></i> 9. Lapor Tamu</a>
                     <a v-if="user.role !== 'warga_luar'" href="#" @click.prevent="menu='laporan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='laporan'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-exclamation-triangle w-5 text-center mr-1"></i> 10. Pengaduan Warga</a>
-                    
-                    <p v-if="['rt', 'rw', 'bendahara', 'warga'].includes(user.role)" class="text-[10px] text-pink-300 font-bold uppercase px-2 mt-4 mb-2">Keuangan Warga (RT/RW)</p>
-                    <a v-if="['rt', 'rw', 'bendahara', 'warga'].includes(user.role)" href="#" @click.prevent="menu='arisan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-pink-200', menu==='arisan'?'bg-pink-600 shadow border border-pink-400':'hover:bg-white/10']"><i class="fas fa-sync-alt w-5 text-center mr-1"></i> 22. Arisan Warga</a>
-                    <a v-if="['rt', 'rw', 'bendahara', 'warga'].includes(user.role)" href="#" @click.prevent="menu='sumbangan'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-pink-200 mt-1', menu==='sumbangan'?'bg-pink-600 shadow border border-pink-400':'hover:bg-white/10']"><i class="fas fa-donate w-5 text-center mr-1"></i> 23. Sumbangan Warga</a>
 
                     <p v-if="!['warga_luar', 'babinsa'].includes(user.role)" class="text-[10px] text-emerald-300 font-bold uppercase px-2 mt-4 mb-2">Transparansi & Ekonomi</p>
-                    <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='kas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='kas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-wallet w-5 text-center mr-1"></i> 11. Kas Lingkungan</a>
                     <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='administrasi'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='administrasi'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-chart-line w-5 text-center mr-1"></i> 12. Realisasi Anggaran</a>
                     <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='umkm'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-emerald-200', menu==='umkm'?'bg-emerald-600 shadow border border-emerald-400':'hover:bg-white/10']"><i class="fas fa-store w-5 text-center mr-1"></i> 13. Lapak UMKM</a>
                     <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='fasilitas'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='fasilitas'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-tools w-5 text-center mr-1"></i> 14. Lapor Fasilitas</a>
@@ -661,7 +656,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         <!-- PENGATURAN BENDAHARA & LOG AKTIVITAS (KHUSUS RT/RW) -->
                         <div v-if="['rt', 'rw'].includes(user.role)" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                             <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                                <h3 class="font-bold text-pink-600 mb-4 border-b pb-2"><i class="fas fa-user-shield mr-2"></i>Buat Akun Bendahara (Arisan & Sumbangan)</h3>
+                                <h3 class="font-bold text-pink-600 mb-4 border-b pb-2"><i class="fas fa-user-shield mr-2"></i>Buat Akun Bendahara</h3>
                                 <div class="grid grid-cols-2 gap-3">
                                     <div class="col-span-2"><label class="block text-xs font-bold mb-1">Nama Lengkap Bendahara</label><input v-model="formBendahara.nama" type="text" class="w-full border p-2 rounded-lg bg-gray-50 outline-none"></div>
                                     <div><label class="block text-xs font-bold mb-1">Username Login</label><input v-model="formBendahara.username" type="text" class="w-full border p-2 rounded-lg bg-gray-50 outline-none"></div>
@@ -986,137 +981,6 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                     </div>
                                 </div>
                                 <div v-if="listLaporan.filter(x => laporanBisaDilihat(x)).length === 0" class="text-center p-8 text-gray-400 italic font-bold">Belum ada pengaduan yang dapat Anda lihat.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 22. ARISAN WARGA -->
-                    <div v-if="menu==='arisan'" class="space-y-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-sync-alt text-pink-500 mr-2"></i>Sistem Arisan Warga RT {{ user.rt }} / RW {{ user.rw }}</h2>
-                            
-                            <!-- TOMBOL DAFTAR UNTUK WARGA -->
-                            <div v-if="user.role === 'warga' && !listArisan.find(x => String(x.username) === String(user.username))" class="mb-6 bg-pink-50 p-5 rounded-2xl border border-pink-200 flex flex-col md:flex-row justify-between items-center gap-4">
-                                <div>
-                                    <h3 class="font-black text-pink-800 text-lg">Mari Bergabung di Arisan Warga!</h3>
-                                    <p class="text-sm text-pink-600 mt-1">Ikuti arisan untuk mempererat tali silaturahmi warga RT {{user.rt}} / RW {{user.rw}}.</p>
-                                </div>
-                                <button @click="daftarArisanWarga" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition whitespace-nowrap"><i class="fas fa-user-plus mr-1"></i> Daftar Jadi Anggota</button>
-                            </div>
-
-                            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6 bg-pink-50 p-4 rounded-xl border border-pink-200">
-                                <div>
-                                    <p class="text-xs font-bold text-pink-600 uppercase">Total Kas Arisan Saat Ini</p>
-                                    <p class="text-2xl font-black text-gray-800">Rp {{ hitungKasArisan(user.rt, user.rw).toLocaleString('id-ID') }}</p>
-                                </div>
-                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="kocokArisan" class="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition flex items-center gap-2"><i class="fas fa-random"></i> Kocok Pemenang Arisan</button>
-                            </div>
-                            
-                            <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                <input v-model="formArisan.nama" placeholder="Nama Anggota Baru" class="border p-2.5 rounded-lg text-sm outline-none">
-                                <input v-model="formArisan.iuran" type="number" placeholder="Iuran Awal (Rp)" class="border p-2.5 rounded-lg text-sm outline-none">
-                                <button @click="simpanArisan" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg shadow transition">Tambah Manual</button>
-                            </div>
-                            
-                            <div class="overflow-x-auto border rounded-xl">
-                                <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">No. Anggota</th><th class="p-4">Nama</th><th class="p-4 text-right">Total Iuran Masuk</th><th class="p-4 text-center">Status Menang</th><th class="p-4 text-center">Aksi</th></tr></thead>
-                                    <tbody>
-                                        <tr v-for="a in listArisan.filter(x => x.rt == user.rt && x.rw == user.rw)" :key="a.id" class="border-b">
-                                            <td class="p-4 font-mono text-xs text-gray-500">{{ a.noAnggota }}</td>
-                                            <td class="p-4 font-bold">{{ a.nama }}</td>
-                                            <td class="p-4 text-right text-emerald-600 font-bold">Rp {{ Number(a.totalIuran || 0).toLocaleString('id-ID') }}</td>
-                                            <td class="p-4 text-center"><span :class="a.statusMenang ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'" class="px-2 py-1 rounded text-[10px] font-bold uppercase">{{ a.statusMenang ? 'Sudah Menang' : 'Belum' }}</span></td>
-                                            <td class="p-4 text-center">
-                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role) && !a.statusMenang" @click="customPrompt('Tambah Iuran', 'Masukkan nominal iuran untuk '+a.nama, '', (val) => tambahIuranManual(a, val))" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded text-xs font-bold mr-1">+ Iuran</button>
-                                                <button @click="cetakKartuArisan(a)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-bold mr-1"><i class="fas fa-print"></i></button>
-                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="hapus('arisan', a.id)" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr v-if="listArisan.filter(x => x.rt == user.rt && x.rw == user.rw).length === 0"><td colspan="5" class="p-4 text-center text-gray-400 italic">Belum ada anggota arisan.</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            
-                            <h3 class="font-bold text-gray-800 mt-8 mb-4 border-b pb-2"><i class="fas fa-trophy text-amber-500 mr-2"></i>Riwayat Pemenang Arisan</h3>
-                            <ul class="space-y-2">
-                                <li v-for="r in riwayatArisan.filter(x => x.rt == user.rt && x.rw == user.rw)" :key="r.id" class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm flex justify-between">
-                                    <span><strong>{{ r.nama }}</strong> menang pada {{ r.tanggal }}</span>
-                                    <span class="font-bold text-amber-700">Menarik: Rp {{ Number(r.nominal || 0).toLocaleString('id-ID') }}</span>
-                                </li>
-                                <li v-if="riwayatArisan.filter(x => x.rt == user.rt && x.rw == user.rw).length === 0" class="text-xs text-gray-400 italic">Belum ada riwayat pemenang.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- 23. SUMBANGAN WARGA -->
-                    <div v-if="menu==='sumbangan'" class="space-y-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-donate text-pink-500 mr-2"></i>Pencatatan Sumbangan / Iuran Warga RT {{ user.rt }} / RW {{ user.rw }}</h2>
-                            
-                            <!-- FORM KIRIM SUMBANGAN UNTUK WARGA -->
-                            <div v-if="user.role === 'warga'" class="bg-emerald-50 p-6 rounded-2xl border border-emerald-200 mb-6 shadow-inner">
-                                <h3 class="font-black text-emerald-800 mb-4 border-b border-emerald-200 pb-2"><i class="fas fa-hand-holding-usd mr-2"></i>Kirim Sumbangan / Bayar Iuran</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><label class="block text-xs font-bold mb-1">Jenis / Keterangan (Cth: Iuran Kebersihan)</label><input v-model="formSumbanganWarga.jenis" class="w-full border p-2.5 rounded-lg text-sm outline-none"></div>
-                                    <div><label class="block text-xs font-bold mb-1">Nominal (Rp)</label><input v-model="formSumbanganWarga.nominal" type="number" class="w-full border p-2.5 rounded-lg text-sm outline-none"></div>
-                                    <div class="md:col-span-2"><label class="block text-xs font-bold mb-1">Upload Foto Bukti Transfer/Bayar</label><input type="file" @change="e=>uploadFile(e, 'buktiSumbangan')" class="w-full border p-2.5 rounded-lg text-sm bg-white cursor-pointer"></div>
-                                    <div class="md:col-span-2 text-right mt-2"><button @click="kirimSumbanganWarga" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-3 rounded-xl shadow-md transition"><i class="fas fa-paper-plane mr-1"></i> Kirim Bukti ke RT/RW</button></div>
-                                </div>
-                            </div>
-
-                            <div class="flex justify-between items-center mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200">
-                                <div>
-                                    <p class="text-xs font-bold text-gray-500 uppercase">Total Kas Terkumpul (Tervalidasi)</p>
-                                    <p class="text-3xl font-black text-emerald-700">Rp {{ hitungKasSumbangan().toLocaleString('id-ID') }}</p>
-                                </div>
-                            </div>
-                            
-                            <!-- INPUT LANGSUNG UNTUK RT/RW/BENDAHARA -->
-                            <div v-if="['rt', 'rw', 'bendahara'].includes(user.role)" class="bg-gray-50 p-4 rounded-xl border mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <input v-model="formSumbangan.nama" placeholder="Nama Penyumbang" class="border p-2.5 rounded-lg text-sm outline-none">
-                                <input v-model="formSumbangan.jenis" placeholder="Jenis / Keterangan" class="border p-2.5 rounded-lg text-sm outline-none md:col-span-1">
-                                <input v-model="formSumbangan.nominal" type="number" placeholder="Nominal (Rp)" class="border p-2.5 rounded-lg text-sm outline-none">
-                                <button @click="simpanSumbangan" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-lg shadow transition">Catat Langsung</button>
-                            </div>
-                            
-                            <div class="overflow-x-auto border rounded-xl">
-                                <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-gray-50 border-b"><tr><th class="p-4">Tgl & Nama</th><th class="p-4">Keterangan</th><th class="p-4 text-right">Nominal</th><th class="p-4 text-center">Status</th><th class="p-4 text-center">Aksi / Bukti</th></tr></thead>
-                                    <tbody>
-                                        <tr v-for="s in listSumbangan.filter(x => x.rt == user.rt && x.rw == user.rw)" :key="s.id" class="border-b hover:bg-gray-50">
-                                            <td class="p-4"><p class="font-bold">{{ s.nama }}</p><p class="text-[10px] text-gray-500">{{ s.tanggal }}</p></td>
-                                            <td class="p-4 text-xs">{{ s.jenis || '-' }}</td>
-                                            <td class="p-4 text-right font-bold text-emerald-600">Rp {{ Number(s.nominal || 0).toLocaleString('id-ID') }}</td>
-                                            <td class="p-4 text-center">
-                                                <span v-if="s.status === 'Menunggu Validasi'" class="bg-amber-100 text-amber-700 px-2 py-1 rounded text-[10px] font-black uppercase">Menunggu Validasi</span>
-                                                <span v-else class="bg-green-100 text-green-700 px-2 py-1 rounded text-[10px] font-black uppercase">Sah / Masuk Kas</span>
-                                            </td>
-                                            <td class="p-4 text-center">
-                                                <button v-if="s.bukti" @click="zoomedImage=s.bukti" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs font-bold mr-1"><i class="fas fa-image"></i> Bukti</button>
-                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role) && s.status === 'Menunggu Validasi'" @click="validasiSumbangan(s)" class="bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold shadow mr-1"><i class="fas fa-check"></i> ACC</button>
-                                                <button v-if="['rt', 'rw', 'bendahara'].includes(user.role)" @click="hapus('sumbangan', s.id)" class="text-red-500 hover:bg-red-50 px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
-                                            </td>
-                                        </tr>
-                                        <tr v-if="listSumbangan.filter(x => x.rt == user.rt && x.rw == user.rw).length === 0"><td colspan="5" class="p-4 text-center text-gray-400 italic">Belum ada catatan sumbangan.</td></tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 11. KAS LINGKUNGAN -->
-                    <div v-if="menu==='kas'" class="space-y-6">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-wallet text-emerald-500 mr-2"></i>Rekapitulasi Kas Lingkungan (Seluruh RT/RW)</h2>
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <div v-for="(kas, index) in rekapKasAdmin" :key="index" class="bg-gradient-to-br from-emerald-50 to-teal-50 p-6 rounded-2xl border border-emerald-100 shadow-sm relative overflow-hidden">
-                                    <i class="fas fa-coins absolute -right-4 -bottom-4 text-6xl text-emerald-200/50"></i>
-                                    <h4 class="font-black text-emerald-900 mb-1 z-10 relative">{{ kas.wilayah }}</h4>
-                                    <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-4 z-10 relative">Total Kas Tersedia</p>
-                                    <p class="text-3xl font-black text-gray-800 z-10 relative">Rp {{ kas.total.toLocaleString('id-ID') }}</p>
-                                </div>
-                                <div v-if="rekapKasAdmin.length === 0" class="col-span-3 text-center p-8 text-gray-400 italic font-bold">Belum ada data kas / sumbangan.</div>
                             </div>
                         </div>
                     </div>
@@ -1568,7 +1432,6 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const menu = ref('dashboard');
                 const user = ref({ nama: '', role: '', rt: '', rw: '', username: '', ttd: '' });
                 const publicTab = ref('agenda'); 
-                const tabArisan = ref('anggota'); 
                 
                 const showPassLogin = ref(false);
                 const showPassRegLuar = ref(false);
@@ -1591,7 +1454,6 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const showFormTamu = ref(false);
                 const showFormLaporan = ref(false);
                 const showFormPengajuan = ref(false);
-                const showFormSumbangan = ref(false);
 
                 const webSettings = ref({
                     warnaUtama: '#1e3a8a', logo: '', namaWebsite: 'Portal Kelurahan Digital', headerText: 'Layanan Digital Terpadu', footerText: '© 2026 Sistem Informasi Kelurahan Digital. Semua Hak Dilindungi.',
@@ -1616,14 +1478,6 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 
                 const formLaporan = ref({ judul:'', isi:'', kategori:'Infrastruktur', privasi:'Rahasia', foto:null });
                 const listLaporan = ref([]);
-
-                const formSumbangan = ref({ nama:'', nominal:'', jenis:'' });
-                const formSumbanganWarga = ref({ jenis:'', nominal:'', bukti:null });
-                const listSumbangan = ref([]);
-                
-                const formArisan = ref({ nama:'', iuran:'' });
-                const listArisan = ref([]); 
-                const riwayatArisan = ref([]);
                 const logAktivitas = ref([]); 
 
                 const loginForm = ref({ email: '', password: '' });
@@ -1689,8 +1543,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 
                 const getListMap = () => ({
                     'pejabat': listPejabat, 'warga': listWarga, 'wargaLuar': listWargaLuar, 'bendahara': listBendahara, 
-                    'tamu': listTamu, 'laporan': listLaporan, 'sumbangan': listSumbangan, 'arisan': listArisan, 
-                    'riwayatArisan': riwayatArisan, 'logAktivitas': logAktivitas, 'pengajuanUsaha': listPengajuanUsaha,
+                    'tamu': listTamu, 'laporan': listLaporan, 'logAktivitas': logAktivitas, 'pengajuanUsaha': listPengajuanUsaha,
                     'suratPengantar': listSuratPengantar, 'umkm': listUmkm, 'galeri': listGaleri, 'bursa': listBursa, 
                     'fasilitas': listFasilitas, 'bansos': listBansos, 'anggaran': listAnggaran, 'sampah': listSampah, 'agenda': listAgenda
                 });
@@ -1708,9 +1561,6 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     sync('pejabat', listPejabat);
                     sync('bendahara', listBendahara);
                     sync('tamu', listTamu);
-                    sync('sumbangan', listSumbangan);
-                    sync('arisan', listArisan);
-                    sync('riwayatArisan', riwayatArisan);
                     sync('logAktivitas', logAktivitas);
                     sync('pengajuanUsaha', listPengajuanUsaha);
                     sync('suratPengantar', listSuratPengantar);
@@ -1848,9 +1698,8 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         if(target==='fotoUsaha') formUsahaLuar.value.fotoUsaha = evt.target.result; 
                         if(target==='pengantarKtp') formSuratPengantar.value.fotoKtp = evt.target.result; 
                         if(target==='pengantarKk') formSuratPengantar.value.fotoKk = evt.target.result; 
-                        if(target==='pengantarDok') formSuratPengantar.value.fotoDok = evt.target.result; 
-                        if(target==='buktiSumbangan') formSumbanganWarga.value.bukti = evt.target.result; 
-                        if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username === user.value.username); if(p) p.ttd = evt.target.result; }
+                        if(target==='pengantarDok') formSuratPengantar.value.fotoDok = evt.target.result;
+if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username === user.value.username); if(p) p.ttd = evt.target.result; }
                         if(target==='pejabatStempel') { const p = listPejabat.value.find(x => x.username === user.value.username); if(p) p.stempel = evt.target.result; }
                     };
                 };
@@ -2073,25 +1922,6 @@ body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-h
                     formBendahara.value = { nama: '', username: '', password: '' };
                 };
 
-                const kirimSumbanganWarga = async () => {
-                    if(!formSumbanganWarga.value.nominal || !formSumbanganWarga.value.bukti) return showToast('Nominal dan Bukti Transfer wajib diisi!', 'danger');
-                    await saveData('sumbangan', { ...formSumbanganWarga.value, nama: user.value.nama, username: user.value.username, rt: user.value.rt, rw: user.value.rw, tanggal: new Date().toLocaleDateString('id-ID'), status: 'Menunggu Validasi' });
-                    showToast('Sumbangan terkirim! Menunggu divalidasi RT/RW.');
-                    formSumbanganWarga.value = { jenis:'', nominal:'', bukti:null };
-                };
-
-                const simpanSumbangan = async () => {
-                    if(!formSumbangan.value.nama || !formSumbangan.value.nominal) return showToast('Harap melengkapi data', 'danger');
-                    await saveData('sumbangan', { ...formSumbangan.value, rt: user.value.rt, rw: user.value.rw, tanggal: new Date().toLocaleDateString('id-ID'), status: 'Divalidasi' });
-                    showToast('Data sumbangan dicatat ke Kas');
-                    formSumbangan.value = { nama:'', nominal:'', jenis:'' };
-                };
-                
-                const validasiSumbangan = async (s) => {
-                    s.status = 'Divalidasi';
-                    await updateData('sumbangan', s);
-                    showToast('Sumbangan divalidasi dan masuk ke Kas!');
-                };
 
                 const simpanBansos = async () => {
                     if(!formBansos.value.nama || !formBansos.value.jenis) return showToast('Lengkapi data bansos', 'danger');
@@ -2291,92 +2121,6 @@ body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-h
                     showToast('Tanggapan berhasil dikirim');
                 };
 
-                const daftarArisanWarga = async () => {
-                    await saveData('arisan', {
-                        nama: user.value.nama,
-                        username: user.value.username,
-                        rt: user.value.rt,
-                        rw: user.value.rw,
-                        noAnggota: 'A-' + Math.floor(Math.random() * 9000 + 1000),
-                        totalIuran: 0,
-                        statusMenang: false
-                    });
-                    showToast('Berhasil mendaftar Arisan Warga!');
-                };
-
-                const simpanArisan = async () => {
-                    if(!formArisan.value.nama) return showToast('Nama anggota wajib diisi', 'danger');
-                    await saveData('arisan', {
-                        nama: formArisan.value.nama,
-                        username: formArisan.value.nama.toLowerCase().replace(/\s/g, ''),
-                        rt: user.value.rt,
-                        rw: user.value.rw,
-                        noAnggota: 'A-' + Math.floor(Math.random() * 9000 + 1000),
-                        totalIuran: Number(formArisan.value.iuran || 0),
-                        statusMenang: false
-                    });
-                    showToast('Anggota Arisan Ditambahkan');
-                    formArisan.value = { nama:'', iuran:'' };
-                };
-
-                const tambahIuranManual = async (a, val) => {
-                    const nominal = Number(val);
-                    if(isNaN(nominal) || nominal <= 0) return showToast('Nominal tidak valid', 'danger');
-                    a.totalIuran = (Number(a.totalIuran) || 0) + nominal;
-                    await updateData('arisan', a);
-                    showToast(`Iuran Rp ${nominal.toLocaleString('id-ID')} ditambahkan untuk ${a.nama}`);
-                };
-
-                const kocokArisan = async () => {
-                    const anggotaBisaMenang = listArisan.value.filter(x => x.rt == user.value.rt && x.rw == user.value.rw && !x.statusMenang);
-                    if(anggotaBisaMenang.length === 0) return showToast('Semua anggota sudah menang / belum ada anggota!', 'warning');
-                    
-                    const pemenang = anggotaBisaMenang[Math.floor(Math.random() * anggotaBisaMenang.length)];
-                    const totalTarikan = hitungKasArisan(user.value.rt, user.value.rw);
-                    
-                    customConfirm('Pemenang Arisan!', `Selamat kepada: ${pemenang.nama}\nTotal Tarikan: Rp ${totalTarikan.toLocaleString('id-ID')}\n\nLanjutkan sahkan pemenang?`, async () => {
-                        pemenang.statusMenang = true;
-                        await updateData('arisan', pemenang);
-                        
-                        await saveData('riwayatArisan', {
-                            rt: user.value.rt,
-                            rw: user.value.rw,
-                            nama: pemenang.nama,
-                            nominal: totalTarikan,
-                            tanggal: new Date().toLocaleDateString('id-ID')
-                        });
-                        
-                        showToast(`Arisan dimenangkan oleh ${pemenang.nama}!`);
-                    });
-                };
-
-                const cetakKartuArisan = (a) => {
-                    const printWindow = window.open('', '_blank');
-                    printWindow.document.write(`
-                        <html><head><title>Kartu Arisan</title><style>#app[v-cloak] { display: none; }
-body { font-family: sans-serif; padding: 20px; text-align: center;} .card { border: 2px dashed #db2777; padding: 20px; border-radius: 10px; display: inline-block; width: 300px; background: #fdf2f8;} h2 { color: #9d174d; margin-top: 0; } p { margin: 5px 0; font-weight: bold; color: #333; }</style></head><body>
-                        <div class="card">
-                            <h2>KARTU ARISAN RT ${a.rt} / RW ${a.rw}</h2>
-                            <p>No Anggota: ${a.noAnggota}</p>
-                            <p style="font-size: 1.2rem; color: #db2777;">${a.nama}</p>
-                            <hr style="border: 1px solid #fbcfe8; margin: 10px 0;">
-                            <p>Total Iuran: Rp ${Number(a.totalIuran || 0).toLocaleString('id-ID')}</p>
-                            <p>Status: ${a.statusMenang ? 'SUDAH MENANG' : 'BELUM MENANG'}</p>
-                        </div>
-                        <script>window.print();<\/script></body></html>
-                    `);
-                    printWindow.document.close();
-                };
-
-                const hitungKasArisan = (rt, rw) => {
-                    const totalMasuk = listArisan.value.filter(x => x.rt == rt && x.rw == rw).reduce((sum, curr) => sum + Number(curr.totalIuran || 0), 0);
-                    const totalKeluar = riwayatArisan.value.filter(x => x.rt == rt && x.rw == rw).reduce((sum, curr) => sum + Number(curr.nominal || 0), 0);
-                    return Math.max(0, totalMasuk - totalKeluar);
-                };
-
-                const hitungKasSumbangan = () => {
-                    return listSumbangan.value.filter(x => x.rt == user.value.rt && x.rw == user.value.rw && x.status === 'Divalidasi').reduce((sum, curr) => sum + Number(curr.nominal || 0), 0);
-                };
 
                 const downloadExcelData = (type) => {
                     let data = [];
@@ -2454,24 +2198,6 @@ body { font-family: sans-serif; padding: 20px; text-align: center;} .card { bord
                     return map;
                 });
 
-                const rekapKasAdmin = computed(() => {
-                    const rtrwSet = new Set();
-                    listSumbangan.value.forEach(s => {
-                        if(s.rt && s.rw) rtrwSet.add(`RT ${s.rt} / RW ${s.rw}`);
-                    });
-                    const result = [];
-                    rtrwSet.forEach(wilayah => {
-                        const [rtStr, rwStr] = wilayah.split(' / ');
-                        const rt = rtStr.replace('RT ', '');
-                        const rw = rwStr.replace('RW ', '');
-                        const total = listSumbangan.value.filter(x => x.rt == rt && x.rw == rw && x.status === 'Divalidasi').reduce((sum, curr) => sum + Number(curr.nominal || 0), 0);
-                        result.push({ wilayah, total });
-                    });
-                    const totalAll = result.reduce((sum, curr) => sum + curr.total, 0);
-                    if(result.length > 0) result.unshift({ wilayah: 'TOTAL SELURUH RW/RT', total: totalAll });
-                    return result;
-                });
-
                 const filteredPengajuanUsaha = computed(() => {
                     if(user.value.role === 'rt') return listPengajuanUsaha.value.filter(x => x.rt == user.value.rt);
                     if(user.value.role === 'rw') return listPengajuanUsaha.value.filter(x => x.rw == user.value.rw);
@@ -2481,23 +2207,22 @@ body { font-family: sans-serif; padding: 20px; text-align: center;} .card { bord
 
                 return {
                     isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user,
-                    publicTab, tabArisan, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, adminAccount,
+                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, adminAccount,
                     showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
-                    showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormSumbangan,
+                    showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan,
                     showPassLogin, showPassReg, showPassRegRep, showPassRegLuar, showPassAdmin, showPassPejabat,
                     loginForm, reg, regLuar, formWargaTtd, formAdmin, formPejabat, formBendahara, formTamu, formLaporan,
-                    formSumbangan, formSumbanganWarga, formArisan, formUsahaLuar, formSuratPengantar, formUmkm, formGaleri,
+                    formUsahaLuar, formSuratPengantar, formUmkm, formGaleri,
                     formBursa, formFasilitas, formBansos, formAnggaran, formSampah, formAgenda,
-                    listPejabat, listBendahara, listTamu, listLaporan, listSumbangan, listArisan, riwayatArisan, logAktivitas,
+                    listPejabat, listBendahara, listTamu, listLaporan, logAktivitas,
                     listWarga, listWargaLuar, listPengajuanUsaha, listSuratPengantar, listUmkm, listGaleri, listBursa,
                     listFasilitas, listBansos, listAnggaran, listSampah, listAgenda,
-                    statistikGender, statistikUsia, rekapPekerjaan, rekapKasAdmin, wargaUlangTahun, filteredPengajuanUsaha,
+                    statistikGender, statistikUsia, rekapPekerjaan, wargaUlangTahun, filteredPengajuanUsaha,
                     handleLogin, handleRegister, handleRegisterLuar, logout, getPejabatSetting, simpanPengaturanPejabat,
                     simpanWebSettings, updateAdmin, simpanTtdWarga, simpanSuratPengantar, setujuiPengantar, cetakPengantarWarga,
-                    simpanTamu, simpanBendahara, kirimSumbanganWarga, simpanSumbangan, validasiSumbangan, simpanBansos,
+                    simpanTamu, simpanBendahara, simpanBansos,
                     simpanAnggaran, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanAgenda, simpanPengajuanUsaha,
-                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, daftarArisanWarga,
-                    simpanArisan, tambahIuranManual, kocokArisan, cetakKartuArisan, hitungKasArisan, hitungKasSumbangan,
+                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar,
                     downloadExcelData, getNamaBulan, formatTgl, customConfirm, customPrompt, uploadFile
                 };
             }
