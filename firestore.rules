@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Sistem saat ini menggunakan Firebase Authentication (anonymous/custom token)
+    // dan menyimpan role aplikasi di dokumen Firestore.
+    // Karena role belum memakai Firebase Custom Claims, authorization berbasis role
+    // belum dapat ditegakkan secara aman di Rules tanpa mengubah arsitektur login.
+    // Rules ini menjaga akses hanya untuk user yang sudah terautentikasi.
+
+    match /artifacts/{appId}/public/data/{collection}/{document} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /artifacts/{appId}/public/data/{collection}/{document}/{subcollection}/{subdocument} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
