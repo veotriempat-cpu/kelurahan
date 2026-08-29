@@ -40,6 +40,11 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
 
+    match /artifacts/{appId}/public/data/dokumenRegulasi/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
     // Aggregate-only public statistics. No personal resident fields are stored here.
     match /artifacts/{appId}/public/data/publicStats/summary {
       allow read: if true;
