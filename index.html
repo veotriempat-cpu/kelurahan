@@ -485,6 +485,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 
                 <nav class="p-4 space-y-1 text-sm pb-20">
                     <a v-if="user.role !== 'babinsa'" href="#" @click.prevent="menu='dashboard'" :class="['block px-3 py-2.5 rounded-lg font-bold transition border border-transparent', menu==='dashboard'?'bg-white/20 shadow border-white/30':'hover:bg-white/10']"><i class="fas fa-home w-5 text-center mr-1"></i> 1. Dashboard Induk</a>
+                    <a v-if="['warga','warga_luar'].includes(user.role)" href="#" @click.prevent="menu='layanan-mandiri'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-cyan-200', menu==='layanan-mandiri'?'bg-cyan-600 shadow border border-cyan-400':'hover:bg-white/10']"><i class="fas fa-user-circle w-5 text-center mr-1"></i> Layanan Mandiri</a>
                     
                     <div v-if="user.role === 'warga_luar'" class="mt-4">
                         <p class="text-[10px] text-amber-300 font-bold uppercase px-2 mb-2">Layanan Warga Luar</p>
@@ -538,7 +539,62 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 
                 <div class="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
                     
-                    <!-- 1. DASHBOARD INDUK -->
+                                        <!-- PRIORITAS 3: LAYANAN MANDIRI WARGA -->
+                    <div v-if="menu==='layanan-mandiri' && ['warga','warga_luar'].includes(user.role)" class="space-y-6">
+                        <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                            <div class="bg-gradient-to-r from-cyan-600 to-blue-600 p-6 text-white">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl"><i class="fas fa-user"></i></div>
+                                    <div><p class="text-xs uppercase tracking-widest font-bold opacity-80">Layanan Mandiri</p><h2 class="text-2xl font-black">{{ user.nama }}</h2><p class="text-sm opacity-90">{{ user.role === 'warga' ? 'Warga' : 'Warga Luar' }} · RT {{ user.rt || '-' }} / RW {{ user.rw || '-' }}</p></div>
+                                </div>
+                            </div>
+                            <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <button @click="layananMandiriTab='ringkasan'" :class="layananMandiriTab==='ringkasan'?'bg-cyan-600 text-white':'bg-gray-100 text-gray-700'" class="rounded-xl px-3 py-2 text-sm font-bold">Ringkasan</button>
+                                <button @click="layananMandiriTab='surat'" :class="layananMandiriTab==='surat'?'bg-cyan-600 text-white':'bg-gray-100 text-gray-700'" class="rounded-xl px-3 py-2 text-sm font-bold">Riwayat Surat</button>
+                                <button @click="layananMandiriTab='pengaduan'" :class="layananMandiriTab==='pengaduan'?'bg-cyan-600 text-white':'bg-gray-100 text-gray-700'" class="rounded-xl px-3 py-2 text-sm font-bold">Pengaduan Saya</button>
+                                <button @click="layananMandiriTab='profil'" :class="layananMandiriTab==='profil'?'bg-cyan-600 text-white':'bg-gray-100 text-gray-700'" class="rounded-xl px-3 py-2 text-sm font-bold">Profil</button>
+                            </div>
+                        </div>
+
+                        <div v-if="layananMandiriTab==='ringkasan'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-white rounded-2xl border p-5 shadow-sm"><p class="text-xs uppercase font-bold text-blue-500">E-Surat Saya</p><p class="text-3xl font-black text-gray-800 mt-2">{{ listSuratPengantar.filter(x => x.username===user.username || x.nik===user.nik).length }}</p><p class="text-xs text-gray-500 mt-1">Pengajuan</p></div>
+                            <div class="bg-white rounded-2xl border p-5 shadow-sm"><p class="text-xs uppercase font-bold text-red-500">Pengaduan Saya</p><p class="text-3xl font-black text-gray-800 mt-2">{{ listLaporan.filter(x => x.username===user.username).length }}</p><p class="text-xs text-gray-500 mt-1">Laporan</p></div>
+                            <div class="bg-white rounded-2xl border p-5 shadow-sm"><p class="text-xs uppercase font-bold text-emerald-500">Data Profil</p><p class="text-lg font-black text-gray-800 mt-2">{{ user.rt || '-' }} / {{ user.rw || '-' }}</p><p class="text-xs text-gray-500 mt-1">RT / RW</p></div>
+                        </div>
+
+                        <div v-if="layananMandiriTab==='surat'" class="bg-white rounded-2xl border p-5 shadow-sm">
+                            <h3 class="text-lg font-black text-gray-800 mb-4">Riwayat E-Surat Saya</h3>
+                            <div class="space-y-3">
+                                <div v-for="s in listSuratPengantar.filter(x => x.username===user.username || x.nik===user.nik)" :key="s.id" class="border rounded-xl p-4">
+                                    <div class="flex justify-between gap-3"><div><p class="font-bold">{{ s.keperluan || 'E-Surat' }}</p><p class="text-xs text-gray-500">{{ s.tanggal || '-' }}</p></div><span class="px-2 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold">{{ s.statusAdmin || s.statusRW || s.statusRT || 'Menunggu' }}</span></div>
+                                </div>
+                                <p v-if="listSuratPengantar.filter(x => x.username===user.username || x.nik===user.nik).length===0" class="text-gray-400 text-center py-8">Belum ada pengajuan surat.</p>
+                            </div>
+                        </div>
+
+                        <div v-if="layananMandiriTab==='pengaduan'" class="bg-white rounded-2xl border p-5 shadow-sm">
+                            <h3 class="text-lg font-black text-gray-800 mb-4">Pengaduan Saya</h3>
+                            <div class="space-y-3">
+                                <div v-for="l in listLaporan.filter(x => x.username===user.username)" :key="l.id" class="border rounded-xl p-4">
+                                    <div class="flex justify-between gap-3"><div><p class="font-bold">{{ l.judul }}</p><p class="text-xs text-gray-500">{{ l.tanggal || '-' }}</p></div><span class="px-2 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold">{{ l.status || 'Diterima' }}</span></div>
+                                    <p class="text-sm text-gray-600 mt-2">{{ l.isi }}</p>
+                                </div>
+                                <p v-if="listLaporan.filter(x => x.username===user.username).length===0" class="text-gray-400 text-center py-8">Belum ada pengaduan.</p>
+                            </div>
+                        </div>
+
+                        <div v-if="layananMandiriTab==='profil'" class="bg-white rounded-2xl border p-5 shadow-sm">
+                            <h3 class="text-lg font-black text-gray-800 mb-4">Profil Saya</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                <div><p class="text-gray-400 text-xs">Nama</p><p class="font-bold">{{ user.nama }}</p></div>
+                                <div><p class="text-gray-400 text-xs">Username</p><p class="font-bold">{{ user.username }}</p></div>
+                                <div><p class="text-gray-400 text-xs">RT</p><p class="font-bold">{{ user.rt || '-' }}</p></div>
+                                <div><p class="text-gray-400 text-xs">RW</p><p class="font-bold">{{ user.rw || '-' }}</p></div>
+                            </div>
+                        </div>
+                    </div>
+
+<!-- 1. DASHBOARD INDUK -->
                     <div v-if="menu==='dashboard'" class="space-y-6">
                         <div :style="{ backgroundColor: webSettings.warnaUtama }" class="rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
                             <i class="fas fa-cloud absolute -right-10 -top-10 text-9xl text-white/10"></i>
@@ -1552,6 +1608,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const regStep = ref(1);
                 const sidebarOpen = ref(false);
                 const menu = ref(localStorage.getItem('kelurahan_last_view') || 'dashboard');
+                const layananMandiriTab = ref('ringkasan');
                 const SAVED_USER_KEY = 'kelurahan_user_session';
                 const restoreSavedUser = () => { try { const raw = localStorage.getItem(SAVED_USER_KEY); return raw ? JSON.parse(raw) : null; } catch(e) { return null; } };
                 const user = ref(restoreSavedUser() || { nama: '', role: '', rt: '', rw: '', username: '', ttd: '' });
@@ -1786,7 +1843,56 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 };
 
 let listenersStarted = false;
-                const setupListeners = () => {
+                                const publishPublicStatsFromRows = async (docsOrRows) => {
+                    if (!auth.currentUser) return;
+                    try {
+                        const rows = (docsOrRows || []).map(x => x?.data ? x.data() : (x || {}));
+                        const nowYear = new Date().getFullYear();
+                        const result = {
+                            totalWarga: rows.length,
+                            pria: 0, wanita: 0, anak: 0, remaja: 0, dewasa: 0, lansia: 0,
+                            jenisPekerjaan: 0, kepalaKeluarga: 0,
+                            updatedAt: new Date().toISOString()
+                        };
+                        const jobs = new Set();
+                        const kk = new Set();
+                        rows.forEach(w => {
+                            const sex = String(w.kelamin || w.jenisKelamin || '').trim().toLowerCase();
+                            if (sex === 'laki-laki' || sex === 'laki laki' || sex === 'pria' || sex === 'l') result.pria++;
+                            if (sex === 'perempuan' || sex === 'wanita' || sex === 'p') result.wanita++;
+                            const job = String(w.pekerjaan || w.pekerjaanUtama || '').trim().toLowerCase();
+                            if (job) jobs.add(job);
+                            const kkid = String(w.nokk || w.noKK || w.kk || '').trim();
+                            if (kkid) kk.add(kkid);
+                            const rawDob = w.tgl_lahir || w.tanggalLahir || w.dob || '';
+                            if (rawDob) {
+                                const dt = new Date(rawDob);
+                                if (!Number.isNaN(dt.getTime())) {
+                                    let age = nowYear - dt.getFullYear();
+                                    const today = new Date();
+                                    const beforeBirthday =
+                                        (today.getMonth() < dt.getMonth()) ||
+                                        (today.getMonth() === dt.getMonth() && today.getDate() < dt.getDate());
+                                    if (beforeBirthday) age--;
+                                    age = Math.max(0, age);
+                                    if (age <= 12) result.anak++;
+                                    else if (age <= 25) result.remaja++;
+                                    else if (age <= 59) result.dewasa++;
+                                    else result.lansia++;
+                                }
+                            }
+                        });
+                        result.jenisPekerjaan = jobs.size;
+                        result.kepalaKeluarga = kk.size;
+                        await setDoc(getDocRef('publicStats', 'summary'), result, { merge: true });
+                    } catch (e) {
+                        console.warn('Public stats publish error:', e?.code || e);
+                    }
+                };
+
+const setupListeners = () => {
+                    onSnapshot(getColRef('warga'), (snap) => publishPublicStatsFromRows(snap.docs), (err) => console.warn('Aggregate stats:', err));
+
                     if(!fbUser.value || listenersStarted) return;
                     listenersStarted = true;
                     const sync = (cName, refVar, afterSync) => {
@@ -2478,7 +2584,7 @@ const filteredPengajuanUsaha = computed(() => {
                 });
 
                 return {
-                    isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user,
+                    isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user, layananMandiriTab,
                     publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, adminAccount,
                     showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
                     showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormInventarisAset,
