@@ -264,7 +264,37 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 </section>
 
 
-                <!-- DOKUMEN PUBLIK -->
+                
+                <!-- POLLING WARGA AKTIF -->
+                <section class="mb-10 md:mb-14">
+                    <div class="flex items-end justify-between gap-4 mb-4">
+                        <div>
+                            <p class="text-[11px] font-black uppercase tracking-[0.2em] text-fuchsia-600">Partisipasi Warga</p>
+                            <h3 class="text-2xl md:text-3xl font-black text-gray-800">Polling Warga Aktif</h3>
+                            <p class="text-sm text-gray-500 mt-1">Sampaikan pilihan Anda untuk membantu menentukan prioritas.</p>
+                        </div>
+                        <span class="text-xs font-black px-3 py-1 rounded-full bg-fuchsia-50 text-fuchsia-700">{{ totalPollingAktif }} aktif</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div v-for="p in pollingAktif.slice(0,4)" :key="p.id" class="bg-white border rounded-2xl p-5 shadow-sm">
+                            <p class="text-[10px] uppercase font-black text-fuchsia-600">{{ p.kategori || 'Umum' }}</p>
+                            <h4 class="font-black text-gray-800 mt-1">{{ p.pertanyaan }}</h4>
+                            <p v-if="p.deskripsi" class="text-xs text-gray-500 mt-1">{{ p.deskripsi }}</p>
+                            <div class="space-y-2 mt-4">
+                                <button v-for="(o,i) in p.opsi" :key="o.label" @click="pilihPolling(p,i)" class="w-full text-left border rounded-xl px-4 py-3 hover:bg-fuchsia-50 transition flex items-center justify-between gap-3">
+                                    <span class="font-bold text-sm text-gray-700">{{ o.label }}</span>
+                                    <span class="text-[10px] text-gray-400">{{ o.suara || 0 }} suara</span>
+                                </button>
+                            </div>
+                            <p v-if="localStorage.getItem(`polling_voted_${p.id}`)" class="text-[10px] text-green-600 font-bold mt-3"><i class="fas fa-check mr-1"></i>Anda sudah memberikan suara.</p>
+                        </div>
+                        <div v-if="pollingAktif.length===0" class="md:col-span-2 bg-white border rounded-2xl p-8 text-center text-gray-400">
+                            Belum ada polling aktif.
+                        </div>
+                    </div>
+                </section>
+
+<!-- DOKUMEN PUBLIK -->
                 <section class="mb-10 md:mb-14">
                     <div class="flex items-end justify-between gap-4 mb-4">
                         <div>
@@ -566,6 +596,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         <a v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-usaha'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200 mt-2', menu==='verifikasi-usaha'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-stamp w-5 text-center mr-1"></i> 19. Verifikasi Usaha Warga Luar</a>
                         <a v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-pengantar'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-blue-200 mt-2', menu==='verifikasi-pengantar'?'bg-blue-600 shadow border border-blue-400':'hover:bg-white/10']"><i class="fas fa-file-signature w-5 text-center mr-1"></i> 20. Verifikasi E-Surat Warga</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='bansos'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-emerald-200', menu==='bansos'?'bg-emerald-600 shadow border border-emerald-400':'hover:bg-white/10']"><i class="fas fa-hand-holding-heart w-5 text-center mr-1"></i> Bantuan Sosial</a>
+                    <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='polling'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-fuchsia-200', menu==='polling'?'bg-fuchsia-600 shadow border border-fuchsia-400':'hover:bg-white/10']"><i class="fas fa-square-poll-vertical w-5 text-center mr-1"></i> Polling & Aspirasi Warga</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='dokumen-regulasi'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-sky-200', menu==='dokumen-regulasi'?'bg-sky-600 shadow border border-sky-400':'hover:bg-white/10']"><i class="fas fa-file-shield w-5 text-center mr-1"></i> Dokumen & Regulasi</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='inventaris-aset'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-orange-200', menu==='inventaris-aset'?'bg-orange-600 shadow border border-orange-400':'hover:bg-white/10']"><i class="fas fa-boxes-stacked w-5 text-center mr-1"></i> Inventaris Aset Kelurahan</a>
                         <a v-if="['rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='pengaturan-pejabat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200 mt-2', menu==='pengaturan-pejabat'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-signature w-5 text-center mr-1"></i> 21. Pengaturan TTD & Stempel</a>
@@ -1585,7 +1616,83 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 
 <!-- PRIORITAS 1: INVENTARIS ASET KELURAHAN -->
                                         <!-- PRIORITAS 6: DOKUMEN & REGULASI -->
-                    <div v-if="menu==='dokumen-regulasi' && user.role==='admin_kelurahan'" class="space-y-6">
+                                        <!-- PRIORITAS 7: POLLING & ASPIRASI WARGA -->
+                    <div v-if="menu==='polling' && user.role==='admin_kelurahan'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b pb-4 mb-6">
+                                <div>
+                                    <h2 class="text-xl font-black text-gray-800"><i class="fas fa-square-poll-vertical text-fuchsia-500 mr-2"></i>Polling & Aspirasi Warga</h2>
+                                    <p class="text-sm text-gray-500 mt-1">Buat jajak pendapat singkat dan lihat hasil suara warga.</p>
+                                </div>
+                                <button @click="showFormPolling=!showFormPolling" class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white px-5 py-2.5 rounded-xl font-bold shadow">
+                                    <i class="fas fa-plus mr-1"></i> Buat Polling
+                                </button>
+                            </div>
+
+                            <div v-if="showFormPolling" class="bg-fuchsia-50 border border-fuchsia-100 rounded-2xl p-5 mb-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold mb-1">Pertanyaan *</label>
+                                        <input v-model="formPolling.pertanyaan" class="w-full border p-2.5 rounded-lg bg-white" placeholder="Contoh: Fasilitas apa yang paling perlu diperbaiki?">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold mb-1">Deskripsi</label>
+                                        <textarea v-model="formPolling.deskripsi" rows="2" class="w-full border p-2.5 rounded-lg bg-white" placeholder="Keterangan singkat (opsional)"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Kategori</label>
+                                        <select v-model="formPolling.kategori" class="w-full border p-2.5 rounded-lg bg-white"><option>Lingkungan</option><option>Pelayanan</option><option>Infrastruktur</option><option>Sosial</option><option>Ekonomi</option><option>Lainnya</option></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Status</label>
+                                        <select v-model="formPolling.status" class="w-full border p-2.5 rounded-lg bg-white"><option>Aktif</option><option>Selesai</option></select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Mulai</label>
+                                        <input v-model="formPolling.mulai" type="datetime-local" class="w-full border p-2.5 rounded-lg bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold mb-1">Selesai</label>
+                                        <input v-model="formPolling.selesai" type="datetime-local" class="w-full border p-2.5 rounded-lg bg-white">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-bold mb-2">Pilihan Jawaban</label>
+                                        <div v-for="(o,i) in formPolling.opsi" :key="i" class="flex gap-2 mb-2">
+                                            <input v-model="o.label" class="flex-1 border p-2.5 rounded-lg bg-white" :placeholder="'Pilihan ' + (i+1)">
+                                            <button v-if="formPolling.opsi.length>2" @click="hapusOpsiPolling(i)" class="w-10 rounded-lg bg-red-50 text-red-600"><i class="fas fa-trash"></i></button>
+                                        </div>
+                                        <button @click="tambahOpsiPolling" class="text-fuchsia-600 font-bold text-sm"><i class="fas fa-plus mr-1"></i>Tambah pilihan</button>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end gap-2 mt-5">
+                                    <button @click="resetFormPolling" class="px-4 py-2 rounded-xl border font-bold">Batal</button>
+                                    <button @click="simpanPolling" class="px-5 py-2 rounded-xl bg-fuchsia-600 text-white font-bold shadow"><i class="fas fa-save mr-1"></i> Simpan Polling</button>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div v-for="p in listPolling" :key="p.id" class="border rounded-2xl p-5">
+                                    <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                                        <div>
+                                            <p class="text-xs text-fuchsia-600 font-black uppercase">{{ p.kategori || 'Umum' }} · {{ p.status || 'Aktif' }}</p>
+                                            <h3 class="font-black text-gray-800 mt-1">{{ p.pertanyaan }}</h3>
+                                            <p class="text-xs text-gray-500 mt-1">{{ p.deskripsi || '' }}</p>
+                                        </div>
+                                        <button @click="tutupPolling(p)" v-if="p.status!=='Selesai'" class="px-3 py-2 rounded-lg bg-gray-100 text-gray-700 font-bold text-xs">Tutup</button>
+                                    </div>
+                                    <div class="mt-4 space-y-2">
+                                        <div v-for="o in p.opsi" :key="o.label" class="flex justify-between items-center gap-3 bg-gray-50 rounded-xl p-3">
+                                            <span class="font-bold text-sm text-gray-700">{{ o.label }}</span>
+                                            <span class="px-2 py-1 rounded-full bg-fuchsia-50 text-fuchsia-700 text-xs font-black">{{ o.suara || 0 }} suara</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p v-if="listPolling.length===0" class="text-center py-10 text-gray-400">Belum ada polling.</p>
+                            </div>
+                        </div>
+                    </div>
+
+<div v-if="menu==='dokumen-regulasi' && user.role==='admin_kelurahan'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b pb-4 mb-6">
                                 <div>
@@ -1885,6 +1992,14 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const listSampah = ref([]);
                 const listNotifikasi = ref([]);
                 const listDokumenRegulasi = ref([]);
+                const listPolling = ref([]);
+                const showFormPolling = ref(false);
+                const formPolling = ref({
+                    id:'', pertanyaan:'', deskripsi:'', kategori:'Lingkungan',
+                    opsi: [{ label:'', suara:0 }, { label:'', suara:0 }],
+                    status:'Aktif', mulai:'', selesai:''
+                });
+                const pollingPilihanSaya = ref({});
                 const showFormDokumenRegulasi = ref(false);
                 const formDokumenRegulasi = ref({ id:'', judul:'', nomor:'', tanggal:'', kategori:'Peraturan', deskripsi:'', fileUrl:'', status:'Aktif' });
                 const showNotifications = ref(false);
@@ -1935,6 +2050,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     publicSync('fasilitas', listFasilitas);
                     publicSync('galeri', listGaleri);
                     publicSync('dokumenRegulasi', listDokumenRegulasi);
+                    publicSync('polling', listPolling);
                 };
                 setupPublicListeners();
 
@@ -2373,7 +2489,61 @@ if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username ===
                     regLuar.value = { nama: '', nik: '', alamat: '', hp: '', username: '', password: '', ttd:'' };
                 };
 
-                                                const resetFormDokumenRegulasi = () => {
+                                                                const tambahOpsiPolling = () => {
+                    formPolling.value.opsi.push({ label:'', suara:0 });
+                };
+                const hapusOpsiPolling = (index) => {
+                    if (formPolling.value.opsi.length <= 2) return showToast('Minimal harus ada 2 pilihan', 'danger');
+                    formPolling.value.opsi.splice(index, 1);
+                };
+                const resetFormPolling = () => {
+                    formPolling.value = {
+                        id:'', pertanyaan:'', deskripsi:'', kategori:'Lingkungan',
+                        opsi:[{label:'', suara:0},{label:'', suara:0}],
+                        status:'Aktif', mulai:'', selesai:''
+                    };
+                    showFormPolling.value = false;
+                };
+                const editPolling = (item) => {
+                    formPolling.value = JSON.parse(JSON.stringify(item));
+                    showFormPolling.value = true;
+                };
+                const simpanPolling = async () => {
+                    const f = formPolling.value;
+                    if (!String(f.pertanyaan||'').trim()) return showToast('Pertanyaan polling wajib diisi', 'danger');
+                    const opsi = (f.opsi||[]).map(o => ({ label:String(o.label||'').trim(), suara:Number(o.suara||0) })).filter(o => o.label);
+                    if (opsi.length < 2) return showToast('Minimal 2 pilihan harus diisi', 'danger');
+                    await saveData('polling', {
+                        ...f,
+                        pertanyaan:String(f.pertanyaan).trim(),
+                        deskripsi:String(f.deskripsi||'').trim(),
+                        opsi,
+                        status:f.status||'Aktif',
+                        updatedAt:new Date().toISOString(),
+                        updatedBy:user.value.username || user.value.nama || 'admin'
+                    });
+                    resetFormPolling();
+                    showToast('Polling berhasil disimpan');
+                };
+                const pilihPolling = async (poll, index) => {
+                    if (!poll?.id || !poll.opsi?.[index]) return;
+                    if (!user.value.username) return showToast('Login diperlukan untuk mengikuti polling', 'danger');
+                    const voterKey = `polling_voted_${poll.id}`;
+                    if (localStorage.getItem(voterKey)) return showToast('Anda sudah memilih pada polling ini', 'warning');
+                    const updated = JSON.parse(JSON.stringify(poll));
+                    updated.opsi = updated.opsi.map((o, i) => ({ ...o, suara:Number(o.suara||0) + (i===index ? 1 : 0) }));
+                    await updateData('polling', updated);
+                    localStorage.setItem(voterKey, String(index));
+                    pollingPilihanSaya.value[poll.id] = index;
+                    showToast('Pilihan Anda berhasil disimpan');
+                };
+                const tutupPolling = async (poll) => {
+                    if (user.value.role !== 'admin_kelurahan') return;
+                    await updateData('polling', { id:poll.id, status:'Selesai', selesai:new Date().toISOString() });
+                    showToast('Polling ditutup');
+                };
+
+const resetFormDokumenRegulasi = () => {
                     formDokumenRegulasi.value = { id:'', judul:'', nomor:'', tanggal:'', kategori:'Peraturan', deskripsi:'', fileUrl:'', status:'Aktif' };
                     showFormDokumenRegulasi.value = false;
                 };
@@ -2882,7 +3052,18 @@ const downloadExcelData = (type) => {
                 const jumlahNotifikasiBelumDibaca = computed(() =>
                     notifikasiSaya.value.filter(n => n.read !== true).length
                 );
-                const dokumenRegulasiAktif = computed(() => (listDokumenRegulasi.value || [])
+                                const pollingAktif = computed(() => (listPolling.value || [])
+                    .filter(p => p.status === 'Aktif')
+                    .filter(p => {
+                        const now = new Date();
+                        const start = p.mulai ? new Date(p.mulai) : null;
+                        const end = p.selesai ? new Date(p.selesai) : null;
+                        return (!start || now >= start) && (!end || now <= end);
+                    })
+                    .sort((a,b) => String(b.mulai||'').localeCompare(String(a.mulai||'')))
+                );
+                const totalPollingAktif = computed(() => pollingAktif.value.length);
+const dokumenRegulasiAktif = computed(() => (listDokumenRegulasi.value || [])
                     .filter(d => String(d.status || 'Aktif') === 'Aktif')
                     .sort((a,b) => String(b.tanggal || '').localeCompare(String(a.tanggal || '')))
                 );
@@ -2906,20 +3087,20 @@ const filteredPengajuanUsaha = computed(() => {
                     isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user, layananMandiriTab,
                     publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, showPublicWargaStats, showPublicPekerjaanStats, publicPekerjaanStats, notifikasiSaya, jumlahNotifikasiBelumDibaca, adminAccount,
                     showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
-                    showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormInventarisAset, showNotifications, showFormDokumenRegulasi,
+                    showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormInventarisAset, showNotifications, pollingPilihanSaya, showFormDokumenRegulasi, showFormPolling,
                     showPassLogin, showPassReg, showPassRegRep, showPassRegLuar, showPassAdmin, showPassPejabat,
                     loginForm, reg, regLuar, formWargaTtd, formAdmin, formPejabat, formBendahara, formTamu, formLaporan,
                     formUsahaLuar, formSuratPengantar, formUmkm, formGaleri,
-                    formBursa, formFasilitas, formBansos, formAnggaran, formSampah, formAgenda, formInventarisAset, formDokumenRegulasi,
+                    formBursa, formFasilitas, formBansos, formAnggaran, formSampah, formAgenda, formInventarisAset, formDokumenRegulasi, formPolling,
                     listPejabat, listBendahara, listTamu, listLaporan, logAktivitas,
                     listWarga, listWargaLuar, listPengajuanUsaha, listSuratPengantar, listUmkm, listGaleri, listBursa,
-                    listFasilitas, listBansos, listAnggaran, listSampah, listAgenda, listInventarisAset, listNotifikasi, listDokumenRegulasi,
-                    statistikGender, statistikUsia, rekapPekerjaan, wargaUlangTahun, filteredPengajuanUsaha, totalAsetInventaris, totalNilaiInventaris, asetBaikInventaris, asetRusakInventaris, dokumenRegulasiAktif, jumlahDokumenRegulasiAktif,
+                    listFasilitas, listBansos, listAnggaran, listSampah, listAgenda, listInventarisAset, listNotifikasi, listDokumenRegulasi, listPolling,
+                    statistikGender, statistikUsia, rekapPekerjaan, wargaUlangTahun, filteredPengajuanUsaha, totalAsetInventaris, totalNilaiInventaris, asetBaikInventaris, asetRusakInventaris, dokumenRegulasiAktif, jumlahDokumenRegulasiAktif, pollingAktif, totalPollingAktif,
                     handleLogin, handleRegister, handleRegisterLuar, logout, getPejabatSetting, simpanPengaturanPejabat,
                     simpanWebSettings, updateAdmin, simpanTtdWarga, simpanSuratPengantar, setujuiPengantar, cetakPengantarWarga,
                     simpanTamu, simpanBendahara, simpanBansos, prosesBansos,
                     simpanAnggaran, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanAgenda, simpanPengajuanUsaha,
-                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, resetFormInventarisAset, editInventarisAset, simpanInventarisAset, hapusInventarisAset, buatNotifikasi, tandaiNotifikasiDibaca, bukaNotifikasi, resetFormDokumenRegulasi, editDokumenRegulasi, simpanDokumenRegulasi, hapusDokumenRegulasi,
+                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, resetFormInventarisAset, editInventarisAset, simpanInventarisAset, hapusInventarisAset, buatNotifikasi, tandaiNotifikasiDibaca, bukaNotifikasi, resetFormDokumenRegulasi, editDokumenRegulasi, simpanDokumenRegulasi, hapusDokumenRegulasi, tambahOpsiPolling, hapusOpsiPolling, resetFormPolling, editPolling, simpanPolling, pilihPolling, tutupPolling,
                     downloadExcelData, getNamaBulan, formatTgl, customConfirm, customPrompt, uploadFile
                 };
             }
