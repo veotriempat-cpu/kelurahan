@@ -8,21 +8,45 @@ service cloud.firestore {
       allow create, update, delete: if false;
     }
 
+    // Public website settings: readable by all devices; writable only when authenticated.
     match /artifacts/{appId}/public/data/settings/webSettings {
       allow read: if true;
       allow write: if request.auth != null;
     }
 
-    // Public aggregate-only statistics. No personal resident fields are stored here.
+    // Public content that is intentionally shown on the landing page.
+    match /artifacts/{appId}/public/data/agenda/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /artifacts/{appId}/public/data/umkm/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /artifacts/{appId}/public/data/bursa/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /artifacts/{appId}/public/data/fasilitas/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    match /artifacts/{appId}/public/data/galeri/{document} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // Aggregate-only public statistics. No personal resident fields are stored here.
     match /artifacts/{appId}/public/data/publicStats/summary {
       allow read: if true;
       allow write: if request.auth != null;
     }
 
-    match /artifacts/{appId}/public/data/settings/{document} {
-      allow read, write: if request.auth != null;
-    }
-
+    // All remaining application data requires authentication.
     match /artifacts/{appId}/public/data/{collection}/{document} {
       allow read, write: if request.auth != null;
     }
