@@ -1615,12 +1615,20 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     const id = data.id || Date.now().toString();
                     const payload = { ...data, id: id.toString() };
                     try {
-                        await ensureFirebaseSession();
+                        const sessionUser = await ensureFirebaseSession();
+                        if (!sessionUser) throw new Error('Firebase Authentication tidak tersedia.');
+                        // Cegah dokumen Firestore yang terlalu besar (batas Firestore ~1 MiB per dokumen).
+                        const serialized = JSON.stringify(payload);
+                        if (serialized.length > 900000) {
+                            throw Object.assign(new Error('Ukuran data terlalu besar. Kompres foto atau gunakan URL foto.'), { code: 'client/document-too-large' });
+                        }
                         await setDoc(getDocRef(colName, id.toString()), payload);
                         return;
                     } catch (e) {
                         console.error("Firebase Save Error:", e);
-                        showToast("Data GAGAL tersimpan ke Firebase. Aktifkan Anonymous Authentication untuk akun legacy atau cek Firestore Rules.", "danger");
+                        const code = e?.code ? ` [${e.code}]` : '';
+                        const detail = e?.message ? ` ${e.message}` : '';
+                        showToast(`Data GAGAL tersimpan ke Firebase.${code}${detail}`, "danger");
                         throw e;
                     }
                 };
@@ -1631,7 +1639,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         await setDoc(getDocRef(colName, data.id.toString()), data, { merge: true });
                     } catch (e) {
                         console.error('Firebase Update Error:', e);
-                        showToast('Data GAGAL diperbarui di Firebase.', 'danger');
+                        showToast(`Data GAGAL diperbarui di Firebase${e?.code ? ` [${e.code}]` : ''}.`, 'danger');
                         throw e;
                     }
                 };
@@ -1642,7 +1650,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         await deleteDoc(getDocRef(colName, id.toString()));
                     } catch (e) {
                         console.error('Firebase Delete Error:', e);
-                        showToast('Data GAGAL dihapus dari Firebase.', 'danger');
+                        showToast(`Data GAGAL dihapus dari Firebase${e?.code ? ` [${e.code}]` : ''}.`, 'danger');
                         throw e;
                     }
                 };
@@ -1680,36 +1688,43 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 };
 
                 const uploadFile = async (e, target) => {
-                    const f = e.target.files[0]; if(!f) return;
-                    if(target === 'laporan') {
-                        if(!f.type.startsWith('image/')) { e.target.value = ''; return showToast('File laporan harus berupa foto/gambar.', 'danger'); }
-                        try {
-                            showToast('Foto sedang dikompres...', 'warning');
-                            formLaporan.value.foto = await compressImageFile(f, 720, 0.45);
-                            showToast('Foto berhasil dikompres dan siap dikirim.');
-                        } catch(err) {
-                            console.error(err);
-                            showToast('Foto gagal diproses.', 'danger');
-                        }
-                        return;
+                    const f = e.target.files[0];
+                    if(!f) return;
+                    if(!f.type.startsWith('image/')) {
+                        e.target.value = '';
+                        return showToast('File harus berupa foto/gambar.', 'danger');
                     }
-                    const r = new FileReader(); r.readAsDataURL(f);
-                    r.onload = (evt) => { 
-                        if(target==='umkm1') formUmkm.value.foto1 = evt.target.result; 
-                        if(target==='umkm2') formUmkm.value.foto2 = evt.target.result; 
-                        if(target==='galeri') formGaleri.value.foto = evt.target.result;
-                        if(target==='bansos') formBansos.value.foto = evt.target.result;
-                        if(target==='agenda') formAgenda.value.foto = evt.target.result;
-                        if(target==='fasilitas') formFasilitas.value.foto = evt.target.result;
-                        if(target==='tamu') formTamu.value.foto = evt.target.result; 
-                        if(target==='ktpLuar') formUsahaLuar.value.fotoKtp = evt.target.result; 
-                        if(target==='fotoUsaha') formUsahaLuar.value.fotoUsaha = evt.target.result; 
-                        if(target==='pengantarKtp') formSuratPengantar.value.fotoKtp = evt.target.result; 
-                        if(target==='pengantarKk') formSuratPengantar.value.fotoKk = evt.target.result; 
-                        if(target==='pengantarDok') formSuratPengantar.value.fotoDok = evt.target.result;
-if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username === user.value.username); if(p) p.ttd = evt.target.result; }
-                        if(target==='pejabatStempel') { const p = listPejabat.value.find(x => x.username === user.value.username); if(p) p.stempel = evt.target.result; }
-                    };
+                    try {
+                        // Kompres semua foto sebelum masuk Firestore agar dokumen tidak melewati batas ukuran.
+                        showToast('Foto sedang dikompres...', 'warning');
+                        const compressed = await compressImageFile(f, 720, 0.45);
+                        if(target === 'laporan') formLaporan.value.foto = compressed;
+                        if(target === 'umkm1') formUmkm.value.foto1 = compressed;
+                        if(target === 'umkm2') formUmkm.value.foto2 = compressed;
+                        if(target === 'galeri') formGaleri.value.foto = compressed;
+                        if(target === 'bansos') formBansos.value.foto = compressed;
+                        if(target === 'agenda') formAgenda.value.foto = compressed;
+                        if(target === 'fasilitas') formFasilitas.value.foto = compressed;
+                        if(target === 'tamu') formTamu.value.foto = compressed;
+                        if(target === 'ktpLuar') formUsahaLuar.value.fotoKtp = compressed;
+                        if(target === 'fotoUsaha') formUsahaLuar.value.fotoUsaha = compressed;
+                        if(target === 'pengantarKtp') formSuratPengantar.value.fotoKtp = compressed;
+                        if(target === 'pengantarKk') formSuratPengantar.value.fotoKk = compressed;
+                        if(target === 'pengantarDok') formSuratPengantar.value.fotoDok = compressed;
+                        if(target === 'pejabatTtd') {
+                            const p = listPejabat.value.find(x => x.username === user.value.username);
+                            if(p) p.ttd = compressed;
+                        }
+                        if(target === 'pejabatStempel') {
+                            const p = listPejabat.value.find(x => x.username === user.value.username);
+                            if(p) p.stempel = compressed;
+                        }
+                        showToast('Foto berhasil dikompres dan siap disimpan.');
+                    } catch(err) {
+                        console.error('Image compression error:', err);
+                        e.target.value = '';
+                        showToast('Foto gagal diproses. Pilih gambar lain.', 'danger');
+                    }
                 };
 
                 const handleLogin = async () => {
