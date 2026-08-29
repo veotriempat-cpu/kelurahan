@@ -557,12 +557,46 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     <a v-if="!['warga_luar', 'babinsa'].includes(user.role)" href="#" @click.prevent="menu='galeri'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200', menu==='galeri'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-images w-5 text-center mr-1"></i> 17. Galeri Lingkungan</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='agenda'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='agenda'?'bg-white/20 shadow':'hover:bg-white/10']"><i class="fas fa-bullhorn w-5 text-center mr-1"></i> 18. Agenda & Berita</a>
 
+                        <button @click="showNotifications=!showNotifications" class="relative w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center border border-gray-200" aria-label="Notifikasi">
+                            <i class="fas fa-bell"></i>
+                            <span v-if="jumlahNotifikasiBelumDibaca>0" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center">{{ jumlahNotifikasiBelumDibaca > 99 ? '99+' : jumlahNotifikasiBelumDibaca }}</span>
+                        </button>
                     <a href="#" @click.prevent="logout" class="block px-3 py-2.5 rounded-lg font-bold text-red-300 hover:bg-red-800 mt-8 border-t border-white/20 pt-4 transition"><i class="fas fa-sign-out-alt w-5 text-center mr-1"></i> Keluar Sistem</a>
                 </nav>
             </aside>
 
             <!-- MAIN CONTENT AREA -->
-            <main class="flex-1 flex flex-col h-full overflow-hidden">
+            
+        <div v-if="showNotifications && isLoggedIn" class="fixed top-16 right-3 md:right-6 z-[80] w-[calc(100vw-1.5rem)] max-w-md bg-white rounded-2xl shadow-2xl border overflow-hidden">
+            <div class="p-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex items-center justify-between">
+                <div>
+                    <p class="text-xs uppercase tracking-widest font-bold opacity-80">Pemberitahuan</p>
+                    <h3 class="font-black text-lg">Notifikasi</h3>
+                </div>
+                <span class="text-xs font-bold bg-white/20 px-2 py-1 rounded-full">{{ notifikasiSaya.length }}</span>
+            </div>
+            <div class="max-h-[70vh] overflow-auto">
+                <button v-for="n in notifikasiSaya.slice(0,50)" :key="n.id" @click="bukaNotifikasi(n)" class="w-full text-left p-4 border-b hover:bg-gray-50 transition">
+                    <div class="flex gap-3">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                             :class="n.type==='success'?'bg-green-100 text-green-700':n.type==='warning'?'bg-amber-100 text-amber-700':n.type==='danger'?'bg-red-100 text-red-700':'bg-blue-100 text-blue-700'">
+                            <i class="fas" :class="n.type==='success'?'fa-check':n.type==='warning'?'fa-triangle-exclamation':n.type==='danger'?'fa-circle-exclamation':'fa-info-circle'"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="font-black text-sm" :class="n.read===true?'text-gray-700':'text-gray-900'">{{ n.title }}</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ n.message }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1">{{ n.createdAt }}</p>
+                        </div>
+                        <span v-if="n.read!==true" class="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0"></span>
+                    </div>
+                </button>
+                <div v-if="notifikasiSaya.length===0" class="p-8 text-center text-gray-400">
+                    <i class="fas fa-bell-slash text-3xl mb-3"></i>
+                    <p class="font-bold">Belum ada notifikasi</p>
+                </div>
+            </div>
+        </div>
+<main class="flex-1 flex flex-col h-full overflow-hidden">
                 <header class="bg-white border-b px-6 py-4 flex justify-between items-center shadow-sm z-10">
                     <button @click="sidebarOpen=true" class="md:hidden text-gray-600"><i class="fas fa-bars text-xl"></i></button>
                     <h2 class="hidden md:block text-xl font-black text-gray-800 capitalize">{{ menu.replace('-', ' ') }}</h2>
@@ -1733,6 +1767,9 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const listBansos = ref([]);
                 const listAnggaran = ref([]);
                 const listSampah = ref([]);
+                const listNotifikasi = ref([]);
+                const showNotifications = ref(false);
+
                 const listInventarisAset = ref([]);
                 const showFormInventarisAset = ref(false);
                 const formInventarisAset = ref({ id:'', kodeAset:'', namaAset:'', kategori:'', jumlah:1, kondisi:'Baik', tahunPerolehan:'', lokasi:'', nilaiAset:0, penanggungJawab:'', status:'Aktif', foto:'' });                const publicStats = ref({
@@ -1930,6 +1967,34 @@ let listenersStarted = false;
                     }
                 };
 
+
+                const notifiedSourceCache = new Set();
+                const sinkronNotifikasiPengaduan = (docs) => {
+                    if (!auth.currentUser) return;
+                    const u = user.value || {};
+                    docs.forEach(d => {
+                        const row = d.data ? d.data() : d;
+                        if (!row || !row.id) return;
+                        if (String(row.username || '') === String(u.username || '') && row.status) {
+                            const key = `laporan:${row.id}:${row.status}`;
+                            if (notifiedSourceCache.has(key)) return;
+                            notifiedSourceCache.add(key);
+                            const already = (listNotifikasi.value || []).some(n => n.sourceKey === key && n.targetUsername === u.username);
+                            if (!already) {
+                                buatNotifikasi({
+                                    title: 'Status Pengaduan Berubah',
+                                    message: `${row.judul || 'Pengaduan'}: ${row.status}`,
+                                    type: row.status === 'Selesai' ? 'success' : 'info',
+                                    target: 'user',
+                                    targetUsername: u.username,
+                                    relatedMenu: 'laporan',
+                                    sourceKey: key
+                                });
+                            }
+                        }
+                    });
+                };
+
 const setupListeners = () => {
                     onSnapshot(getColRef('warga'), (snap) => publishPublicStatsFromRows(snap.docs), (err) => console.warn('Aggregate stats:', err));
 
@@ -1943,6 +2008,7 @@ const setupListeners = () => {
                     };
 
                     sync('inventarisAset', listInventarisAset);
+                    sync('notifikasi', listNotifikasi);
                     sync('warga', listWarga, (snap) => publishPublicStats(snap.docs));
                     sync('wargaLuar', listWargaLuar);
                     sync('pejabat', listPejabat);
@@ -2187,7 +2253,35 @@ if(target==='pejabatTtd') { const p = listPejabat.value.find(x => x.username ===
                     regLuar.value = { nama: '', nik: '', alamat: '', hp: '', username: '', password: '', ttd:'' };
                 };
 
-                const logout = async () => {
+                                const buatNotifikasi = async ({ title, message, type='info', target='all', targetRole='', targetUsername='', targetUid='', rt='', rw='', relatedMenu='' }) => {
+                    try {
+                        await saveData('notifikasi', {
+                            title, message, type, target, targetRole, targetUsername, targetUid, rt, rw,
+                            relatedMenu,
+                            read: false,
+                            createdAt: new Date().toISOString()
+                        });
+                    } catch (e) {
+                        console.warn('Notifikasi gagal dibuat:', e?.code || e);
+                    }
+                };
+
+                const tandaiNotifikasiDibaca = async (n) => {
+                    if (!n?.id || n.read === true) return;
+                    try {
+                        await updateData('notifikasi', { id: n.id, read: true, readAt: new Date().toISOString() });
+                    } catch (e) {
+                        console.warn('Notifikasi read update:', e?.code || e);
+                    }
+                };
+
+                const bukaNotifikasi = (n) => {
+                    if (n?.relatedMenu) menu.value = n.relatedMenu;
+                    if (n) tandaiNotifikasiDibaca(n);
+                    showNotifications.value = false;
+                };
+
+const logout = async () => {
                     localStorage.removeItem(SAVED_USER_KEY);
                     localStorage.removeItem('kelurahan_last_view');
                     try { await signOut(auth); } catch (e) { console.warn('Logout auth:', e); }
@@ -2616,7 +2710,24 @@ const downloadExcelData = (type) => {
                 const asetBaikInventaris = computed(() => listInventarisAset.value.filter(a=>String(a.kondisi||'').toLowerCase()==='baik').reduce((n,a)=>n+Number(a.jumlah||0),0));
                 const asetRusakInventaris = computed(() => listInventarisAset.value.filter(a=>['rusak ringan','rusak berat','rusak'].includes(String(a.kondisi||'').toLowerCase())).reduce((n,a)=>n+Number(a.jumlah||0),0));
 
-                const publicPekerjaanStats = computed(() => {
+                                const notifikasiSaya = computed(() => {
+                    const u = user.value || {};
+                    return (listNotifikasi.value || [])
+                        .filter(n => {
+                            if (n.target === 'all') return true;
+                            if (n.targetRole && n.targetRole !== u.role) return false;
+                            if (n.targetUsername && String(n.targetUsername) !== String(u.username || '')) return false;
+                            if (n.targetUid && n.targetUid !== (fbUser.value?.uid || '')) return false;
+                            if (n.rt && String(n.rt) !== String(u.rt || '')) return false;
+                            if (n.rw && String(n.rw) !== String(u.rw || '')) return false;
+                            return true;
+                        })
+                        .sort((a,b) => String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+                });
+                const jumlahNotifikasiBelumDibaca = computed(() =>
+                    notifikasiSaya.value.filter(n => n.read !== true).length
+                );
+const publicPekerjaanStats = computed(() => {
                     const out = {};
                     (listWarga.value || []).forEach(w => {
                         const p = String(w.pekerjaan || w.pekerjaanUtama || 'Belum diisi').trim() || 'Belum diisi';
@@ -2633,22 +2744,22 @@ const filteredPengajuanUsaha = computed(() => {
 
                 return {
                     isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user, layananMandiriTab,
-                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, showPublicWargaStats, showPublicPekerjaanStats, publicPekerjaanStats, adminAccount,
+                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, showPublicWargaStats, showPublicPekerjaanStats, publicPekerjaanStats, notifikasiSaya, jumlahNotifikasiBelumDibaca, adminAccount,
                     showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
-                    showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormInventarisAset,
+                    showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormInventarisAset, showNotifications,
                     showPassLogin, showPassReg, showPassRegRep, showPassRegLuar, showPassAdmin, showPassPejabat,
                     loginForm, reg, regLuar, formWargaTtd, formAdmin, formPejabat, formBendahara, formTamu, formLaporan,
                     formUsahaLuar, formSuratPengantar, formUmkm, formGaleri,
                     formBursa, formFasilitas, formBansos, formAnggaran, formSampah, formAgenda, formInventarisAset,
                     listPejabat, listBendahara, listTamu, listLaporan, logAktivitas,
                     listWarga, listWargaLuar, listPengajuanUsaha, listSuratPengantar, listUmkm, listGaleri, listBursa,
-                    listFasilitas, listBansos, listAnggaran, listSampah, listAgenda, listInventarisAset,
+                    listFasilitas, listBansos, listAnggaran, listSampah, listAgenda, listInventarisAset, listNotifikasi,
                     statistikGender, statistikUsia, rekapPekerjaan, wargaUlangTahun, filteredPengajuanUsaha, totalAsetInventaris, totalNilaiInventaris, asetBaikInventaris, asetRusakInventaris,
                     handleLogin, handleRegister, handleRegisterLuar, logout, getPejabatSetting, simpanPengaturanPejabat,
                     simpanWebSettings, updateAdmin, simpanTtdWarga, simpanSuratPengantar, setujuiPengantar, cetakPengantarWarga,
                     simpanTamu, simpanBendahara, simpanBansos, prosesBansos,
                     simpanAnggaran, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanAgenda, simpanPengajuanUsaha,
-                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, resetFormInventarisAset, editInventarisAset, simpanInventarisAset, hapusInventarisAset,
+                    setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, resetFormInventarisAset, editInventarisAset, simpanInventarisAset, hapusInventarisAset, buatNotifikasi, tandaiNotifikasiDibaca, bukaNotifikasi,
                     downloadExcelData, getNamaBulan, formatTgl, customConfirm, customPrompt, uploadFile
                 };
             }
