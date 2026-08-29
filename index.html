@@ -500,6 +500,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='arsip-surat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition', menu==='arsip-surat'?'bg-white/20':'hover:bg-white/10']"><i class="fas fa-folder-open w-5 text-center mr-1"></i> 6. Arsip Surat</a>
                         <a v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-usaha'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-amber-200 mt-2', menu==='verifikasi-usaha'?'bg-amber-600 shadow border border-amber-400':'hover:bg-white/10']"><i class="fas fa-stamp w-5 text-center mr-1"></i> 19. Verifikasi Usaha Warga Luar</a>
                         <a v-if="['admin_kelurahan', 'rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='verifikasi-pengantar'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-blue-200 mt-2', menu==='verifikasi-pengantar'?'bg-blue-600 shadow border border-blue-400':'hover:bg-white/10']"><i class="fas fa-file-signature w-5 text-center mr-1"></i> 20. Verifikasi E-Surat Warga</a>
+                    <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='bansos'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-emerald-200', menu==='bansos'?'bg-emerald-600 shadow border border-emerald-400':'hover:bg-white/10']"><i class="fas fa-hand-holding-heart w-5 text-center mr-1"></i> Bantuan Sosial</a>
                     <a v-if="user.role==='admin_kelurahan'" href="#" @click.prevent="menu='inventaris-aset'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-orange-200', menu==='inventaris-aset'?'bg-orange-600 shadow border border-orange-400':'hover:bg-white/10']"><i class="fas fa-boxes-stacked w-5 text-center mr-1"></i> Inventaris Aset Kelurahan</a>
                         <a v-if="['rt', 'rw'].includes(user.role)" href="#" @click.prevent="menu='pengaturan-pejabat'" :class="['block px-3 py-2.5 rounded-lg font-bold transition text-purple-200 mt-2', menu==='pengaturan-pejabat'?'bg-purple-600 shadow border border-purple-400':'hover:bg-white/10']"><i class="fas fa-signature w-5 text-center mr-1"></i> 21. Pengaturan TTD & Stempel</a>
                     </div>
@@ -1396,7 +1397,38 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         </div>
                     </div>
 
-                                        <!-- PRIORITAS 1: INVENTARIS ASET KELURAHAN -->
+                                                            <!-- PRIORITAS 2: BANTUAN SOSIAL -->
+                    <div v-if="menu==='bansos' && user.role==='admin_kelurahan'" class="space-y-6">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b pb-4 mb-6">
+                                <div><h2 class="text-xl font-black text-gray-800"><i class="fas fa-hand-holding-heart text-emerald-500 mr-2"></i>Bantuan Sosial</h2><p class="text-sm text-gray-500 mt-1">Pendataan penerima, sumber bantuan, nilai dan status verifikasi.</p></div>
+                                <button @click="showFormBansos=!showFormBansos" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl font-bold shadow"><i class="fas fa-plus mr-1"></i> Tambah Penerima</button>
+                            </div>
+                            <div v-if="showFormBansos" class="bg-gray-50 border rounded-2xl p-5 mb-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <input v-model="formBansos.nama" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Nama penerima *">
+                                    <input v-model="formBansos.nik" class="w-full border p-2.5 rounded-lg text-sm" placeholder="NIK">
+                                    <input v-model="formBansos.jenis" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Jenis bantuan *">
+                                    <input v-model="formBansos.sumber" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Sumber bantuan">
+                                    <input v-model="formBansos.periode" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Periode / Tahun">
+                                    <input v-model.number="formBansos.nominal" type="number" min="0" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Nilai bantuan (Rp)">
+                                    <input v-model="formBansos.rt" class="w-full border p-2.5 rounded-lg text-sm" placeholder="RT *">
+                                    <input v-model="formBansos.rw" class="w-full border p-2.5 rounded-lg text-sm" placeholder="RW *">
+                                    <input v-model="formBansos.foto" class="w-full border p-2.5 rounded-lg text-sm" placeholder="URL Foto / Bukti">
+                                    <select v-model="formBansos.status" class="w-full border p-2.5 rounded-lg text-sm bg-white"><option>Menunggu Verifikasi RT</option><option>Menunggu Verifikasi RW</option><option>Menunggu Verifikasi Admin</option><option>Diterima</option><option>Ditolak</option><option>Diproses</option><option>Selesai</option></select>
+                                    <textarea v-model="formBansos.catatan" class="md:col-span-2 w-full border p-2.5 rounded-lg text-sm" rows="3" placeholder="Catatan"></textarea>
+                                </div>
+                                <div class="text-[10px] text-gray-500 mt-2">Ukuran disarankan: <b>800 × 600 px</b> · <a href="https://www.image2url.com/file-to-url#upload" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline">Dapatkan Link Foto</a></div>
+                                <div class="flex justify-end gap-2 mt-4"><button @click="showFormBansos=false" class="px-4 py-2 rounded-xl border font-bold">Batal</button><button @click="simpanBansos" class="px-5 py-2 rounded-xl bg-emerald-600 text-white font-bold"><i class="fas fa-save mr-1"></i>Simpan</button></div>
+                            </div>
+                            <div class="overflow-x-auto"><table class="w-full text-sm"><thead><tr class="border-b text-left"><th class="p-2">Penerima</th><th class="p-2">Bantuan</th><th class="p-2">Sumber</th><th class="p-2">RT/RW</th><th class="p-2">Nilai</th><th class="p-2">Status</th><th class="p-2">Aksi</th></tr></thead><tbody>
+                                <tr v-for="b in listBansos" :key="b.id" class="border-b"><td class="p-2 font-bold">{{b.nama}}</td><td class="p-2">{{b.jenis}}</td><td class="p-2">{{b.sumber||'-'}}</td><td class="p-2">{{b.rt}}/{{b.rw}}</td><td class="p-2">Rp {{Number(b.nominal||0).toLocaleString('id-ID')}}</td><td class="p-2"><span class="px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-black">{{b.status||'-'}}</span></td><td class="p-2 whitespace-nowrap"><button @click="prosesBansos(b,'Diproses')" class="px-2 py-1 rounded-lg bg-amber-50 text-amber-700 mr-1">Proses</button><button @click="prosesBansos(b,'Selesai')" class="px-2 py-1 rounded-lg bg-green-50 text-green-700">Selesai</button></td></tr>
+                                <tr v-if="listBansos.length===0"><td colspan="7" class="py-10 text-center text-gray-400">Belum ada data bantuan sosial.</td></tr>
+                            </tbody></table></div>
+                        </div>
+                    </div>
+
+<!-- PRIORITAS 1: INVENTARIS ASET KELURAHAN -->
                     <div v-if="menu==='inventaris-aset' && user.role==='admin_kelurahan'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
                             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b pb-4 mb-6">
@@ -1591,7 +1623,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const formGaleri = ref({ judul:'', foto:null });
                 const formBursa = ref({ judul:'', deskripsi:'', wa:'' });
                 const formFasilitas = ref({ judul:'', lokasi:'', deskripsi:'', foto:null });
-                const formBansos = ref({ nama:'', jenis:'', rt:'', rw:'', foto:null }); 
+                const formBansos = ref({ id:'', nama:'', nik:'', jenis:'', sumber:'', periode:'', nominal:0, rt:'', rw:'', status:'Menunggu Verifikasi RT', catatan:'', foto:null }); 
                 const formAnggaran = ref({ bidang:'Infrastruktur', bidangLainnya:'', pagu:'', realisasi:'' });
                 const formSampah = ref({ nama:'', jenis:'', berat:'' }); 
                 const formAgenda = ref({ judul:'', isi:'', kategori:'Pengumuman', tanggal:'', foto:null }); 
@@ -1757,14 +1789,15 @@ let listenersStarted = false;
                 const setupListeners = () => {
                     if(!fbUser.value || listenersStarted) return;
                     listenersStarted = true;
-                    const sync = (cName, refVar) => {
+                    const sync = (cName, refVar, afterSync) => {
                         onSnapshot(getColRef(cName), (snap) => {
                             refVar.value = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                            if (typeof afterSync === 'function') afterSync(snap);
                         }, (err) => console.error("Firebase Sync Error on " + cName, err));
                     };
 
                     sync('inventarisAset', listInventarisAset);
-                    sync('warga', listWarga);
+                    sync('warga', listWarga, (snap) => publishPublicStats(snap.docs));
                     sync('wargaLuar', listWargaLuar);
                     sync('pejabat', listPejabat);
                     sync('bendahara', listBendahara);
@@ -2135,11 +2168,20 @@ body { font-family: 'Times New Roman', serif; padding: 40px; color: #000; line-h
 
 
                 const simpanBansos = async () => {
-                    if(!formBansos.value.nama || !formBansos.value.jenis) return showToast('Lengkapi data bansos', 'danger');
-                    await saveData('bansos', { ...formBansos.value, rt: user.value.rt, rw: user.value.rw });
-                    showToast('Data Bansos Berhasil Disimpan');
-                    formBansos.value = { nama:'', jenis:'', rt:'', rw:'', foto:null };
-                    showFormBansos.value = false;
+                    const f=formBansos.value;
+                    if(!f.nama?.trim() || !f.jenis?.trim()) return showToast('Nama penerima dan jenis bantuan wajib diisi','danger');
+                    if(!f.rt?.trim() || !f.rw?.trim()) return showToast('RT dan RW wajib diisi','danger');
+                    await saveData('bansos', { ...f, nama:f.nama.trim(), nik:f.nik?.trim()||'', nominal:Number(f.nominal||0), updatedAt:new Date().toISOString(), updatedBy:user.value.username||user.value.nama||'admin' });
+                    showToast('Data Bantuan Sosial Berhasil Disimpan');
+                    formBansos.value={ id:'', nama:'', nik:'', jenis:'', sumber:'', periode:'', nominal:0, rt:'', rw:'', status:'Menunggu Verifikasi RT', catatan:'', foto:null };
+                    showFormBansos.value=false;
+                };
+
+                const prosesBansos = async (item, status) => {
+                    if(!item?.id) return;
+                    if(!['Diterima','Ditolak','Diproses','Selesai'].includes(status)) return;
+                    await updateData('bansos', { id:item.id, status, diprosesOleh:user.value.username||user.value.nama||'pengurus', diprosesRole:user.value.role||'', diprosesAt:new Date().toISOString() });
+                    showToast('Status bantuan diperbarui: '+status);
                 };
 
                 const simpanAnggaran = async () => {
@@ -2450,7 +2492,7 @@ const filteredPengajuanUsaha = computed(() => {
                     statistikGender, statistikUsia, rekapPekerjaan, wargaUlangTahun, filteredPengajuanUsaha, totalAsetInventaris, totalNilaiInventaris, asetBaikInventaris, asetRusakInventaris,
                     handleLogin, handleRegister, handleRegisterLuar, logout, getPejabatSetting, simpanPengaturanPejabat,
                     simpanWebSettings, updateAdmin, simpanTtdWarga, simpanSuratPengantar, setujuiPengantar, cetakPengantarWarga,
-                    simpanTamu, simpanBendahara, simpanBansos,
+                    simpanTamu, simpanBendahara, simpanBansos, prosesBansos,
                     simpanAnggaran, simpanUmkm, simpanGaleri, simpanBursa, simpanFasilitas, simpanAgenda, simpanPengajuanUsaha,
                     setujuiUsaha, cetakSuratUsaha, simpanPejabat, hapus, simpanLaporan, balasKomentar, resetFormInventarisAset, editInventarisAset, simpanInventarisAset, hapusInventarisAset,
                     downloadExcelData, getNamaBulan, formatTgl, customConfirm, customPrompt, uploadFile
