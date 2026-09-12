@@ -5,3 +5,6 @@
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .hide-scroll::-webkit-scrollbar { display: none; }
+/* Click safety: interactive controls stay clickable even if decorative layers exist. */
+button, a, input, textarea, select, option, label, [role="button"] { pointer-events: auto; }
+#app, #app * { -webkit-tap-highlight-color: transparent; }
