@@ -674,7 +674,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                     <div class="flex items-center gap-3">
                         <div class="text-right">
                             <p class="font-bold text-sm text-gray-800">{{ user.nama }}</p>
-                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{{ user.role.replace('_',' ') }}</p>
+                            <p class="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{{ String((user && user.role) || '').replace('_',' ') }}</p>
                         </div>
                         <div :style="{ backgroundColor: webSettings.warnaUtama }" class="w-10 h-10 text-white rounded-full flex items-center justify-center font-bold text-lg border-2 border-white shadow-md">{{ user.nama.charAt(0) }}</div>
                     </div>
@@ -1988,7 +1988,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
 <!-- 21. PENGATURAN PEJABAT (TTD & STEMPEL RT/RW) -->
                     <div v-if="menu==='pengaturan-pejabat'" class="space-y-6">
                         <div class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-signature text-purple-500 mr-2"></i>Pengaturan Tanda Tangan & Stempel Resmi {{ user.role.toUpperCase() }}</h2>
+                            <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-4"><i class="fas fa-signature text-purple-500 mr-2"></i>Pengaturan Tanda Tangan & Stempel Resmi {{ String((user && user.role) || '').toUpperCase() }}</h2>
                             <p class="text-sm text-gray-500 mb-6">File TTD dan Stempel ini akan tercetak otomatis pada setiap pengesahan surat pengantar atau rekomendasi usaha yang diajukan oleh warga.</p>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-purple-50 p-6 rounded-2xl border border-purple-200">
@@ -2001,7 +2001,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold mb-2 text-purple-800">Upload Foto Stempel {{ user.role.toUpperCase() }} (Format PNG Transparan)</label>
+                                    <label class="block text-xs font-bold mb-2 text-purple-800">Upload Foto Stempel {{ String((user && user.role) || '').toUpperCase() }} (Format PNG Transparan)</label>
                                     <input type="file" @change="e=>uploadFile(e,'pejabatStempel')" class="w-full border p-2.5 rounded-lg text-sm bg-white cursor-pointer mb-4">
                                     <div v-if="getPejabatSetting().stempel" class="p-4 bg-white border rounded-lg text-center shadow-inner">
                                         <p class="text-[10px] font-bold text-gray-400 mb-2">Preview Stempel</p>
@@ -2076,11 +2076,23 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                 const menu = ref(localStorage.getItem('kelurahan_last_view') || 'dashboard');
                 const layananMandiriTab = ref('ringkasan');
                 const SAVED_USER_KEY = 'kelurahan_user_session';
-                const restoreSavedUser = () => { try { const raw = localStorage.getItem(SAVED_USER_KEY); return raw ? JSON.parse(raw) : null; } catch(e) { return null; } };
+                const DEFAULT_USER = { nama: '', role: '', rt: '', rw: '', username: '', ttd: '' };
+                const restoreSavedUser = () => {
+                    try {
+                        const raw = localStorage.getItem(SAVED_USER_KEY);
+                        if (!raw) return null;
+                        const parsed = JSON.parse(raw);
+                        return (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) ? parsed : null;
+                    } catch(e) {
+                        localStorage.removeItem(SAVED_USER_KEY);
+                        return null;
+                    }
+                };
+                const normalizeUser = (value) => ({ ...DEFAULT_USER, ...(value && typeof value === 'object' && !Array.isArray(value) ? value : {}) });
                 const showPublicWargaStats = ref(false);
                 const showPublicPekerjaanStats = ref(false);
-                const user = ref(restoreSavedUser() || { nama: '', role: '', rt: '', rw: '', username: '', ttd: '' });
-                const persistUser = () => localStorage.setItem(SAVED_USER_KEY, JSON.stringify(user.value));
+                const user = ref(normalizeUser(restoreSavedUser()));
+                const persistUser = () => localStorage.setItem(SAVED_USER_KEY, JSON.stringify(normalizeUser(user.value)));
                 watch(menu, (value) => localStorage.setItem('kelurahan_last_view', value));
                 const publicTab = ref('agenda'); 
                 
@@ -2265,7 +2277,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                         if (!u) {
                             // Keep the cached app profile so a refresh does not jump out of the current page.
                             const cached = restoreSavedUser();
-                            if (cached && cached.role) user.value = cached;
+                            if (cached && cached.role) user.value = normalizeUser(cached);
                             return;
                         }
 
@@ -2301,7 +2313,7 @@ body { font-family: 'Nunito', sans-serif; background-color: #f3f4f6; color: #1f2
                             // Legacy role: restore profile cached at the time of login.
                             const cached = restoreSavedUser();
                             if (cached && cached.role) {
-                                user.value = cached;
+                                user.value = normalizeUser(cached);
                                 isLoggedIn.value = true;
                             }
                         }
@@ -3349,7 +3361,7 @@ const filteredPengajuanUsaha = computed(() => {
 
                 return {
                     isLoggedIn, currentAuthView, isRegistering, isRegisteringLuar, regStep, sidebarOpen, menu, user, layananMandiriTab,
-                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, showPublicWargaStats, showPublicPekerjaanStats, publicPekerjaanStats, notifikasiSaya, jumlahNotifikasiBelumDibaca, adminAccount,
+                    publicTab, notification, dialog, executeDialog, zoomedImage, selectedWarga, webSettings, publicStats, showPublicWargaStats, showPublicPekerjaanStats, publicPekerjaanStats, notifikasiSaya, jumlahNotifikasiBelumDibaca, adminAccount, auditFilter,
                     showFormUmkm, showFormGaleri, showFormBursa, showFormFasilitas, showFormAgenda, showFormSuratWarga,
                     showFormBansos, showFormAdministrasi, showFormTamu, showFormLaporan, showFormPengajuan, showFormInventarisAset, showNotifications, pollingPilihanSaya, showFormDokumenRegulasi, showFormPolling, showFormKontakPenting,
                     showPassLogin, showPassReg, showPassRegRep, showPassRegLuar, showPassAdmin, showPassPejabat,
